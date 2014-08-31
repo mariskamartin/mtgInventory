@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.service.AlertService;
 import com.gmail.mariska.martin.mtginventory.service.CardService;
+import com.google.common.eventbus.EventBus;
 
 /**
  * Stara se o zapnuti vypnuti schedule service.
@@ -65,8 +66,9 @@ public class ScheduleManager implements ServletContextListener {
         ScheduledFuture<?> scheduleAtFixedRate = scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+                EventBus eventBus = EventBusManager.getEventBus(ctx);
                 logger.info("start uploading information about managed cards");
-                CardService cardService = new CardService(DatabaseManager.getEM(ctx));
+                CardService cardService = new CardService(DatabaseManager.getEM(ctx), eventBus);
                 cardService.fetchAllManagedCards();
                 logger.info("end of uploading information about managed cards");
                 logger.info("start update card movements");
@@ -75,7 +77,8 @@ public class ScheduleManager implements ServletContextListener {
                 cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
                 cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
                 logger.info("end update card movements");
-                EventBusManager.getEventBus(ctx).post(
+
+                eventBus.post(
                         new AlertService.GenerateAlertEvent(
                                 "automaticky spustene stahovani karet a pregenerovani movements"));
             }

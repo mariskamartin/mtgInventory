@@ -34,6 +34,7 @@ function CardMovement(pojo) {
     self.newPrice = pojo.newPrice;
     // others helps
     self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
+    self.info = self.edition + (pojo.card.foil ? " " + utils.icons.star : "");
 }
 
 Card.EMPTY = new Card({

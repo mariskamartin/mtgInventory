@@ -98,12 +98,11 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
      * @param cardName
      */
     public Collection<Card> fetchCards(String cardName) {
-        WebPageSnifferService snifferService = new WebPageSnifferService();
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();
         try {
-            ImmutableList<DailyCardInfo> cardList = snifferService.findCardsAtWeb(cardName);
+            ImmutableList<DailyCardInfo> cardList = new WebPageSnifferService().findCardsAtWeb(cardName);
             tx.begin();
             for (DailyCardInfo dailyCardInfo : cardList) {
                 Card c = dailyCardInfo.getCard();

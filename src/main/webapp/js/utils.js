@@ -104,6 +104,13 @@
             del: jsonDelete,
             get: jsonGet,
             post : jsonPost
+        },
+        
+        //others
+        icons : {
+            star : "<span class=\"glyphicon glyphicon-star\" title=\"Foil version of card\"></span>"
         }
     };
 })(this);
+
+
