@@ -45,21 +45,40 @@
           </ul>
 
           <ul class="nav navbar-nav navbar-right">
-             <li><a href="#">Sign Up</a></li>
-             <li class="dropdown">
+			 <!-- signIn user profile -->
+             <li data-bind="if: user()" class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile <b class="caret"></b></a>
+                <ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
+                   <li>
+                      <div class="row">
+                         <div class="col-md-12">
+                            <form class="form">
+                               <div class="form-group">
+	                              <div data-bind="text: user().name"></div>
+                                  <button type="submit" class="btn btn-info btn-block">Logout</button>
+                               </div>
+                            </form>
+                         </div>
+                      </div>
+                   </li>
+                </ul>
+             </li>
+		 	 <!-- not logged user -->
+             <li data-bind="visible: !user()"><a href="#">Sign Up</a></li>
+             <li data-bind="visible: !user()" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign in <b class="caret"></b></a>
                 <ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
                    <li>
                       <div class="row">
                          <div class="col-md-12">
-                            <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
+                            <form class="form" accept-charset="UTF-8" data-bind="submit: loginUser">
                                <div class="form-group">
-                                  <label class="sr-only" for="exampleInputEmail2">Email address</label>
-                                  <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Email address" required>
+                                  <label class="sr-only" for="inEmail">Email address</label>
+                                  <input data-bind="value: loginEmail" type="email" class="form-control" id="inEmail" placeholder="Email address" required>
                                </div>
                                <div class="form-group">
-                                  <label class="sr-only" for="exampleInputPassword2">Password</label>
-                                  <input type="password" class="form-control" id="exampleInputPassword2" placeholder="Password" required>
+                                  <label class="sr-only" for="inPassword">Password</label>
+                                  <input data-bind="value: loginPwd" type="password" class="form-control" id="inPassword" placeholder="Password" required>
                                </div>
                                <div class="checkbox">
                                   <label>

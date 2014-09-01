@@ -1,6 +1,7 @@
 function User(pojo) {
     var self = this;
     self.id = pojo.id;
+    self.token = pojo.token;
     self.name = ko.observable(pojo.name);
 }
 
@@ -52,29 +53,40 @@ Card.EMPTY = new Card({
 function InventoryViewModel() {
     var self = this;
 
+    // Login Data
+    self.loginEmail = ko.observable();
+    self.loginPwd = ko.observable();
+    self.user = ko.observable(null);
     // Data
     self.newText = ko.observable();
-    self.user = ko.observable();
     self.cards = ko.observableArray([]);
     self.cardMovementsDay = ko.observableArray([]);
     self.cardMovementsWeek = ko.observableArray([]);
     self.cardDetail = ko.observable(Card.EMPTY);
 
     // Operations
+    self.loginUser = function() {
+        console.log(["login", self.loginEmail(), self.loginPwd()]);
+        self.user(new User({
+            id: "das",
+            token : "d654da6s54da6s5d4a6s5d4",
+            name : "Martin M."
+        }));
+    };
     self.addCard = function() {
         // send to server and response update to VM
-        utils.json.post({
-            url : './rest/v1.0/cards/',
-            dataJs : {
-                id : "",
-                name : self.newText(),
-                edition : "MAGIC_2015",
-                rarity : "COMMON"
-            },
-            success : function(result) {
-                self.cards.push(new Card(result));
-            }
-        });
+//        utils.json.post({
+//            url : './rest/v1.0/cards/',
+//            dataJs : {
+//                id : "",
+//                name : self.newText(),
+//                edition : "MAGIC_2015",
+//                rarity : "COMMON"
+//            },
+//            success : function(result) {
+//                self.cards.push(new Card(result));
+//            }
+//        });
     };
     self.removeCard = function(card) {
         utils.json.del({
