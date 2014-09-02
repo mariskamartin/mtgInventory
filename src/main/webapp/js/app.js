@@ -21,7 +21,7 @@ function Card(pojo) {
     self.magicCardsLink = "<a href=\"javascript:utils.links.openMagicCards('" + this.name + "');\">MagicCards</a>";
     if (self.name !== "UNKNOWN") {
         self.img = "<img src='http://cdn.manaclash.com/images/cards/210x297/" + this.editionKey + "/"
-        + this.name.replace(/ /g, "-").replace(/[,'´]/g, "").toLowerCase() + ".jpg' class='img-thumbnail'></img>";
+            + this.name.replace(/ /g, "-").replace(/[,'´]/g, "").toLowerCase() + ".jpg' class='img-thumbnail'></img>";
     }
 }
 
@@ -33,7 +33,9 @@ function CardMovement(pojo) {
     self.edition = pojo.card.edition;
     self.shop = pojo.shop;
     self.gainPrice = pojo.gainPrice;
-    self.gainPercentage = pojo.gainPercentage > 0 ? "+"+pojo.gainPercentage.toFixed(2)+" %" : pojo.gainPercentage.toFixed(2)+" %";
+    self.gainPercentage = pojo.gainPercentage > 0 ? "+" + pojo.gainPercentage.toFixed(2) + " %" : pojo.gainPercentage
+        .toFixed(2)
+        + " %";
     self.oldPrice = pojo.oldPrice;
     self.newPrice = pojo.newPrice;
     // others helps
@@ -69,27 +71,27 @@ function InventoryViewModel() {
 
     // Operations
     self.loginUser = function() {
-        console.log(["login", self.loginEmail(), self.loginPwd()]);
+        console.log([ "login", self.loginEmail(), self.loginPwd() ]);
         self.user(new User({
-            id: "das",
+            id : "das",
             token : "d654da6s54da6s5d4a6s5d4",
             name : "Martin M."
         }));
     };
     self.addCard = function() {
         // send to server and response update to VM
-//        utils.json.post({
-//            url : './rest/v1.0/cards/',
-//            dataJs : {
-//                id : "",
-//                name : self.newText(),
-//                edition : "MAGIC_2015",
-//                rarity : "COMMON"
-//            },
-//            success : function(result) {
-//                self.cards.push(new Card(result));
-//            }
-//        });
+        // utils.json.post({
+        // url : './rest/v1.0/cards/',
+        // dataJs : {
+        // id : "",
+        // name : self.newText(),
+        // edition : "MAGIC_2015",
+        // rarity : "COMMON"
+        // },
+        // success : function(result) {
+        // self.cards.push(new Card(result));
+        // }
+        // });
     };
     self.removeCard = function(card) {
         utils.json.del({
@@ -149,7 +151,7 @@ function InventoryViewModel() {
     };
     self.populateCardDetailFromMovement = function(movement) {
         console.log(movement);
-        self.populateCardDetail(new Card(movement.cardPojo));  
+        self.populateCardDetail(new Card(movement.cardPojo));
     };
     self.populateCardDetail = function(card) {
         utils.json.get({
@@ -198,11 +200,51 @@ function InventoryViewModel() {
         }
     });
     self.fetchMovements();
-    
+
 }
+/**
+ * Main application object
+ */
+var myInventory = {
+    /**
+     * All viewModels
+     */
+    viewModels : {
+        inventory : new InventoryViewModel()
+    },
+    authUser : function(login, pwd) {
+        utils.json.post({
+            url : './rest/v1.0/users/authenticate/',
+            dataJs : {
+                loginEmail : login,
+                password : pwd
+            },
+            success : function(result) {
+                console.log([ "authUser", result ]);
+            }
+        });
+    },
+    addUser : function(email, pwd, name, token) {
+        utils.json.post({
+            url : './rest/v1.0/users/',
+            dataJs : {
+                idEmail : email,
+                password : pwd,
+                name : name || "",
+                token : token || (email+"-token")
+            },
+            success : function(result) {
+                console.log([ "addUser", result ]);
+            }
+        });
 
-ko.applyBindings(new InventoryViewModel());
+    }
+};
 
+// Knockout bindings
+ko.applyBindings(myInventory.viewModels.inventory);
+
+// Others
 var chart = c3.generate({
     data : {
         x : 'x',
@@ -217,27 +259,3 @@ var chart = c3.generate({
         }
     }
 });
-
-// setTimeout(function() {
-// chart.load({
-// columns : [ [ 'x', '2013-01-01', '2013-01-02', '2013-01-03' ],
-// [ 'tolarie', 230, 190, 300] ]
-// });
-// }, 2000);
-// setTimeout(function() {
-// chart.load({
-// columns : [ [ 'x', '2013-01-05', '2013-01-07' ],
-// [ 'tolarie', 190, 268] ]
-// });
-// }, 6000);
-// setTimeout(function() {
-// chart.load({
-// columns : [ [ 'x', '2013-01-01', '2013-01-05', '2013-01-06', '2013-01-09' ],
-// [ 'cerny_rytir', 190, 300, 230, 680] ]
-// });
-// }, 4000);
-// setTimeout(function() {
-// chart.unload({
-// ids : 'data3'
-// });
-// }, 10000);

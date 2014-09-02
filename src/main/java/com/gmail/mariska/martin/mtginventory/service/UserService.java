@@ -17,5 +17,4 @@ public class UserService extends AbstractService<User> {
         super(em, new UserDao(em));
 //        this.usersCardsDao = new UserCardsDao(em);
     }
-
 }

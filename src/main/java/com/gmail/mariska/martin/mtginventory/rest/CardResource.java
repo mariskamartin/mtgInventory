@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.EventBusManager;
+import com.gmail.mariska.martin.mtginventory.auth.AuthenticationRequired;
 import com.gmail.mariska.martin.mtginventory.db.model.Card;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
@@ -34,6 +35,7 @@ public class CardResource {
     @Context
     ServletContext context;
 
+    @AuthenticationRequired
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<Card> getCards() {
@@ -114,6 +116,7 @@ public class CardResource {
         return new CardService(DatabaseManager.getEM(context)).getCardMovementsByType(type);
     }
 
+    @AuthenticationRequired
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Card insert(Card newEnt) throws IOException {
@@ -121,6 +124,7 @@ public class CardResource {
         return userService.insert(newEnt);
     }
 
+    @AuthenticationRequired
     @DELETE
     @Path("/{id}")
     public Card delete(@PathParam("id") String id) {

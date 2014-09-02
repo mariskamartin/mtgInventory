@@ -1,14 +1,12 @@
 package com.gmail.mariska.martin.mtginventory.db.model;
 
-import java.util.UUID;
-
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.gmail.mariska.martin.mtginventory.db.JpaEntityTraceListener;
+import com.google.common.base.Objects;
 
 @Entity
 @EntityListeners(JpaEntityTraceListener.class)
@@ -16,15 +14,17 @@ import com.gmail.mariska.martin.mtginventory.db.JpaEntityTraceListener;
 public class User {
 
     @Id
-    private String id;
+    private String idEmail;
     private String name;
+    private String password;
+    private String token;
 
-    public String getId() {
-        return id;
+    public String getIdEmail() {
+        return idEmail;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setIdEmail(String idEmail) {
+        this.idEmail = idEmail;
     }
 
     public String getName() {
@@ -35,11 +35,28 @@ public class User {
         this.name = name;
     }
 
-    @PrePersist
-    private void prePersist() {
-        if (id == null || id.isEmpty() || id.equals("0")) {
-            this.id = UUID.randomUUID().toString();
-        }
+    public String getPassword() {
+        return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("id", idEmail)
+                .add("name", name)
+                .add("token", token)
+                .toString();
+    }
 }
