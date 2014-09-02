@@ -40,10 +40,13 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
     private AbstractObservedSubject<CardEvent> internSubject = new AbstractObservedSubject<CardEvent>() {};
     private CardDao cardDao;
     private EventBus eventBus; //pro postovani zprav
+    private WebPageSnifferService webPageSnifferService;
+
 
     public CardService(EntityManager em) {
         super(em, new CardDao(em));
-        this.cardDao = (CardDao) super.getDao();
+        cardDao = (CardDao) super.getDao();
+        webPageSnifferService = new WebPageSnifferService();
     }
 
     public CardService(EntityManager em, EventBus eventBus) {
@@ -102,7 +105,7 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();
         try {
-            ImmutableList<DailyCardInfo> cardList = new WebPageSnifferService().findCardsAtWeb(cardName);
+            ImmutableList<DailyCardInfo> cardList = webPageSnifferService.findCardsAtWeb(cardName);
             tx.begin();
             for (DailyCardInfo dailyCardInfo : cardList) {
                 Card c = dailyCardInfo.getCard();
@@ -128,10 +131,16 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
                 List<DailyCardInfo> findInfoList = dciDao.findByCardDayShop(dailyCardInfo.getCard(), dailyCardInfo.getDay(), dailyCardInfo.getShop());
                 if (findInfoList.isEmpty()) {
                     dciDao.insert(dailyCardInfo);
-                } else {
+                } else if (findInfoList.size() == 1) {
+                    DailyCardInfo dciInDb = findInfoList.get(0);
+                    dciInDb.setPrice(dailyCardInfo.getPrice());
+                    dciInDb.setStoreAmount(dailyCardInfo.getStoreAmount());
+                    dciDao.update(dciInDb);
                     if (logger.isTraceEnabled()) {
-                        logger.trace("Jiz jsou dnesni DailyInfoData ulozeny.");
+                        logger.trace("Vlozeny nove DailyInfoData.");
                     }
+                } else {
+                    logger.warn("Dohledano vic nez jedno DailyInfoData pro: " + dailyCardInfo + " // " + dailyCardInfo.getCard());
                 }
             }
             tx.commit();

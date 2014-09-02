@@ -19,12 +19,15 @@ function Card(pojo) {
     self.crLink = "<a href=\"javascript:utils.links.openCernyRytir('" + this.name + "');\">Černý Rytíř</a>";
     self.tolarieLink = "<a href=\"javascript:utils.links.openTolarie('" + this.name + "');\">Tolarie</a>";
     self.magicCardsLink = "<a href=\"javascript:utils.links.openMagicCards('" + this.name + "');\">MagicCards</a>";
-    self.img = "<img src='http://cdn.manaclash.com/images/cards/210x297/" + this.editionKey + "/"
+    if (self.name !== "UNKNOWN") {
+        self.img = "<img src='http://cdn.manaclash.com/images/cards/210x297/" + this.editionKey + "/"
         + this.name.replace(/ /g, "-").replace(/[,'´]/g, "").toLowerCase() + ".jpg' class='img-thumbnail'></img>";
+    }
 }
 
 function CardMovement(pojo) {
     var self = this;
+    self.cardPojo = pojo.card;
     self.name = pojo.card.name;
     self.rarity = pojo.card.rarity;
     self.edition = pojo.card.edition;
@@ -143,6 +146,10 @@ function InventoryViewModel() {
                 self.cardMovementsDay(initCardDayMovements);
             }
         });
+    };
+    self.populateCardDetailFromMovement = function(movement) {
+        console.log(movement);
+        self.populateCardDetail(new Card(movement.cardPojo));  
     };
     self.populateCardDetail = function(card) {
         utils.json.get({

@@ -134,7 +134,7 @@
 						<!-- Todo: Generate table body -->
 						<tbody data-bind="foreach: cardMovementsDay">
 						    <tr>
-						        <td data-bind="text: name"></td>
+						        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetailFromMovement"></a></td>
 						        <td data-bind="html: info"></td>
 						        <td data-bind="text: shop"></td>
 						        <td data-bind="text: oldPrice"></td>
@@ -164,7 +164,7 @@
 						<!-- Todo: Generate table body -->
 						<tbody data-bind="foreach: cardMovementsWeek">
 						    <tr>
-						        <td data-bind="text: name"></td>
+						        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetailFromMovement"></a></td>
 						        <td data-bind="html: info"></td>
 						        <td data-bind="text: shop"></td>
 						        <td data-bind="text: oldPrice"></td>
@@ -185,28 +185,29 @@
 				    <button type="button" class="btn btn-info btn-xs" data-bind="click: fetchCard">Fetch Cards</button>
 				</form>
 	
-				<table class="table table-striped table-condensed table-bordered center-table">
-					<thead>
-						<tr>
-							<th>card name</th>
-							<th>links</th>
-							<th>info</th>
-							<th>actions</th>
-						</tr>
-					</thead>
-					<!-- Todo: Generate table body -->
-					<tbody data-bind="foreach: cards">
-					    <tr>
-					        <td data-bind="text: name"></td>
-					        <td><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
-					        <td><span data-bind="text: edition"></span> / <span data-bind="text: rarity"></span> / <span data-bind="text: foilTxt"></span></td>
-					        <td>
-					        	<button type="button" class="btn btn-danger btn-xs" data-bind="click: $parent.removeCard">Delete</button>
-					        	<button type="button" class="btn btn-info btn-xs" data-bind="click: $parent.populateCardDetail">Detail</button>
-					        </td>
-					    </tr>    
-					</tbody>
-				</table>
+				<div class="table-responsive">
+					<table class="table table-striped table-condensed table-bordered center-table">
+						<thead>
+							<tr>
+								<th>card name</th>
+								<th>links</th>
+								<th>info</th>
+								<th>actions</th>
+							</tr>
+						</thead>
+						<!-- Todo: Generate table body -->
+						<tbody data-bind="foreach: cards">
+						    <tr>
+						        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetail"></a></td>
+						        <td><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
+						        <td><span data-bind="text: edition"></span> / <span data-bind="text: rarity"></span> / <span data-bind="text: foilTxt"></span></td>
+						        <td>
+						        	<button type="button" class="btn btn-danger btn-xs" data-bind="click: $parent.removeCard">Delete</button>
+						        </td>
+						    </tr>    
+						</tbody>
+					</table>
+				</div>
 			</div>
  		</div>
 		<hr />
@@ -232,6 +233,7 @@
 		</div>
 		<div class="row">
 			<div id="cardDetail" class="col-md-12">
+				<h1>Card price history</h1>
 				<div id="chart"></div>
 			</div>
 		</div>

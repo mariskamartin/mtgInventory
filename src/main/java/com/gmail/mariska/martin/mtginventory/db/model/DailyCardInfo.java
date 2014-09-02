@@ -72,6 +72,12 @@ public class DailyCardInfo {
         return card;
     }
 
+    @XmlTransient
+    @JsonIgnore
+    public String getId() {
+        return id;
+    }
+
     public void setCard(Card card) {
         this.card = card;
     }
