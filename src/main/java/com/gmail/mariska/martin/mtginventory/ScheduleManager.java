@@ -13,6 +13,9 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
 
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.service.AlertService;
@@ -25,8 +28,10 @@ import com.google.common.eventbus.EventBus;
  * @author MAR
  */
 public class ScheduleManager implements ServletContextListener {
-    private static final int HALF_DAY_IN_MINUTES = 12 * 60;
     private static final Logger logger = Logger.getLogger(ScheduleManager.class.getName());
+    private static final int SCHEDULE_PERIOD = 12 * 60;
+    private static final int SCHEDULE_START = 6;
+    private static final DateTimeZone czechTZ = DateTimeZone.forID("Europe/Prague");
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final List<ScheduledFuture<?>> scheduledList = new LinkedList<ScheduledFuture<?>>();
     private ServletContext ctx;
@@ -82,8 +87,20 @@ public class ScheduleManager implements ServletContextListener {
                         new AlertService.GenerateAlertEvent(
                                 "automaticky spustene stahovani karet a pregenerovani movements"));
             }
-        }, 5, HALF_DAY_IN_MINUTES, TimeUnit.MINUTES);
+        }, getMinutesToScheduledStart(), SCHEDULE_PERIOD, TimeUnit.MINUTES);
         scheduledList.add(scheduleAtFixedRate);
     }
 
+    private long getMinutesToScheduledStart() {
+        DateTime start = DateTime.now(czechTZ).withHourOfDay(SCHEDULE_START).withMinuteOfHour(0);
+        Duration duration = new Duration(DateTime.now(czechTZ), start);
+        while(duration.getStandardMinutes() < 0) {
+            start = start.plusHours(12);
+            duration = new Duration(DateTime.now(czechTZ), start);
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("minutes to start scheduled tasks: " + duration.getStandardMinutes());
+        }
+        return duration.getStandardMinutes();
+    }
 }
