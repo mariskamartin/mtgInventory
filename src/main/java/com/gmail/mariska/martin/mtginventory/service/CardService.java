@@ -21,11 +21,9 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
+import com.gmail.mariska.martin.mtginventory.service.AlertService.DailyCardInfoAlertEvent;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.MovementAlertEvent;
-import com.gmail.mariska.martin.mtginventory.service.CardService.CardEvent;
-import com.gmail.mariska.martin.mtginventory.utils.observer.AbstractObservedSubject;
-import com.gmail.mariska.martin.mtginventory.utils.observer.IObservedSubject;
-import com.gmail.mariska.martin.mtginventory.utils.observer.IObserver;
+import com.gmail.mariska.martin.mtginventory.utils.Utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 
@@ -34,14 +32,12 @@ import com.google.common.eventbus.EventBus;
  * 
  * @author MAR
  */
-public class CardService extends AbstractService<Card> implements IObservedSubject<CardEvent> {
+public class CardService extends AbstractService<Card> {
     private static final Logger logger = Logger.getLogger(CardService.class);
 
-    private AbstractObservedSubject<CardEvent> internSubject = new AbstractObservedSubject<CardEvent>() {};
     private CardDao cardDao;
     private EventBus eventBus; //pro postovani zprav
     private WebPageSnifferService webPageSnifferService;
-
 
     public CardService(EntityManager em) {
         super(em, new CardDao(em));
@@ -90,9 +86,12 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
     public Collection<Card> fetchAllManagedCards() {
         List<String> cardNames = this.cardDao.getAllCardsNames();
         List<Card> allCards = new ArrayList<>();
+        List<DailyCardInfo> addedDailyCardInformations = new ArrayList<>();
         for (String name : cardNames) {
-            allCards.addAll(fetchCards(name));
+            allCards.addAll(fetchCards(name, addedDailyCardInformations));
         }
+        //post new detached dci
+        postNewCardDailyInfo(addedDailyCardInformations);
         return allCards;
     }
 
@@ -101,6 +100,10 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
      * @param cardName
      */
     public Collection<Card> fetchCards(String cardName) {
+        return fetchCards(cardName, null);
+    }
+
+    private Collection<Card> fetchCards(String cardName, List<DailyCardInfo> addedDailyCardInformations) {
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();
@@ -131,13 +134,18 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
                 List<DailyCardInfo> findInfoList = dciDao.findByCardDayShop(dailyCardInfo.getCard(), dailyCardInfo.getDay(), dailyCardInfo.getShop());
                 if (findInfoList.isEmpty()) {
                     dciDao.insert(dailyCardInfo);
+                    if (addedDailyCardInformations != null) {
+                        addedDailyCardInformations.add(dailyCardInfo);
+                    }
                 } else if (findInfoList.size() == 1) {
                     DailyCardInfo dciInDb = findInfoList.get(0);
-                    dciInDb.setPrice(dailyCardInfo.getPrice());
-                    dciInDb.setStoreAmount(dailyCardInfo.getStoreAmount());
-                    dciDao.update(dciInDb);
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Vlozeny nove DailyInfoData.");
+                    if (Utils.hasChange(dciInDb, dailyCardInfo, DailyCardInfo.PROPS.price.toString(), DailyCardInfo.PROPS.storeAmount.toString())) {
+                        dciInDb.setPrice(dailyCardInfo.getPrice());
+                        dciInDb.setStoreAmount(dailyCardInfo.getStoreAmount());
+                        dciDao.update(dciInDb);
+                        if (addedDailyCardInformations != null) {
+                            addedDailyCardInformations.add(dciInDb);
+                        }
                     }
                 } else {
                     logger.warn("Dohledano vic nez jedno DailyInfoData pro: " + dailyCardInfo + " // " + dailyCardInfo.getCard());
@@ -204,6 +212,12 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
         }
     }
 
+    private void postNewCardDailyInfo(List<DailyCardInfo> addedInformations) {
+        if (eventBus != null) {
+            eventBus.post(new DailyCardInfoAlertEvent(addedInformations));
+        }
+    }
+
     public void deleteCardMovementByType(CardMovementType movementType) {
         EntityManager em = getEm();
         CardMovementDao cmDao = new CardMovementDao(em);
@@ -227,29 +241,5 @@ public class CardService extends AbstractService<Card> implements IObservedSubje
         EntityManager em = getEm();
         CardMovementDao cmDao = new CardMovementDao(em);
         return cmDao.getByType(type);
-    }
-
-    @Override
-    public void addObserver(IObserver<CardEvent> o) {
-        internSubject.addObserver(o);
-    }
-
-    @Override
-    public void removeObserver(IObserver<CardEvent> o) {
-        internSubject.removeObserver(o);
-    }
-
-    @Override
-    public void notifyObservers(CardEvent event) {
-        internSubject.notifyObservers(event);
-    }
-
-    /**
-     * Slouze pro observery
-     * 
-     * @author MAR
-     */
-    public static class CardEvent {
-
     }
 }

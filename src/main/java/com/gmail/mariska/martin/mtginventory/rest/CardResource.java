@@ -87,7 +87,7 @@ public class CardResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/fetch/")
     public Collection<Card> fetchAllCard() throws IOException {
-        CardService userService = new CardService(DatabaseManager.getEM(context));
+        CardService userService = new CardService(DatabaseManager.getEM(context), EventBusManager.getEventBus(context));
         if (logger.isDebugEnabled()) {
             logger.debug("User invoked fetching");
         }

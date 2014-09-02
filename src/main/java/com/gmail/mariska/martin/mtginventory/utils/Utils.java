@@ -1,8 +1,12 @@
 package com.gmail.mariska.martin.mtginventory.utils;
 
 import java.io.File;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 
@@ -41,6 +45,52 @@ public final class Utils {
             data_dir = ctx.getRealPath("/WEB-INF/") + File.separator;
         }
         return data_dir;
+    }
+
+    /**
+     * Only if both object has same fields and equals values in it, return false. Otherwise nulls states and diference
+     * returns true.
+     * 
+     * @param obj1
+     * @param obj2
+     * @param fields
+     * @return
+     */
+    public static boolean hasChange(Object obj1, Object obj2, String... fields) {
+        // TODO Auto-generated method stub
+        List<String> asList = Arrays.asList(fields);
+        for (String fieldName : asList) {
+            try {
+                Field f1 = getField(obj1, fieldName);
+                Field f2 = getField(obj2, fieldName);
+                if (f1 == null || f2 == null) {
+                    return true;
+                } else if (f1.get(obj1) instanceof BigDecimal
+                        && (((BigDecimal) f1.get(obj1)).compareTo((BigDecimal) f2.get(obj2)) != 0)) {
+                    return true;
+                } else if (!f1.get(obj1).equals(f2.get(obj2))) {
+                    return true;
+                }
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+            }
+        }
+        return false;
+    }
+
+    private static Field getField(Object obj1, String fieldName) {
+        Class<? extends Object> c = obj1.getClass();
+        Field declaredField = null;
+        while (declaredField == null && c.getSuperclass() != null) {
+            try {
+                declaredField = c.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+            }
+            c = c.getSuperclass();
+        }
+        if (declaredField != null) {
+            declaredField.setAccessible(true); // for reflection purposes only
+        }
+        return declaredField;
     }
 
 }

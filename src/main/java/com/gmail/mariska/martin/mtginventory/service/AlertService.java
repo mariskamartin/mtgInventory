@@ -1,8 +1,13 @@
 package com.gmail.mariska.martin.mtginventory.service;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
+import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.gmail.mariska.martin.mtginventory.service.EmailService.EmailMessage;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -16,9 +21,13 @@ import com.google.common.eventbus.Subscribe;
 public class AlertService {
     private final Logger logger = Logger.getLogger(AlertService.class);
     private EventBus eventBus;
+    Set<String> watchedCardOnStore = new HashSet<>();
 
     public AlertService(EventBus eventBus) {
         this.eventBus = eventBus;
+        watchedCardOnStore.add("Courser of Kruphix");
+        watchedCardOnStore.add("Hornet Nest");
+        watchedCardOnStore.add("Setessan Tactics");
     }
 
 // @Subscribe
@@ -38,6 +47,27 @@ public class AlertService {
 // + "</p>";
 // eventBus.post(new EmailMessage("mariska.martin@gmail.com", "Change of card price", content));
 // }
+    }
+
+    @Subscribe
+    public void acceptDailyCardInfoEvent(DailyCardInfoAlertEvent alert) {
+        List<DailyCardInfo> infos = alert.getDailyCardInfoList();
+        StringBuilder content = new StringBuilder();
+        for (DailyCardInfo dailyCardInfo : infos) {
+            if (dailyCardInfo.getShop().equals(com.gmail.mariska.martin.mtginventory.db.model.CardShop.TOLARIE)
+                    && watchedCardOnStore.contains(dailyCardInfo.getCard().getName())) {
+                content.append(dailyCardInfo.getCard().getName() + " - " + dailyCardInfo.getStoreAmount() + " Ks<br />");
+            }
+        }
+        if (content.length() > 0) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("try to send email " + alert);
+            }
+            eventBus.post(new EmailMessage.Builder().setRecMar()
+                    .setSubject("Card on Store")
+                    .setContent("<h1>Sledování počtu karet na skladě</h1><p>" + content.toString() + "</p>")
+                    .build());
+        }
     }
 
     @Subscribe
@@ -75,6 +105,23 @@ public class AlertService {
 
         public CardMovement getCardMovement() {
             return cardMovement;
+        }
+    }
+
+    /**
+     * Pro pohyby daily info
+     * 
+     * @author MAR
+     */
+    public static class DailyCardInfoAlertEvent extends AlertEvent {
+        private List<DailyCardInfo> dailyCardInfo;
+
+        public DailyCardInfoAlertEvent(List<DailyCardInfo> dcis) {
+            this.dailyCardInfo = dcis;
+        }
+
+        public List<DailyCardInfo> getDailyCardInfoList() {
+            return dailyCardInfo;
         }
     }
 
