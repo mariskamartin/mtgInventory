@@ -32,10 +32,10 @@ public class AuthService {
     /**
      * Verifikuje a identifikuje uzivatele podle zaslaneho tokenu
      * @param token
-     * @return
+     * @return null v pripade ze se nepovedlo verifikovat
      */
     public User verify(String token) {
-        return null;
+        return userService.findByToken(token);
     }
 
 }

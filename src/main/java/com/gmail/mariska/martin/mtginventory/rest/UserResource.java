@@ -8,6 +8,7 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotAuthorizedException;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -60,13 +61,22 @@ public class UserResource {
         return userService.findById(userId);
     }
 
-    @AuthenticationRequired
+//    @AuthenticationRequired
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public User insertUser(User newUser) throws IOException {
         UserService userService = new UserService(DatabaseManager.getEM(context));
         logger.debug("new user: " + newUser);
         return userService.insert(newUser);
+    }
+
+    @AuthenticationRequired
+    @PUT
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public User updateUser(User user) throws IOException {
+        UserService userService = new UserService(DatabaseManager.getEM(context));
+        logger.debug("update user: " + user);
+        return userService.update(user);
     }
 
     @AuthenticationRequired

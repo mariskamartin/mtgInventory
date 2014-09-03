@@ -24,6 +24,14 @@ public class AbstractService<T> {
         return newEntity;
     }
 
+    public T update(T entity) {
+        EntityTransaction tx = em.getTransaction();
+        tx.begin();
+        entity = dao.update(entity);
+        tx.commit();
+        return entity;
+    }
+
     public T delete(String entityId) {
         EntityTransaction tx = em.getTransaction();
         tx.begin();

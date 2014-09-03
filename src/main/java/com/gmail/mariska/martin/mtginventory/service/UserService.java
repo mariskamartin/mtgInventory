@@ -11,10 +11,18 @@ import com.gmail.mariska.martin.mtginventory.db.model.User;
  * @author MAR
  */
 public class UserService extends AbstractService<User> {
-//    private UserCardsDao usersCardsDao;
+    private UserDao userDao;
+
+// private UserCardsDao usersCardsDao;
 
     public UserService(EntityManager em) {
         super(em, new UserDao(em));
-//        this.usersCardsDao = new UserCardsDao(em);
+        // TODO prijde refaktrovat uplne ven. Service nebude zodpovedne za vyrobeni DAO.. muze pracovat s ruznym dao
+        this.userDao = (UserDao) getDao();
+        // this.usersCardsDao = new UserCardsDao(em);
+    }
+
+    public User findByToken(String token) {
+        return userDao.findByToken(token);
     }
 }

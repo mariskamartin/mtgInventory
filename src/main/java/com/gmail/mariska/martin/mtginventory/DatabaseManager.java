@@ -23,8 +23,8 @@ public class DatabaseManager implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent e) {
-        com.objectdb.Enhancer.enhance(Card.class.getPackage().getName()+".*");
         String data_dir = Utils.getDataDir(e.getServletContext());
+        com.objectdb.Enhancer.enhance(Card.class.getPackage().getName()+".*");
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(data_dir+OBJECTDB_FILE);
         e.getServletContext().setAttribute("emf", emf);
         logger.info("database started");

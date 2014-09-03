@@ -3,6 +3,8 @@ function User(pojo) {
     self.id = pojo.id;
     self.token = pojo.token;
     self.name = ko.observable(pojo.name);
+    //helpers
+    self.isAdmin = pojo.role || false;
 }
 
 function Card(pojo) {
@@ -72,11 +74,10 @@ function InventoryViewModel() {
     // Operations
     self.loginUser = function() {
         console.log([ "login", self.loginEmail(), self.loginPwd() ]);
-        self.user(new User({
-            id : "das",
-            token : "d654da6s54da6s5d4a6s5d4",
-            name : "Martin M."
-        }));
+        myInventory.authUser(self.loginEmail(), self.loginPwd()).done(function(result){
+            console.log([ "auth", result ]);
+            self.user(new User(result));
+        });
     };
     self.addCard = function() {
         // send to server and response update to VM
@@ -150,7 +151,6 @@ function InventoryViewModel() {
         });
     };
     self.populateCardDetailFromMovement = function(movement) {
-        console.log(movement);
         self.populateCardDetail(new Card(movement.cardPojo));
     };
     self.populateCardDetail = function(card) {
@@ -212,14 +212,19 @@ var myInventory = {
     viewModels : {
         inventory : new InventoryViewModel()
     },
+    /**
+     * Testing purposes
+     */
+    result : null,
     authUser : function(login, pwd) {
-        utils.json.post({
+        return utils.json.post({
             url : './rest/v1.0/users/authenticate/',
             dataJs : {
                 loginEmail : login,
                 password : pwd
             },
             success : function(result) {
+                myInventory.result = result;
                 console.log([ "authUser", result ]);
             }
         });
@@ -234,10 +239,32 @@ var myInventory = {
                 token : token || (email+"-token")
             },
             success : function(result) {
+                myInventory.result = result;
                 console.log([ "addUser", result ]);
             }
         });
 
+    },
+    deleteUser : function(emailId, authToken) {
+        utils.json.post({
+            url : './rest/v1.0/users/' + emailId,
+            token : authToken,
+            success : function(result) {
+                myInventory.result = result;
+                console.log([ "deletedUser", result ]);
+            }
+        });
+    },
+    updateUser : function(user, authToken) {
+        utils.json.put({
+            url : './rest/v1.0/users/',
+            dataJs : user,
+            token : authToken,
+            success : function(result) {
+                myInventory.result = result;
+                console.log([ "updatedUser", result ]);
+            }
+        });
     }
 };
 

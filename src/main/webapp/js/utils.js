@@ -15,30 +15,31 @@
 
     
     function jsonGet(options){
-        _ajax('GET', options);
+        return _ajax('GET', options);
     };
 
     function jsonPut(options){
-        _ajax('PUT', options);
+        return _ajax('PUT', options);
     };
     
     function jsonPost(options){
-        _ajax('POST', options);
+        return _ajax('POST', options);
     };
     
     function jsonDelete(options){
-        _ajax('DELETE', options);
+        return _ajax('DELETE', options);
     };
 
     function _ajax(type, options){
         var ajaxOpt = extend({
             type : type,
-            contentType : 'application/json'
+            contentType : 'application/json',
+            headers: {"X-Auth-Token": options.token || "no-token"}
         }, options);
         //set data convert
         ajaxOpt.data = JSON.stringify(options.dataJs);
         //send
-        $.ajax(ajaxOpt);        
+        return $.ajax(ajaxOpt);        
     };
 
     //-------------------------------------------

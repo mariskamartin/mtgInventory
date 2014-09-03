@@ -107,7 +107,7 @@
 			<p class="lead">Tento projekt je zaměřen na evidenci a sledování cen karet na českém trhu pro hráče MTG.</p>
 		</div>
 
-		<div class="row" data-bind="visible: user()">
+		<div class="row" data-bind="if: user() && user().isAdmin">
 		  	<div class="col-md-12">
 				<h1>Admin actions</h1>
 				<div>
@@ -179,9 +179,8 @@
 		<div class="row">
 		  	<div class="col-md-12">
 				<h1>Managed cards</h1>
-				<form data-bind="submit: addCard">
-				    Add card: <input data-bind="value: newText" placeholder="Exact card name?" />
-				    <button type="submit" class="btn btn-success btn-xs">Add</button>
+				<form>
+				    Card: <input data-bind="value: newText" placeholder="Exact card name?" />
 				    <button type="button" class="btn btn-info btn-xs" data-bind="click: fetchCard">Fetch Cards</button>
 				</form>
 	
@@ -192,7 +191,6 @@
 								<th>card name</th>
 								<th>links</th>
 								<th>info</th>
-								<th>actions</th>
 							</tr>
 						</thead>
 						<!-- Todo: Generate table body -->
@@ -201,9 +199,6 @@
 						        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetail"></a></td>
 						        <td><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
 						        <td><span data-bind="text: edition"></span> / <span data-bind="text: rarity"></span> / <span data-bind="text: foilTxt"></span></td>
-						        <td>
-						        	<button type="button" class="btn btn-danger btn-xs" data-bind="click: $parent.removeCard">Delete</button>
-						        </td>
 						    </tr>    
 						</tbody>
 					</table>

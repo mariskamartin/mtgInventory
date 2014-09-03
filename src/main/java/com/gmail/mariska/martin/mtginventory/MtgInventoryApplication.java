@@ -5,7 +5,6 @@ import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import com.gmail.mariska.martin.mtginventory.auth.AuthenticationFeature;
-import com.gmail.mariska.martin.mtginventory.auth.AuthenticationProvider;
 import com.gmail.mariska.martin.mtginventory.rest.UserResource;
 
 public class MtgInventoryApplication extends ResourceConfig {
@@ -22,7 +21,7 @@ public class MtgInventoryApplication extends ResourceConfig {
         register(new AbstractBinder() {
             @Override
             protected void configure() {
-                bind(new AuthenticationProvider()).to(AuthenticationProvider.class);
+//                bind(new AuthenticationProvider()).to(AuthenticationProvider.class);
 //                // singleton binding
 //                bind(MyInjectableSingleton.class).in(Singleton.class);
 //                // singleton instance binding
