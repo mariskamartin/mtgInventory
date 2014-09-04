@@ -35,22 +35,20 @@ public class CardResource {
     @Context
     ServletContext context;
 
-    @AuthenticationRequired
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<Card> getCards() {
-        CardService userService = new CardService(DatabaseManager.getEM(context));
-        return userService.getAllWithoutFoil();
+        return new CardService(DatabaseManager.getEM(context)).getAllWithoutFoil();
     }
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/{id}")
     public Card getCardById(@PathParam("id") String id) {
-        CardService userService = new CardService(DatabaseManager.getEM(context));
-        return userService.findById(id);
+        return new CardService(DatabaseManager.getEM(context)).findById(id);
     }
 
+    @AuthenticationRequired
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/generate/{action}")
@@ -67,7 +65,7 @@ public class CardResource {
             cardService.generateCardsMovements(now, CardMovementType.DAY);
             cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
             cardService.generateCardsMovements(now, CardMovementType.START_OF_WEEK);
-        } else if(action.equals("testemail")) {
+        } else if (action.equals("testemail")) {
             eventBus.post(new EmailMessage.Builder().testMsg().build());
         }
 
@@ -78,34 +76,33 @@ public class CardResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/fetch/{name}")
     public Collection<Card> fetchCardById(@PathParam("name") String name) throws IOException {
-        CardService userService = new CardService(DatabaseManager.getEM(context));
         if (logger.isDebugEnabled()) {
             logger.debug("Fetching new card: " + name);
         }
-        return userService.fetchCards(name);
+        return new CardService(DatabaseManager.getEM(context)).fetchCards(name);
     }
 
+    @AuthenticationRequired
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/fetch/")
     public Collection<Card> fetchAllCard() throws IOException {
-        CardService userService = new CardService(DatabaseManager.getEM(context), EventBusManager.getEventBus(context));
         if (logger.isDebugEnabled()) {
             logger.debug("User invoked fetching");
         }
-        return userService.fetchAllManagedCards();
+        return new CardService(DatabaseManager.getEM(context), EventBusManager.getEventBus(context)).fetchAllManagedCards();
     }
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/dailyinfo/{id}")
     public List<DailyCardInfo> getDailyCardInfoById(@PathParam("id") String id) {
-        CardService userService = new CardService(DatabaseManager.getEM(context));
-        return userService.getDailyInfo(id);
+        return new CardService(DatabaseManager.getEM(context)).getDailyInfo(id);
     }
 
     /**
      * Vrati pohyby karet pro zadany typ, k zobrazeni. Setridene od nejvetsi zmeny
+     * 
      * @param type
      * @return
      */
@@ -120,15 +117,13 @@ public class CardResource {
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Card insert(Card newEnt) throws IOException {
-        CardService userService = new CardService(DatabaseManager.getEM(context));
-        return userService.insert(newEnt);
+        return new CardService(DatabaseManager.getEM(context)).insert(newEnt);
     }
 
     @AuthenticationRequired
     @DELETE
     @Path("/{id}")
     public Card delete(@PathParam("id") String id) {
-        CardService userService = new CardService(DatabaseManager.getEM(context));
-        return userService.delete(id);
+        return new CardService(DatabaseManager.getEM(context)).delete(id);
     }
 }

@@ -24,6 +24,7 @@ import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.DailyCardInfoAlertEvent;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.MovementAlertEvent;
 import com.gmail.mariska.martin.mtginventory.utils.Utils;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 
@@ -104,6 +105,9 @@ public class CardService extends AbstractService<Card> {
     }
 
     private Collection<Card> fetchCards(String cardName, List<DailyCardInfo> addedDailyCardInformations) {
+        //TODO domyslet validaci
+        Preconditions.checkArgument(cardName.length() > 3, "Název zadané karty musí být delší než 3 znaky");
+
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();

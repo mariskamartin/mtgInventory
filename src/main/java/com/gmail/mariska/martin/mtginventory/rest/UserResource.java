@@ -48,8 +48,7 @@ public class UserResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<User> getUsers() {
-        UserService userService = new UserService(DatabaseManager.getEM(context));
-        return userService.getAll();
+        return new UserService(DatabaseManager.getEM(context)).getAll();
     }
 
     @AuthenticationRequired
@@ -57,33 +56,29 @@ public class UserResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/{id}")
     public User getTodoById(@PathParam("id") String userId) {
-        UserService userService = new UserService(DatabaseManager.getEM(context));
-        return userService.findById(userId);
+        return new UserService(DatabaseManager.getEM(context)).findById(userId);
     }
 
 //    @AuthenticationRequired
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public User insertUser(User newUser) throws IOException {
-        UserService userService = new UserService(DatabaseManager.getEM(context));
         logger.debug("new user: " + newUser);
-        return userService.insert(newUser);
+        return new UserService(DatabaseManager.getEM(context)).insert(newUser);
     }
 
     @AuthenticationRequired
     @PUT
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public User updateUser(User user) throws IOException {
-        UserService userService = new UserService(DatabaseManager.getEM(context));
         logger.debug("update user: " + user);
-        return userService.update(user);
+        return new UserService(DatabaseManager.getEM(context)).update(user);
     }
 
     @AuthenticationRequired
     @DELETE
     @Path("/{id}")
     public User deleteUser(@PathParam("id") String userId) {
-        UserService userService = new UserService(DatabaseManager.getEM(context));
-        return userService.delete(userId);
+        return new UserService(DatabaseManager.getEM(context)).delete(userId);
     }
 }

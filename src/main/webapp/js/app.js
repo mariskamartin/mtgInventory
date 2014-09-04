@@ -1,11 +1,21 @@
 function User(pojo) {
     var self = this;
-    self.id = pojo.id;
+    self.id = pojo.idEmail;
     self.token = pojo.token;
+    self.roles = pojo.roles;
     self.name = ko.observable(pojo.name);
     //helpers
-    self.isAdmin = pojo.role || false;
+    self.isAdmin = (pojo.roles && (pojo.roles.indexOf(User.ROLES.ADMIN) >= 0)) || false;
 }
+
+User.ROLES = {
+    ADMIN : "ADMIN",
+    VIP : "VIP"
+};
+
+User.EMPTY = new User({
+    name : "unknown name"
+});
 
 function Card(pojo) {
     var self = this;
@@ -63,7 +73,7 @@ function InventoryViewModel() {
     // Login Data
     self.loginEmail = ko.observable();
     self.loginPwd = ko.observable();
-    self.user = ko.observable(null);
+    self.user = ko.observable(User.EMPTY);
     // Data
     self.newText = ko.observable();
     self.cards = ko.observableArray([]);
@@ -74,10 +84,13 @@ function InventoryViewModel() {
     // Operations
     self.loginUser = function() {
         console.log([ "login", self.loginEmail(), self.loginPwd() ]);
-        myInventory.authUser(self.loginEmail(), self.loginPwd()).done(function(result){
-            console.log([ "auth", result ]);
+        myInventory.authUser(self.loginEmail(), self.loginPwd())
+        .done(function(result){
             self.user(new User(result));
         });
+    };
+    self.registerUser = function() {
+        alert("Zatím, není možné se registrovat. Registrace bude spuštěna v brzké době. Zatím mají přístup pouze uživatelé zařazeni mezi Beta testery.");
     };
     self.addCard = function() {
         // send to server and response update to VM
@@ -97,6 +110,7 @@ function InventoryViewModel() {
     self.removeCard = function(card) {
         utils.json.del({
             url : './rest/v1.0/cards/' + card.id,
+            token : self.user().token,
             success : function(result) {
                 self.cards.remove(function(item) {
                     return item.id === result.id;
@@ -125,6 +139,7 @@ function InventoryViewModel() {
     self.generateMovements = function() {
         utils.json.get({
             url : './rest/v1.0/cards/generate/movement',
+            token : self.user().token,
             success : function(result) {
                 self.fetchMovements();
             }
@@ -225,18 +240,18 @@ var myInventory = {
             },
             success : function(result) {
                 myInventory.result = result;
-                console.log([ "authUser", result ]);
             }
         });
     },
-    addUser : function(email, pwd, name, token) {
+    addUser : function(email, pwd, name, token, roles) {
         utils.json.post({
             url : './rest/v1.0/users/',
             dataJs : {
                 idEmail : email,
                 password : pwd,
                 name : name || "",
-                token : token || (email+"-token")
+                token : token || (email+"-token"),
+                roles : roles || []
             },
             success : function(result) {
                 myInventory.result = result;

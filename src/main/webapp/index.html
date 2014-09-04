@@ -8,7 +8,7 @@
     <meta name="author" content="Mariska Martin">
     <link rel="icon" href="http://getbootstrap.com/favicon.ico">
 
-    <title>MTG Inventory v1.4.7</title>
+    <title>MTG Inventory v1.4.8</title>
 
     <!-- Bootstrap core CSS -->
     <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -46,7 +46,7 @@
 
           <ul class="nav navbar-nav navbar-right">
 			 <!-- signIn user profile -->
-             <li data-bind="if: user()" class="dropdown">
+             <li data-bind="if: user().id" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile <b class="caret"></b></a>
                 <ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
                    <li>
@@ -64,8 +64,8 @@
                 </ul>
              </li>
 		 	 <!-- not logged user -->
-             <li data-bind="visible: !user()"><a href="#">Sign Up</a></li>
-             <li data-bind="visible: !user()" class="dropdown">
+             <li data-bind="visible: !user().id"><a href="#" data-bind="click: registerUser">Sign Up</a></li>
+             <li data-bind="visible: !user().id" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign in <b class="caret"></b></a>
                 <ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
                    <li>
@@ -107,7 +107,7 @@
 			<p class="lead">Tento projekt je zaměřen na evidenci a sledování cen karet na českém trhu pro hráče MTG.</p>
 		</div>
 
-		<div class="row" data-bind="if: user() && user().isAdmin">
+		<div class="row" data-bind="if: user().isAdmin">
 		  	<div class="col-md-12">
 				<h1>Admin actions</h1>
 				<div>
