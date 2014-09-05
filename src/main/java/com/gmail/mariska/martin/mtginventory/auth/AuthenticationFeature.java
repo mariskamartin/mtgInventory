@@ -9,7 +9,7 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
 
-import com.gmail.mariska.martin.mtginventory.DatabaseManager;
+import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.service.AuthService;
 import com.gmail.mariska.martin.mtginventory.service.UserService;
 

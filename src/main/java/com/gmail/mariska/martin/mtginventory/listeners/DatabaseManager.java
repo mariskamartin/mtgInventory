@@ -1,4 +1,4 @@
-package com.gmail.mariska.martin.mtginventory;
+package com.gmail.mariska.martin.mtginventory.listeners;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;

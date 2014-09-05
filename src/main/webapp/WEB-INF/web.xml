@@ -14,19 +14,19 @@
 	</servlet>
 
 	<listener>
-		<listener-class>com.gmail.mariska.martin.mtginventory.LoggerManager</listener-class>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.LoggerManager</listener-class>
 	</listener>
 	<listener>
-		<listener-class>com.gmail.mariska.martin.mtginventory.EventBusManager</listener-class>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.EventBusManager</listener-class>
 	</listener>
 	<listener>
-		<listener-class>com.gmail.mariska.martin.mtginventory.DatabaseManager</listener-class>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager</listener-class>
 	</listener>
 	<listener>
-		<listener-class>com.gmail.mariska.martin.mtginventory.ScheduleManager</listener-class>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.ScheduleManager</listener-class>
 	</listener>
 	<listener>
-		<listener-class>com.gmail.mariska.martin.mtginventory.SupportServiciesManager</listener-class>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.SupportServiciesManager</listener-class>
 	</listener>
 
 

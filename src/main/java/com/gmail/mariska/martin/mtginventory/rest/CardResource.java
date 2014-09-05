@@ -17,13 +17,13 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.gmail.mariska.martin.mtginventory.DatabaseManager;
-import com.gmail.mariska.martin.mtginventory.EventBusManager;
 import com.gmail.mariska.martin.mtginventory.auth.AuthenticationRequired;
 import com.gmail.mariska.martin.mtginventory.db.model.Card;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
+import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
+import com.gmail.mariska.martin.mtginventory.listeners.EventBusManager;
 import com.gmail.mariska.martin.mtginventory.service.CardService;
 import com.gmail.mariska.martin.mtginventory.service.EmailService.EmailMessage;
 import com.google.common.eventbus.EventBus;

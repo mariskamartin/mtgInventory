@@ -17,10 +17,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.log4j.Logger;
 
-import com.gmail.mariska.martin.mtginventory.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.auth.AuthenticationRequired;
 import com.gmail.mariska.martin.mtginventory.db.model.AuthModel;
 import com.gmail.mariska.martin.mtginventory.db.model.User;
+import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.service.AuthService;
 import com.gmail.mariska.martin.mtginventory.service.UserService;
 
