@@ -131,6 +131,7 @@ function InventoryViewModel() {
     self.fetchallManagedCards = function() {
         utils.json.get({
             url : './rest/v1.0/cards/fetch/',
+            token : self.user().token,
             success : function(result) {
                 console.log(result);
             }

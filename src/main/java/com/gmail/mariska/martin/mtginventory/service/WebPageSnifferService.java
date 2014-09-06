@@ -26,6 +26,19 @@ import com.google.common.collect.ImmutableList.Builder;
 public class WebPageSnifferService {
 
     /**
+     * Pouze pro testovaci ucely
+     * @param args
+     * @throws IOException
+     */
+    @Deprecated
+    public static void main(String[] args) throws IOException {
+        Builder<DailyCardInfo> builder = ImmutableList.builder();
+        new WebPageSnifferService().findOnNajada("stifle", builder);
+        ImmutableList<DailyCardInfo> build = builder.build();
+        System.out.println(build);
+    }
+
+    /**
      * Vyhleda na tolarii dany string, kartu
      * 
      * @param cardFindName
@@ -36,6 +49,7 @@ public class WebPageSnifferService {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
         findOnTolarie(cardFindName, builder);
         findOnCernyRytir(cardFindName, builder);
+        findOnNajada(cardFindName, builder);
         return builder.build();
     }
 
@@ -98,6 +112,29 @@ public class WebPageSnifferService {
         }
     }
 
+    /**
+     * Dohleda karty na Najada.cz
+     * 
+     * @param cardFindName
+     * @param builder
+     * @throws IOException
+     */
+    private void findOnNajada(String cardFindName, Builder<DailyCardInfo> builder) throws IOException {
+        Document doc = fetchFromNajadaKusovky(cardFindName);
+        Elements values = doc.select("table.tabArt tbody tr");
+        if (!values.isEmpty()) {
+            values.remove(0); //hlavicka
+        }
+        for (Element element : values) {
+            Card card = CardConverter.valueOfNajadaElement(element);
+            Elements innerValues = element.children();
+            long skladem = Long.parseLong(innerValues.get(10).select("span").get(2).text().trim());
+            long cena = Long.parseLong(innerValues.get(10).select("span.v").text().trim());
+            DailyCardInfo dci = new DailyCardInfo(card, BigDecimal.valueOf(cena), skladem, new Date(), CardShop.NAJADA);
+            builder.add(dci);
+        }
+    }
+
     private Document fetchFromTolarieKusovky(String findString) throws IOException {
         String urlRequest = "http://www.tolarie.cz/koupit_karty/?name=" + findString.replace(" ", "+")
                 + "&o=name&od=a";
@@ -120,6 +157,15 @@ public class WebPageSnifferService {
         return doc;
 // return Jsoup.parse(new File("C://cr.html"), "utf-8"); //for DEBUG
     }
+
+    private Document fetchFromNajadaKusovky(String findString) throws IOException {
+        String urlRequest = "http://www.najada.cz/cz/kusovky-mtg/?Search=" + findString.replace(" ", "+")
+                + "&Sender=Submit&MagicCardSet=-1";
+        Document doc = Jsoup.connect(urlRequest).get();
+        return doc;
+//        return Jsoup.parse(new File("C://najada.html"), "utf-8"); //for DEBUG
+    }
+
 
     /**
      * Trida pro transormaci elementu na entity
@@ -151,6 +197,16 @@ public class WebPageSnifferService {
             c.setName(name.replaceAll("´", "'").replaceAll(Pattern.quote(FOIL_CR), "").trim());
             c.setRarity(CardRarity.valueFrom(dataE.select("td").first().text().toUpperCase()));
             c.setEdition(CardEdition.valueFromName(ediceTypE.select("td").get(0).text()));
+            return c;
+        }
+
+        public static Card valueOfNajadaElement(Element element) {
+            Card c = new Card();
+            Elements innerValues = element.children();
+            c.setName(innerValues.get(0).text().trim());
+            c.setFoil(innerValues.get(1).text().toLowerCase().contains("ano"));
+            c.setRarity(CardRarity.valueFrom(innerValues.get(5).text().trim().toUpperCase()));
+            c.setEdition(CardEdition.valueFromName(innerValues.get(6).text().trim()));
             return c;
         }
     }
