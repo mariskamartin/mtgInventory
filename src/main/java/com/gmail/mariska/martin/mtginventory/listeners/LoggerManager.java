@@ -29,7 +29,8 @@ public class LoggerManager implements ServletContextListener {
         PropertyConfigurator.configure(Utils.getDataDir(ctx) + LOG_PROPERTIES_FILE);
 
         logger = Logger.getLogger(LoggerManager.class.getName());
-        logger.info("logger initialized at date: " + new Date());
+        logger.info("logger initialized at server date: " + new Date());
+        logger.info("logger initialized at czech local date: " + Utils.createCzechDateTimeNow());
     }
 
     @Override

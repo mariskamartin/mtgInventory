@@ -6,7 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 public enum CardRarity {
-    RARE, MYTHIC("Mythic Rare"), UNCOMMON, COMMON, UNKNOWN;
+    RARE, MYTHIC("Mythic Rare"), UNCOMMON, COMMON, UNKNOWN("PROMO"), TOKEN, LAND("basic land", "land");
 
     private static final Logger logger = Logger.getLogger(CardRarity.class);
     private List<String> alternativeNames;
