@@ -1,6 +1,5 @@
 package com.gmail.mariska.martin.mtginventory.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -17,8 +16,10 @@ import com.gmail.mariska.martin.mtginventory.db.CardDao;
 import com.gmail.mariska.martin.mtginventory.db.CardMovementDao;
 import com.gmail.mariska.martin.mtginventory.db.DailyCardInfoDao;
 import com.gmail.mariska.martin.mtginventory.db.model.Card;
+import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
+import com.gmail.mariska.martin.mtginventory.db.model.CardRarity;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.DailyCardInfoAlertEvent;
@@ -116,6 +117,11 @@ public class CardService extends AbstractService<Card> {
             tx.begin();
             for (DailyCardInfo dailyCardInfo : cardList) {
                 Card c = dailyCardInfo.getCard();
+                // pokud je karta nezname edice nebo rarity, tak neukladame
+                if (c.getRarity().equals(CardRarity.UNKNOWN) || c.getEdition().equals(CardEdition.UNKNOWN)) {
+                    continue;
+                }
+
                 if (managedCardsMap.containsKey(getCardKey(c))) {
                     c = managedCardsMap.get(getCardKey(c));
                 } else {
@@ -156,7 +162,7 @@ public class CardService extends AbstractService<Card> {
                 }
             }
             tx.commit();
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage(), e);
             if (tx.isActive()) {
                 tx.rollback();

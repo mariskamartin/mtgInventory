@@ -129,7 +129,7 @@ public class WebPageSnifferService {
             Card card = CardConverter.valueOfNajadaElement(element);
             Elements innerValues = element.children();
             long skladem = Long.parseLong(innerValues.get(10).select("span").get(2).text().trim());
-            long cena = Long.parseLong(innerValues.get(10).select("span.v").text().trim());
+            long cena = Long.parseLong(innerValues.get(10).select("span.v").text().replace(" ", "").trim());
             DailyCardInfo dci = new DailyCardInfo(card, BigDecimal.valueOf(cena), skladem, new Date(), CardShop.NAJADA);
             builder.add(dci);
         }
