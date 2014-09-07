@@ -14,12 +14,12 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.service.AlertService;
 import com.gmail.mariska.martin.mtginventory.service.CardService;
+import com.gmail.mariska.martin.mtginventory.utils.Utils;
 import com.google.common.eventbus.EventBus;
 
 /**
@@ -31,7 +31,6 @@ public class ScheduleManager implements ServletContextListener {
     private static final Logger logger = Logger.getLogger(ScheduleManager.class.getName());
     private static final int SCHEDULE_PERIOD = 12 * 60;
     private static final int SCHEDULE_START = 6;
-    private static final DateTimeZone czechTZ = DateTimeZone.forID("Europe/Prague");
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final List<ScheduledFuture<?>> scheduledList = new LinkedList<ScheduledFuture<?>>();
     private ServletContext ctx;
@@ -72,16 +71,16 @@ public class ScheduleManager implements ServletContextListener {
             @Override
             public void run() {
                 EventBus eventBus = EventBusManager.getEventBus(ctx);
-                logger.info("start uploading information about managed cards");
+                logger.info("start auto uploading information about managed cards");
                 CardService cardService = new CardService(DatabaseManager.getEM(ctx), eventBus);
                 cardService.fetchAllManagedCards();
-                logger.info("end of uploading information about managed cards");
-                logger.info("start update card movements");
+                logger.info("end of auto uploading information about managed cards");
+                logger.info("start auto update card movements");
                 cardService.deleteCardMovementByType(CardMovementType.DAY);
                 cardService.generateCardsMovements(new Date(), CardMovementType.DAY);
                 cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
                 cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
-                logger.info("end update card movements");
+                logger.info("end auto update card movements");
 
                 eventBus.post(
                         new AlertService.GenerateAlertEvent(
@@ -92,11 +91,11 @@ public class ScheduleManager implements ServletContextListener {
     }
 
     private long getMinutesToScheduledStart() {
-        DateTime start = DateTime.now(czechTZ).withHourOfDay(SCHEDULE_START).withMinuteOfHour(0);
-        Duration duration = new Duration(DateTime.now(czechTZ), start);
+        DateTime start = Utils.createCzechDateTimeNow().withHourOfDay(SCHEDULE_START).withMinuteOfHour(0);
+        Duration duration = new Duration(Utils.createCzechDateTimeNow(), start);
         while(duration.getStandardMinutes() < 0) {
             start = start.plusHours(12);
-            duration = new Duration(DateTime.now(czechTZ), start);
+            duration = new Duration(Utils.createCzechDateTimeNow(), start);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("minutes to start scheduled tasks: " + duration.getStandardMinutes());

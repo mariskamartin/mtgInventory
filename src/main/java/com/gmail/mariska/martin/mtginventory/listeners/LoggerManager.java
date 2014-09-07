@@ -18,14 +18,15 @@ import com.gmail.mariska.martin.mtginventory.utils.Utils;
  */
 public class LoggerManager implements ServletContextListener {
     private Logger logger;
-    private static final String LOGGER_FILE = "log4j.properties";
+    private static final String LOG_PROPERTIES_FILE = "log4j.properties";
+    private static final String LOG_FILE = "/log/mtgInventory.log";
 
     @Override
     public void contextInitialized(ServletContextEvent e) {
         ServletContext ctx = e.getServletContext();
-        String data_dir = Utils.getDataDir(ctx);
-        System.setProperty("app.path", data_dir);
-        PropertyConfigurator.configure(data_dir + LOGGER_FILE);
+        System.setProperty("app.path", Utils.getDataDir(ctx));
+        System.setProperty("app.log.file", getLogFile(ctx));
+        PropertyConfigurator.configure(Utils.getDataDir(ctx) + LOG_PROPERTIES_FILE);
 
         logger = Logger.getLogger(LoggerManager.class.getName());
         logger.info("logger initialized at date: " + new Date());
@@ -34,5 +35,9 @@ public class LoggerManager implements ServletContextListener {
     @Override
     public void contextDestroyed(ServletContextEvent e) {
 
+    }
+
+    public static String getLogFile(ServletContext ctx) {
+        return Utils.getDataDir(ctx) + LOG_FILE;
     }
 }

@@ -10,7 +10,12 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 public final class Utils {
+    private static final DateTimeZone czechTZ = DateTimeZone.forID("Europe/Prague");
+
     private Utils() {
     }
 
@@ -45,6 +50,14 @@ public final class Utils {
             data_dir = ctx.getRealPath("/WEB-INF/") + File.separator;
         }
         return data_dir;
+    }
+
+    /**
+     * Vyrobi aktualni datum v lokalni zone prahy
+     * @return
+     */
+    public static DateTime createCzechDateTimeNow() {
+        return DateTime.now(czechTZ);
     }
 
     /**
