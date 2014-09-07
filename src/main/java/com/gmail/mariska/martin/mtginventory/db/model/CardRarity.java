@@ -2,13 +2,17 @@ package com.gmail.mariska.martin.mtginventory.db.model;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.collect.Maps;
+
 public enum CardRarity {
-    RARE, MYTHIC("Mythic Rare"), UNCOMMON, COMMON, UNKNOWN("PROMO"), TOKEN, LAND("basic land", "land");
+    RARE, MYTHIC("Mythic Rare"), UNCOMMON, COMMON, UNKNOWN("PROMO", "SPECIAL"), TOKEN, LAND("basic land", "land");
 
     private static final Logger logger = Logger.getLogger(CardRarity.class);
+    private static final Map<String, CardRarity> cache = Maps.newHashMap();
     private List<String> alternativeNames;
 
     private CardRarity(String... alternatives) {
@@ -21,16 +25,22 @@ public enum CardRarity {
     }
 
     public static CardRarity valueFrom(String rarityName) {
+        String name = rarityName.toUpperCase();
         try {
-            return CardRarity.valueOf(rarityName);
+            return CardRarity.valueOf(name);
         } catch (IllegalArgumentException e) {
-            String name = rarityName.toUpperCase();
-            for (CardRarity rarity : values()) {
-                if (rarity.alternativeNames != null) {
-                    if (rarity.alternativeNames.contains(name)) {
-                        return rarity;
+            CardRarity cardRarity = cache.get(name);
+            if (cardRarity == null) {
+                for (CardRarity rarity : values()) {
+                    if (rarity.alternativeNames != null) {
+                        if (rarity.alternativeNames.contains(name)) {
+                            cache.put(name, rarity);
+                            return rarity;
+                        }
                     }
                 }
+            } else {
+                return cardRarity;
             }
             if (logger.isDebugEnabled()) {
                 logger.debug("no recognized rarity: " + rarityName);

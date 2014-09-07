@@ -2,8 +2,11 @@ package com.gmail.mariska.martin.mtginventory.db.model;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+
+import com.google.common.collect.Maps;
 
 public enum CardEdition {
     ALARA_REBORN("ARB", "Alara Reborn"),
@@ -57,13 +60,13 @@ public enum CardEdition {
     EXODUS("EXO", "Exodus"),
     FALLEN_EMPIRES("FEM", "Fallen Empires"),
     FIFTH_DAWN("5DN", "Fifth Dawn"),
-    FTV_ANNIHILATION("FTVA", "FTV: Annihilation"),
-    FTV_DRAGONS("FTVD", "FTV: Dragons"),
-    FTV_EXILED("FTVE", "FTV: Exiled"),
-    FTV_LEGENDS("FTVL", "FTV: Legends"),
-    FTV_REALMS("FTVRlm", "FTV: Realms"),
-    FTV_RELICS("FTVRlc", "FTV: Relics"),
-    FTV_TWENTY("FTV20", "FTV: Twenty"),
+    FTV_ANNIHILATION("FTVA", "FTV: Annihilation", "From the Vault: Annihilation"),
+    FTV_DRAGONS("FTVD", "FTV: Dragons", "From the Vault: Dragons"),
+    FTV_EXILED("FTVE", "FTV: Exiled", "From the Vault: Exiled"),
+    FTV_LEGENDS("FTVL", "FTV: Legends", "From the Vault: Legends"),
+    FTV_REALMS("FTVRlm", "FTV: Realms", "From the Vault: Realms"),
+    FTV_RELICS("FTVRlc", "FTV: Relics", "From the Vault: Relics"),
+    FTV_TWENTY("FTV20", "FTV: Twenty", "From the Vault: Twenty"),
     FUTURE_SIGHT("FUT", "Future Sight"),
     GATECRASH("GTC", "Gatecrash"),
     GUILDPACT("GPT", "Guildpact"),
@@ -130,7 +133,7 @@ public enum CardEdition {
     THE_DARK("DRK", "The Dark"),
     THEROS("THS", "Theros"),
     TIME_SPIRAL("TSP", "Time Spiral"),
-    TIMESHIFTED("TSB", "Timeshifted"),
+    TIMESHIFTED("TSB", "Timeshifted", "Time Spiral \"Timeshifted\""),
     TORMENT("TOR", "Torment"),
     UNGLUED("UGL", "Unglued"),
     UNHINGED("UNH", "Unhinged", "Unhinged Edition"),
@@ -142,10 +145,11 @@ public enum CardEdition {
     WEATHERLIGHT("WTH", "Weatherlight"),
     WORLDWAKE("WWK", "Worldwake"),
     ZENDIKAR("ZEN", "Zendikar"),
-    UNKNOWN("???", "Unknown", "Legacy");
+    UNKNOWN("???", "Unknown", "Legacy", "Foreign Black Bordered");
 
 
     private static final Logger logger = Logger.getLogger(CardEdition.class);
+    private static final Map<String, CardEdition> cache = Maps.newHashMap();
     private String name;
     private List<String> alternativeName;
     private String key;
@@ -171,14 +175,21 @@ public enum CardEdition {
 
     public static CardEdition valueFromName(String editionName) {
         String name = editionName.replace("´", "'").toUpperCase();
-        for (CardEdition e : values()) {
-            if (e.name.toUpperCase().equals(name)) {
-                return e;
-            } else if (e.alternativeName != null) {
-                if (e.alternativeName.contains(name)) {
+        CardEdition cardEdition = cache.get(name);
+        if (cardEdition == null) {
+            for (CardEdition e : values()) {
+                if (e.name.toUpperCase().equals(name)) {
+                    cache.put(name, e);
                     return e;
+                } else if (e.alternativeName != null) {
+                    if (e.alternativeName.contains(name)) {
+                        cache.put(name, e);
+                        return e;
+                    }
                 }
             }
+        } else {
+            return cardEdition;
         }
         if (logger.isDebugEnabled()) {
             logger.debug("no recognized edition: " + editionName);
