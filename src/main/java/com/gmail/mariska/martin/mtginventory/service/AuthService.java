@@ -23,7 +23,7 @@ public class AuthService {
      */
     public User authenticate(String loginEmail, String password) throws IllegalAccessException {
         User findById = userService.findById(loginEmail);
-        if (findById.getPassword().equals(password)) {
+        if (findById != null && findById.getPassword().equals(password)) {
             return findById;
         }
         throw new IllegalAccessException("Wrong login or password.");

@@ -16,6 +16,7 @@ public class MtgInventoryApplication extends ResourceConfig {
         packages(UserResource.class.getPackage().getName());
 
         register(AuthenticationFeature.class);
+        register(GenericExceptionMapper.class);
 
         //register service for injections
         register(new AbstractBinder() {
