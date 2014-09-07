@@ -87,10 +87,15 @@ public class CardService extends AbstractService<Card> {
      */
     public Collection<Card> fetchAllManagedCards() {
         List<String> cardNames = this.cardDao.getAllCardsNames();
+        long namesProcessedCount = 0;
         List<Card> allCards = new ArrayList<>();
         List<DailyCardInfo> addedDailyCardInformations = new ArrayList<>();
         for (String name : cardNames) {
             allCards.addAll(fetchCards(name, addedDailyCardInformations));
+            namesProcessedCount += 1;
+            if (namesProcessedCount % 25 == 0) {
+                logger.info("fetching procesed " + namesProcessedCount + "/" + cardNames.size());
+            }
         }
         //post new detached dci
         postNewCardDailyInfo(addedDailyCardInformations);

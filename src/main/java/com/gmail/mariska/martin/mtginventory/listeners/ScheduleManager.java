@@ -70,21 +70,24 @@ public class ScheduleManager implements ServletContextListener {
         ScheduledFuture<?> scheduleAtFixedRate = scheduler.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                EventBus eventBus = EventBusManager.getEventBus(ctx);
-                logger.info("start auto uploading information about managed cards");
-                CardService cardService = new CardService(DatabaseManager.getEM(ctx), eventBus);
-                cardService.fetchAllManagedCards();
-                logger.info("end of auto uploading information about managed cards");
-                logger.info("start auto update card movements");
-                cardService.deleteCardMovementByType(CardMovementType.DAY);
-                cardService.generateCardsMovements(new Date(), CardMovementType.DAY);
-                cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
-                cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
-                logger.info("end auto update card movements");
+                try {
+                    EventBus eventBus = EventBusManager.getEventBus(ctx);
+                    logger.info("start auto uploading information about managed cards");
+                    CardService cardService = new CardService(DatabaseManager.getEM(ctx), eventBus);
+                    cardService.fetchAllManagedCards();
+                    logger.info("end of auto uploading information about managed cards");
+                    logger.info("start auto update card movements");
+                    cardService.deleteCardMovementByType(CardMovementType.DAY);
+                    cardService.generateCardsMovements(new Date(), CardMovementType.DAY);
+                    cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
+                    cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
+                    logger.info("end auto update card movements");
 
-                eventBus.post(
-                        new AlertService.GenerateAlertEvent(
-                                "automaticky spustene stahovani karet a pregenerovani movements"));
+                    eventBus.post(new AlertService.GenerateAlertEvent(
+                            "automaticky spustene stahovani karet a pregenerovani movements"));
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
             }
         }, getMinutesToScheduledStart(), SCHEDULE_PERIOD, TimeUnit.MINUTES);
         scheduledList.add(scheduleAtFixedRate);
@@ -93,7 +96,7 @@ public class ScheduleManager implements ServletContextListener {
     private long getMinutesToScheduledStart() {
         DateTime start = Utils.createCzechDateTimeNow().withHourOfDay(SCHEDULE_START).withMinuteOfHour(0);
         Duration duration = new Duration(Utils.createCzechDateTimeNow(), start);
-        while(duration.getStandardMinutes() < 0) {
+        while (duration.getStandardMinutes() < 0) {
             start = start.plusHours(12);
             duration = new Duration(Utils.createCzechDateTimeNow(), start);
         }
