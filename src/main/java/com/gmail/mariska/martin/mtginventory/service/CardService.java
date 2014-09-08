@@ -97,6 +97,7 @@ public class CardService extends AbstractService<Card> {
                 logger.info("fetching procesed " + namesProcessedCount + "/" + cardNames.size());
             }
         }
+        logger.info("all cards fetched " + namesProcessedCount + "/" + cardNames.size());
         //post new detached dci
         postNewCardDailyInfo(addedDailyCardInformations);
         return allCards;
