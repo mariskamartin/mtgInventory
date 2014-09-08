@@ -54,6 +54,22 @@ public class CardDao extends AbstractDao<Card> implements IDao<Card> {
         return em.createQuery(q).getResultList();
     }
 
+    public List<Card> findByEdition(CardEdition edition) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Card> q = cb.createQuery(Card.class);
+        Root<Card> from = q.from(Card.class);
+        q.select(from).where(cb.equal(from.get(Card.PROPS.edition.toString()), edition));
+        return em.createQuery(q).getResultList();
+    }
+
+    public List<Card> findByRarity(CardRarity rarity) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Card> q = cb.createQuery(Card.class);
+        Root<Card> from = q.from(Card.class);
+        q.select(from).where(cb.equal(from.get(Card.PROPS.rarity.toString()), rarity));
+        return em.createQuery(q).getResultList();
+    }
+
     public List<Card> findByName(String name, boolean exact) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Card> q = cb.createQuery(Card.class);
