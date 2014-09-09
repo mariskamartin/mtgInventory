@@ -88,8 +88,8 @@ function UserViewModel() {
         });
     };
     self.logoutUser = function() {
-        self.userStore.set(USER_STORE, undefined);
-        store.set(USER_STORE, undefined);
+        self.userStore.clear(USER_STORE);
+        store.clear(USER_STORE);
         self.user(User.EMPTY);
     };
     self.savePropsUser = function() {
@@ -107,7 +107,7 @@ function UserViewModel() {
                 password : pwd
             },
             success : function(result) {
-                console.log([ "authUser", result ]);
+//                console.log([ "authUser", result ]);
             }
         });
     };
@@ -162,30 +162,22 @@ function InventoryViewModel() {
     self.cardMovementsWeek = ko.observableArray([]);
     self.cardDetail = ko.observable(Card.EMPTY);
 
-    // Operations
-    self.addCard = function() {
-        // send to server and response update to VM
-        // utils.json.post({
-        // url : './rest/v1.0/cards/',
-        // dataJs : {
-        // id : "",
-        // name : self.newText(),
-        // edition : "MAGIC_2015",
-        // rarity : "COMMON"
-        // },
-        // success : function(result) {
-        // self.cards.push(new Card(result));
-        // }
-        // });
+    self.pages = {
+        HOME: "home",
+        INTERESTS : "interests",
+        DETAIL : "detail"
     };
-    self.removeCard = function(card) {
-        utils.json.del({
-            url : './rest/v1.0/cards/' + card.id,
-            token : self.user().token,
+    
+    // Operations
+    self.findCard = function() {
+        utils.json.get({
+            url : './rest/v1.0/cards/find/' + self.newText(),
             success : function(result) {
-                self.cards.remove(function(item) {
-                    return item.id === result.id;
+                var results = [];
+                result.forEach(function(item) {
+                    results.push(new Card(item));
                 });
+                self.cards(results);
             }
         });
     };
@@ -208,6 +200,18 @@ function InventoryViewModel() {
             }
         });
     };
+    self.removeCard = function(card) {
+        utils.json.del({
+            url : './rest/v1.0/cards/' + card.id,
+            token : self.user().token,
+            success : function(result) {
+                self.cards.remove(function(item) {
+                    return item.id === result.id;
+                });
+            }
+        });
+    };    
+    //movements
     self.generateMovements = function() {
         utils.json.get({
             url : './rest/v1.0/cards/generate/movement',
@@ -237,6 +241,7 @@ function InventoryViewModel() {
             }
         });
     };
+    //card detail
     self.populateCardDetailFromMovement = function(movement) {
         self.populateCardDetail(new Card(movement.cardPojo));
     };
@@ -271,22 +276,24 @@ function InventoryViewModel() {
                     self.cardDetail().storeAmount(txtSkladem);
                 }, 1000);
 
+//                document.getElementById("cardDetail").scrollIntoView(true);
                 document.getElementById("cardDetail").scrollIntoView(true);
+                document.location = "#/detail";
+
             }
         });
     };
 
     // Load initial state from server
-    utils.json.get({
-        url : "./rest/v1.0/cards",
-        success : function(allData) {
-            var initCards = $.map(allData, function(item) {
-                return new Card(item);
-            });
-            self.cards(initCards);
-        }
-    });
-    self.fetchMovements();
+//    utils.json.get({
+//        url : "./rest/v1.0/cards",
+//        success : function(allData) {
+//            var initCards = $.map(allData, function(item) {
+//                return new Card(item);
+//            });
+//            self.cards(initCards);
+//        }
+//    });
 
 }
 
@@ -310,13 +317,20 @@ var myInventory = {
         root : true,
         action : function() {
             //load or start for home
-            myInventory.viewModels.inventory.activePage("home");
+            myInventory.viewModels.inventory.activePage(myInventory.viewModels.inventory.pages.HOME);
         }
     }, {
         url : "#/interests",
         action : function() {
             //load or start for interests
-            myInventory.viewModels.inventory.activePage("interests");
+            myInventory.viewModels.inventory.activePage(myInventory.viewModels.inventory.pages.INTERESTS);
+            myInventory.viewModels.inventory.fetchMovements();
+        }
+    }, {
+        url : "#/detail",
+        action : function() {
+            //load or start for interests
+            myInventory.viewModels.inventory.activePage(myInventory.viewModels.inventory.pages.DETAIL);
         }
     } ]
 };
@@ -326,7 +340,6 @@ var homePageViewModel = utils.extend(myInventory.viewModels.inventory, myInvento
 $(document).ready(function() {
     ko.applyBindings(homePageViewModel);
 });
-
 // -------------------------------------------------------------------------------------------
 // Prepare Routing
 myInventory.routes.forEach(function(item) {
@@ -337,7 +350,6 @@ myInventory.routes.forEach(function(item) {
 $(document).ready(function() {
     Path.listen();
 });
-
 // -------------------------------------------------------------------------------------------
 // Others
 var chart = c3.generate({

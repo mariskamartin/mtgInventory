@@ -104,6 +104,15 @@ public class CardService extends AbstractService<Card> {
     }
 
     /**
+     * Dohleda zadany text v nazvech karet
+     * @param cardName
+     */
+    public Collection<Card> findsCards(String cardName) {
+        Preconditions.checkArgument(cardName.length() > 1, "Musi se zadat aspon 2 znaky.");
+        return cardDao.findByName(cardName, false, false);
+    }
+
+    /**
      * Odchyti karty z webu a zalozi aktualni informace do db, pouze pokud ten den se tak jeste nestalo
      * @param cardName
      */

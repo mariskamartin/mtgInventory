@@ -48,6 +48,13 @@ public class CardResource {
         return new CardService(DatabaseManager.getEM(context)).findById(id);
     }
 
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Path("find/{text}")
+    public Collection<Card> findCardsByText(@PathParam("text") String text) {
+        return new CardService(DatabaseManager.getEM(context)).findsCards(text);
+    }
+
     @AuthenticationRequired
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

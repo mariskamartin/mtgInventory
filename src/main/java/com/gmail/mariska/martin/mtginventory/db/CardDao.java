@@ -36,7 +36,10 @@ public class CardDao extends AbstractDao<Card> implements IDao<Card> {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Card> q = cb.createQuery(Card.class);
         Root<Card> from = q.from(Card.class);
-        return em.createQuery(q.select(from).where(cb.equal(from.get(Card.PROPS.foil.toString()), false)).orderBy(getDefaultOrder(cb, from))).getResultList();
+        return em.createQuery(q.select(from)
+                .where(cb.equal(from.get(Card.PROPS.foil.toString()), false))
+                .orderBy(getDefaultOrder(cb, from)))
+                .getResultList();
     }
 
     @Override
@@ -70,11 +73,14 @@ public class CardDao extends AbstractDao<Card> implements IDao<Card> {
         return em.createQuery(q).getResultList();
     }
 
-    public List<Card> findByName(String name, boolean exact) {
+    public List<Card> findByName(String name, boolean exact, boolean foil) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Card> q = cb.createQuery(Card.class);
         Root<Card> from = q.from(Card.class);
-        q.select(from).where(cb.like(from.<String> get(Card.PROPS.name.toString()), exact ? name : "%" + name + "%"));
+        q.select(from)
+        .where(cb.and(cb.like(cb.lower(from.<String> get(Card.PROPS.name.toString())), exact ? name.toLowerCase() : "%" + name.toLowerCase() + "%"),
+                cb.equal(from.get(Card.PROPS.foil.toString()), foil)))
+                .orderBy(getDefaultOrder(cb, from));
         return em.createQuery(q).getResultList();
     }
 
