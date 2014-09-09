@@ -36,36 +36,44 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="./index.html">MTG Inventory</a>
+          <a class="navbar-brand" href="./">MTG Inventory</a>
         </div>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="./index.html">Home</a></li>
+          <ul id="navigationMenu" class="nav navbar-nav">
+            <li data-bind="css: { active: activePage() == 'home' }"><a href="#/home">Home</a></li>
+            <li data-bind="css: { active: activePage() == 'interests' }"><a href="#/interests">Interests</a></li>
           </ul>
 
           <ul class="nav navbar-nav navbar-right">
 			 <!-- signIn user profile -->
-             <li data-bind="if: user().id" class="dropdown">
+             <li data-bind="if: user().idEmail" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile <b class="caret"></b></a>
-                <ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
-                   <li>
-                      <div class="row">
-                         <div class="col-md-12">
-                            <form class="form">
-                               <div class="form-group">
-	                              <div data-bind="text: user().name"></div>
-                                  <button type="submit" class="btn btn-info btn-block">Logout</button>
-                               </div>
-                            </form>
-                         </div>
-                      </div>
-                   </li>
-                </ul>
+              	<ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
+					<li>
+						<div class="row">
+							<div class="col-md-12">
+								<form class="form">
+									<div data-bind="text: user().idEmail"></div>
+									<label class="sr-only" for="profileName">Name:</label>
+									<div class="form-group">
+										<input id="profileName" data-bind="value: user().name"></input>
+									</div>
+									<div data-bind="value: user().roles"></div>
+									<!-- 
+                        	    	    <button data-bind="click: savePropsUser" type="button" class="btn btn-info btn-block">Save user info</button>
+                    	    	    -->
+									<button data-bind="click: logoutUser" type="button"
+										class="btn btn-info btn-block">Logout</button>
+								</form>
+							</div>
+						</div>
+					</li>
+				</ul>
              </li>
 		 	 <!-- not logged user -->
-             <li data-bind="visible: !user().id"><a href="#" data-bind="click: registerUser">Sign Up</a></li>
-             <li data-bind="visible: !user().id" class="dropdown">
+             <li data-bind="visible: !user().idEmail"><a href="#" data-bind="click: registerUser">Sign Up</a></li>
+             <li data-bind="visible: !user().idEmail" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign in <b class="caret"></b></a>
                 <ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
                    <li>
@@ -235,7 +243,8 @@
     </div><!-- /.container -->
 	
     <!-- Placed at the end of the document so the pages load faster -->
-    <script type='text/javascript' src="./lib/promisejs/promise.js"></script>
+    <script type='text/javascript' src="./lib/routing/path.min.js"></script>
+    <script type='text/javascript' src="./lib/store/store2.min.js"></script>
     <script type='text/javascript' src="./lib/jquery-1.8.3.js"></script>
     <script type='text/javascript' src="./lib/bootstrap/js/bootstrap.min.js"></script>
     <script type='text/javascript' src='./lib/knockout-3.1.0.min.js'></script>
