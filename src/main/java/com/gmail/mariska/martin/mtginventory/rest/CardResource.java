@@ -2,6 +2,7 @@ package com.gmail.mariska.martin.mtginventory.rest;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.listeners.EventBusManager;
 import com.gmail.mariska.martin.mtginventory.service.CardService;
 import com.gmail.mariska.martin.mtginventory.service.EmailService.EmailMessage;
+import com.gmail.mariska.martin.mtginventory.service.WebPageSnifferService;
 import com.google.common.eventbus.EventBus;
 
 @Path("/cards")
@@ -77,6 +79,7 @@ public class CardResource {
             cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
             cardService.generateCardsMovements(now, CardMovementType.START_OF_WEEK);
         } else if (action.equals("fetchedition")) {
+            // /MtgInventory/rest/v1.0/cards/generate/fetchedition?edition=MAGIC_2015&rarity=M
             CardService cardService = new CardService(DatabaseManager.getEM(context), eventBus);
             cardService.fetchCardsByEditionRarityOnCR(CardEdition.valueOf(edition), rarityCrKey);
         } else if (action.equals("testemail")) {
@@ -104,7 +107,15 @@ public class CardResource {
         if (logger.isDebugEnabled()) {
             logger.debug("User invoked fetching");
         }
-        return new CardService(DatabaseManager.getEM(context), EventBusManager.getEventBus(context)).fetchAllManagedCards();
+        Collection<Card> cards = Collections.emptyList();
+        WebPageSnifferService sniffer = new WebPageSnifferService();
+        try {
+            cards = new CardService(DatabaseManager.getEM(context), EventBusManager.getEventBus(context), sniffer)
+            .fetchAllManagedCards();
+        } finally {
+            sniffer.shutdown();
+        }
+        return cards;
     }
 
     @GET

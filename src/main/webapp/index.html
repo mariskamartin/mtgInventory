@@ -192,7 +192,7 @@
 		<div data-bind="if: activePage() == pages.HOME">
 			<div class="row">
 			  	<div class="col-md-12">
-					<form data-bind="submit: findCard">
+					<form data-bind="submit: findCardInForm">
                         <div class="form-group">
 							<label for="findInput">Card:</label>
 					    	<input data-bind="value: newText" placeholder="card name?" id="findInput"/>
@@ -213,7 +213,7 @@
 							<!-- Todo: Generate table body -->
 							<tbody data-bind="foreach: cards">
 							    <tr>
-							        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetail"></a></td>
+							        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetailFromTable"></a></td>
 							        <td><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
 							        <td><span data-bind="text: edition"></span> / <span data-bind="text: rarity"></span> / <span data-bind="text: foilTxt"></span></td>
 							    </tr>    

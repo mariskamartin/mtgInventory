@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -27,6 +28,7 @@ import com.gmail.mariska.martin.mtginventory.service.AlertService.DailyCardInfoA
 import com.gmail.mariska.martin.mtginventory.service.AlertService.MovementAlertEvent;
 import com.gmail.mariska.martin.mtginventory.utils.Utils;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 
@@ -42,15 +44,21 @@ public class CardService extends AbstractService<Card> {
     private EventBus eventBus; //pro postovani zprav
     private WebPageSnifferService webPageSnifferService;
 
-    public CardService(EntityManager em) {
+    public CardService(EntityManager em, EventBus eventBus, WebPageSnifferService sniffer) {
         super(em, new CardDao(em));
-        cardDao = (CardDao) super.getDao();
-        webPageSnifferService = new WebPageSnifferService();
+        this.cardDao = (CardDao) super.getDao();
+        this.eventBus = eventBus;
+        this.webPageSnifferService = sniffer;
     }
 
+    public CardService(EntityManager em) {
+        this(em, null, new WebPageSnifferService());
+    }
     public CardService(EntityManager em, EventBus eventBus) {
-        this(em);
-        this.eventBus = eventBus;
+        this(em, eventBus, new WebPageSnifferService());
+    }
+    public CardService(EntityManager em, WebPageSnifferService sniffer) {
+        this(em, null, sniffer);
     }
 
     /**
@@ -112,6 +120,7 @@ public class CardService extends AbstractService<Card> {
      * @return
      */
     public Collection<Card> fetchAllManagedCards() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         List<String> cardNames = this.cardDao.getAllCardsNames();
         long namesProcessedCount = 0;
         List<Card> allCards = new ArrayList<>();
@@ -124,6 +133,7 @@ public class CardService extends AbstractService<Card> {
             }
         }
         logger.info("all cards fetched " + namesProcessedCount + "/" + cardNames.size());
+        logger.info("elapsed time " + stopwatch.stop().elapsed(TimeUnit.MINUTES) + " minutes");
         //post new detached dci
         postNewCardDailyInfo(addedDailyCardInformations);
         return allCards;

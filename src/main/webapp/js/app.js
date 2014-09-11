@@ -105,9 +105,6 @@ function UserViewModel() {
             dataJs : {
                 loginEmail : login,
                 password : pwd
-            },
-            success : function(result) {
-//                console.log([ "authUser", result ]);
             }
         });
     };
@@ -169,9 +166,12 @@ function InventoryViewModel() {
     };
     
     // Operations
-    self.findCard = function() {
+    self.findCardInForm = function() {
+        self.findCard(self.newText());
+    };
+    self.findCard = function(text) {
         utils.json.get({
-            url : './rest/v1.0/cards/find/' + self.newText(),
+            url : './rest/v1.0/cards/find/' + text,
             success : function(result) {
                 var results = [];
                 result.forEach(function(item) {
@@ -179,6 +179,11 @@ function InventoryViewModel() {
                 });
                 self.cards(results);
             }
+        });
+    };
+    self.getCard = function(id) {
+        return utils.json.get({
+            url : './rest/v1.0/cards/' + id
         });
     };
     self.fetchCard = function() {
@@ -243,7 +248,14 @@ function InventoryViewModel() {
     };
     //card detail
     self.populateCardDetailFromMovement = function(movement) {
-        self.populateCardDetail(new Card(movement.cardPojo));
+        document.location = "#/detail/"+movement.cardPojo.id;
+    };
+    self.populateCardDetailFromTable = function(cardPojo) {
+        document.location = "#/detail/"+cardPojo.id;
+    };
+    self.setCardDetail = function(card){
+        self.cardDetail(card);
+        self.populateCardDetail(card);
     };
     self.populateCardDetail = function(card) {
         utils.json.get({
@@ -269,7 +281,6 @@ function InventoryViewModel() {
                         txtSkladem = txtSkladem + data[shop].storeDay + " - " + shop + " - " + data[shop].storeAmount
                             + " ks";
 
-                        console.log(data);
                         chart.load({
                             columns : [ data[shop].x, data[shop].values ]
                         });
@@ -277,10 +288,7 @@ function InventoryViewModel() {
                     self.cardDetail().storeAmount(txtSkladem);
                 }, 1000);
 
-//                document.getElementById("cardDetail").scrollIntoView(true);
                 document.getElementById("cardDetail").scrollIntoView(true);
-                document.location = "#/detail";
-
             }
         });
     };
@@ -328,29 +336,38 @@ var myInventory = {
             myInventory.viewModels.inventory.fetchMovements();
         }
     }, {
-        url : "#/detail",
+        url : "#/detail(/:card_id)",
         action : function() {
             //load or start for interests
             myInventory.viewModels.inventory.activePage(myInventory.viewModels.inventory.pages.DETAIL);
+            if(this.params["card_id"]){
+                myInventory.viewModels.inventory.getCard(this.params["card_id"]).done(function(result){
+                    myInventory.viewModels.inventory.setCardDetail(new Card(result));
+                });
+            }
         }
-    } ]
+    } ],
+    
+    start : function(){
+        // Knockout bindings
+        var homePageViewModel = utils.extend(this.viewModels.inventory, this.viewModels.user);
+        ko.applyBindings(homePageViewModel);
+        // Prepare Routing
+        this.routes.forEach(function(item) {
+            Path.map(item.url).to(item.action);
+            if (item.root)
+                Path.root(item.url);
+        });
+        Path.listen();
+    }
 };
 
-// Knockout bindings
-var homePageViewModel = utils.extend(myInventory.viewModels.inventory, myInventory.viewModels.user);
+//start with document ready
 $(document).ready(function() {
-    ko.applyBindings(homePageViewModel);
+    myInventory.start();
 });
+
 // -------------------------------------------------------------------------------------------
-// Prepare Routing
-myInventory.routes.forEach(function(item) {
-    Path.map(item.url).to(item.action);
-    if (item.root)
-        Path.root(item.url);
-});
-$(document).ready(function() {
-    Path.listen();
-});
 // -------------------------------------------------------------------------------------------
 // Others
 var chart = c3.generate({
