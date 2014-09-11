@@ -12,6 +12,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
@@ -19,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.auth.AuthenticationRequired;
 import com.gmail.mariska.martin.mtginventory.db.model.Card;
+import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
@@ -55,11 +57,13 @@ public class CardResource {
         return new CardService(DatabaseManager.getEM(context)).findsCards(text);
     }
 
-    @AuthenticationRequired
+//    @AuthenticationRequired
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/generate/{action}")
-    public String generatePriceMovement(@PathParam("action") String action) throws IOException {
+    public String generatePriceMovement(@PathParam("action") String action,
+                                        @QueryParam("edition") String edition,
+                                        @QueryParam("rarity") String rarityCrKey) throws IOException {
         if (logger.isDebugEnabled()) {
             logger.debug("generate action: " + action);
         }
@@ -72,6 +76,9 @@ public class CardResource {
             cardService.generateCardsMovements(now, CardMovementType.DAY);
             cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
             cardService.generateCardsMovements(now, CardMovementType.START_OF_WEEK);
+        } else if (action.equals("fetchedition")) {
+            CardService cardService = new CardService(DatabaseManager.getEM(context), eventBus);
+            cardService.fetchCardsByEditionRarityOnCR(CardEdition.valueOf(edition), rarityCrKey);
         } else if (action.equals("testemail")) {
             eventBus.post(new EmailMessage.Builder().testMsg().build());
         }

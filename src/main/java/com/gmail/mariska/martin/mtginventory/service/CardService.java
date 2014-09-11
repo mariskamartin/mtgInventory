@@ -2,6 +2,7 @@ package com.gmail.mariska.martin.mtginventory.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +83,31 @@ public class CardService extends AbstractService<Card> {
     }
 
     /**
+     * Dohleda zadany text v nazvech karet
+     * @param cardName
+     */
+    public Collection<Card> findsCards(String cardName) {
+        Preconditions.checkArgument(cardName.length() > 1, "Musi se zadat aspon 2 znaky.");
+        return cardDao.findByName(cardName, false, false);
+    }
+
+
+    /**
+     * Odchyti karty z webu a zalozi aktualni informace do db, pouze pokud ten den se tak jeste nestalo
+     * @param cardName
+     * @param rarity
+     * @param edition
+     */
+    public Collection<Card> fetchCardsByEditionRarityOnCR(CardEdition edition, String rarity) {
+        try {
+            return saveCardsIntoDb(webPageSnifferService.findCardsAtCRByEditionAndRarity(edition, rarity), null);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
      * Odchyti vsechny aktualne spravovane karty
      * @return
      */
@@ -91,7 +117,7 @@ public class CardService extends AbstractService<Card> {
         List<Card> allCards = new ArrayList<>();
         List<DailyCardInfo> addedDailyCardInformations = new ArrayList<>();
         for (String name : cardNames) {
-            allCards.addAll(fetchCards(name, addedDailyCardInformations));
+            allCards.addAll(saveCardsIntoDb(fetchCardListByName(name), addedDailyCardInformations));
             namesProcessedCount += 1;
             if (namesProcessedCount % 25 == 0) {
                 logger.info("fetching procesed " + namesProcessedCount + "/" + cardNames.size());
@@ -104,31 +130,28 @@ public class CardService extends AbstractService<Card> {
     }
 
     /**
-     * Dohleda zadany text v nazvech karet
-     * @param cardName
-     */
-    public Collection<Card> findsCards(String cardName) {
-        Preconditions.checkArgument(cardName.length() > 1, "Musi se zadat aspon 2 znaky.");
-        return cardDao.findByName(cardName, false, false);
-    }
-
-    /**
      * Odchyti karty z webu a zalozi aktualni informace do db, pouze pokud ten den se tak jeste nestalo
      * @param cardName
      */
     public Collection<Card> fetchCards(String cardName) {
-        return fetchCards(cardName, null);
+        Preconditions.checkArgument(cardName.length() > 3, "Název zadané karty musí být delší než 3 znaky");
+        return saveCardsIntoDb(fetchCardListByName(cardName), null);
     }
 
-    private Collection<Card> fetchCards(String cardName, List<DailyCardInfo> addedDailyCardInformations) {
-        //TODO domyslet validaci
-        Preconditions.checkArgument(cardName.length() > 3, "Název zadané karty musí být delší než 3 znaky");
+    private ImmutableList<DailyCardInfo> fetchCardListByName(String cardName) {
+        try {
+            return webPageSnifferService.findCardsAtWeb(cardName);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return ImmutableList.of();
+    }
 
+    private Collection<Card> saveCardsIntoDb(ImmutableList<DailyCardInfo> cardList, List<DailyCardInfo> addedDailyCardInformations) {
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();
         try {
-            ImmutableList<DailyCardInfo> cardList = webPageSnifferService.findCardsAtWeb(cardName);
             tx.begin();
             for (DailyCardInfo dailyCardInfo : cardList) {
                 Card c = dailyCardInfo.getCard();

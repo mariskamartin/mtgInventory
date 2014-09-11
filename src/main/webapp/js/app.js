@@ -269,6 +269,7 @@ function InventoryViewModel() {
                         txtSkladem = txtSkladem + data[shop].storeDay + " - " + shop + " - " + data[shop].storeAmount
                             + " ks";
 
+                        console.log(data);
                         chart.load({
                             columns : [ data[shop].x, data[shop].values ]
                         });

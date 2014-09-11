@@ -33,7 +33,20 @@ public class WebPageSnifferService {
     @Deprecated
     public static void main(String[] args) throws IOException {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
-        new WebPageSnifferService().findOnNajada("stifle", builder);
+        WebPageSnifferService sniffer = new WebPageSnifferService();
+//        sniffer.parseNajada(sniffer.fetchFromNajadaKusovky("stifle"), builder);
+        Document doc = sniffer.fetchFromCernyRytirKusovkyPaged(CardEdition.MAGIC_2015, "M");
+        Elements select = doc.select("a.kusovkytext");
+        if (select.size() == 0) {
+            sniffer.parseCernyRytir(doc, builder);
+        } else {
+            //pouze polovinu odkazu, protoze CR je ma 2x na strance
+            for (int i = 0; i < select.size() / 2; i++) {
+                String href = select.get(i).attributes().get("href");
+                Document docPaged = sniffer.fetchFromCernyRytirURL(href);
+                sniffer.parseCernyRytir(docPaged, builder);
+            }
+        }
         ImmutableList<DailyCardInfo> build = builder.build();
         System.out.println(build);
     }
@@ -47,21 +60,43 @@ public class WebPageSnifferService {
      */
     public ImmutableList<DailyCardInfo> findCardsAtWeb(String cardFindName) throws IOException {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
-        findOnTolarie(cardFindName, builder);
-        findOnCernyRytir(cardFindName, builder);
-        findOnNajada(cardFindName, builder);
+        parseTolarie(fetchFromTolarieKusovky(cardFindName), builder);
+        parseCernyRytir(fetchFromCernyRytirKusovky(cardFindName), builder);
+        parseNajada(fetchFromNajadaKusovky(cardFindName), builder);
         return builder.build();
     }
 
     /**
-     * Dohleda karty na cernem rytiri
+     * Vyhleda karty podle edice a rarity, pouze na CR
+     * @param edition
+     * @param rarityCrPrefix
+     * @return
+     * @throws IOException
+     */
+    public ImmutableList<DailyCardInfo> findCardsAtCRByEditionAndRarity(CardEdition edition, String rarityCrPrefix) throws IOException {
+        Builder<DailyCardInfo> builder = ImmutableList.builder();
+        Document doc = fetchFromCernyRytirKusovkyPaged(edition, rarityCrPrefix);
+        Elements select = doc.select("a.kusovkytext");
+        if (select.size() == 0) {
+            parseCernyRytir(doc, builder);
+        } else {
+            //pouze polovinu odkazu, protoze CR je ma 2x na strance (nahore a dole)
+            for (int i = 0; i < select.size() / 2; i++) {
+                String href = select.get(i).attributes().get("href");
+                parseCernyRytir(fetchFromCernyRytirURL(href), builder);
+            }
+        }
+        return builder.build();
+    }
+
+    /**
+     * Parsuje karty na cernem rytiri
      * 
      * @param cardFindName
      * @param builder
      * @throws IOException
      */
-    private void findOnCernyRytir(String cardFindName, Builder<DailyCardInfo> builder) throws IOException {
-        Document doc = fetchFromCernyRytirKusovky(cardFindName);
+    private void parseCernyRytir(Document doc, Builder<DailyCardInfo> builder) throws IOException {
         Elements values = doc.select("table.kusovkytext tbody tr");
         // prvni tri jsou formular, preskocit
         // dale jsou vzdy informace po trech
@@ -86,14 +121,13 @@ public class WebPageSnifferService {
     }
 
     /**
-     * Dohleda karty na Tolarii
+     * Parsuje karty na Tolarii
      * 
      * @param cardFindName
      * @param builder
      * @throws IOException
      */
-    private void findOnTolarie(String cardFindName, Builder<DailyCardInfo> builder) throws IOException {
-        Document doc = fetchFromTolarieKusovky(cardFindName);
+    private void parseTolarie(Document doc, Builder<DailyCardInfo> builder) throws IOException {
         Elements values = doc.select("table.kusovky tbody tr");
         for (Element element : values) {
             Card card = CardConverter.valueOfTolarieElement(element);
@@ -113,14 +147,13 @@ public class WebPageSnifferService {
     }
 
     /**
-     * Dohleda karty na Najada.cz
+     * Parsuje karty na Najada.cz
      * 
      * @param cardFindName
      * @param builder
      * @throws IOException
      */
-    private void findOnNajada(String cardFindName, Builder<DailyCardInfo> builder) throws IOException {
-        Document doc = fetchFromNajadaKusovky(cardFindName);
+    private void parseNajada(Document doc, Builder<DailyCardInfo> builder) throws IOException {
         Elements values = doc.select("table.tabArt tbody tr");
         if (!values.isEmpty()) {
             values.remove(0); //hlavicka
@@ -156,6 +189,29 @@ public class WebPageSnifferService {
                 .post();
         return doc;
 // return Jsoup.parse(new File("C://cr.html"), "utf-8"); //for DEBUG
+    }
+
+    private Document fetchFromCernyRytirKusovkyPaged(CardEdition edice, String rarityCrPrefix) throws IOException {
+        Document doc;
+        doc = Jsoup.connect("http://www.cernyrytir.cz/index.php3?akce=3")
+                .data("edice_magic", edice.getKey())
+                .data("rarita", rarityCrPrefix)
+                .data("foil", "A") //bez foil
+                .data("jmenokarty", "")
+                .data("triditpodle", "ceny")
+                .data("submit", "Vyhledej")
+                // and other hidden fields which are being passed in post request.
+                .userAgent("Mozilla")
+                .post();
+        return doc;
+    }
+
+    private Document fetchFromCernyRytirURL(String queryString) throws IOException {
+        Document doc;
+        doc = Jsoup.connect("http://www.cernyrytir.cz/" + queryString)
+                .userAgent("Mozilla")
+                .post();
+        return doc;
     }
 
     private Document fetchFromNajadaKusovky(String findString) throws IOException {
