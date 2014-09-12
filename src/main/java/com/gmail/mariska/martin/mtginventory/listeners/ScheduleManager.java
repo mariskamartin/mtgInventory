@@ -73,7 +73,7 @@ public class ScheduleManager implements ServletContextListener {
                 try {
                     EventBus eventBus = EventBusManager.getEventBus(ctx);
                     logger.info("start auto uploading information about managed cards");
-                    CardService cardService = new CardService(DatabaseManager.getEM(ctx), eventBus);
+                    CardService cardService = new CardService(ctx);
                     cardService.fetchAllManagedCards();
                     logger.info("end of auto uploading information about managed cards");
                     logger.info("start auto update card movements");

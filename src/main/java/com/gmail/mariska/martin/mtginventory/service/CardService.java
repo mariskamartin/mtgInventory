@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 
@@ -24,6 +25,9 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.CardRarity;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
+import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
+import com.gmail.mariska.martin.mtginventory.listeners.EventBusManager;
+import com.gmail.mariska.martin.mtginventory.listeners.SupportServiciesManager;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.DailyCardInfoAlertEvent;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.MovementAlertEvent;
 import com.gmail.mariska.martin.mtginventory.utils.Utils;
@@ -41,7 +45,7 @@ public class CardService extends AbstractService<Card> {
     private static final Logger logger = Logger.getLogger(CardService.class);
 
     private CardDao cardDao;
-    private EventBus eventBus; //pro postovani zprav
+    private EventBus eventBus; // pro postovani zprav
     private WebPageSnifferService webPageSnifferService;
 
     public CardService(EntityManager em, EventBus eventBus, WebPageSnifferService sniffer) {
@@ -51,14 +55,10 @@ public class CardService extends AbstractService<Card> {
         this.webPageSnifferService = sniffer;
     }
 
-    public CardService(EntityManager em) {
-        this(em, null, new WebPageSnifferService());
-    }
-    public CardService(EntityManager em, EventBus eventBus) {
-        this(em, eventBus, new WebPageSnifferService());
-    }
-    public CardService(EntityManager em, WebPageSnifferService sniffer) {
-        this(em, null, sniffer);
+    public CardService(ServletContext ctx) {
+        this(DatabaseManager.getEM(ctx),
+                EventBusManager.getEventBus(ctx),
+                new WebPageSnifferService(SupportServiciesManager.getExecutorService(ctx)));
     }
 
     /**
@@ -92,6 +92,7 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Dohleda zadany text v nazvech karet
+     * 
      * @param cardName
      */
     public Collection<Card> findsCards(String cardName) {
@@ -99,9 +100,9 @@ public class CardService extends AbstractService<Card> {
         return cardDao.findByName(cardName, false, false);
     }
 
-
     /**
      * Odchyti karty z webu a zalozi aktualni informace do db, pouze pokud ten den se tak jeste nestalo
+     * 
      * @param cardName
      * @param rarity
      * @param edition
@@ -117,6 +118,7 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Odchyti vsechny aktualne spravovane karty
+     * 
      * @return
      */
     public Collection<Card> fetchAllManagedCards() {
@@ -134,13 +136,14 @@ public class CardService extends AbstractService<Card> {
         }
         logger.info("all cards fetched " + namesProcessedCount + "/" + cardNames.size());
         logger.info("elapsed time " + stopwatch.stop().elapsed(TimeUnit.MINUTES) + " minutes");
-        //post new detached dci
+        // post new detached dci
         postNewCardDailyInfo(addedDailyCardInformations);
         return allCards;
     }
 
     /**
      * Odchyti karty z webu a zalozi aktualni informace do db, pouze pokud ten den se tak jeste nestalo
+     * 
      * @param cardName
      */
     public Collection<Card> fetchCards(String cardName) {
@@ -157,7 +160,8 @@ public class CardService extends AbstractService<Card> {
         return ImmutableList.of();
     }
 
-    private Collection<Card> saveCardsIntoDb(ImmutableList<DailyCardInfo> cardList, List<DailyCardInfo> addedDailyCardInformations) {
+    private Collection<Card> saveCardsIntoDb(ImmutableList<DailyCardInfo> cardList,
+            List<DailyCardInfo> addedDailyCardInformations) {
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();
@@ -173,7 +177,8 @@ public class CardService extends AbstractService<Card> {
                 if (managedCardsMap.containsKey(getCardKey(c))) {
                     c = managedCardsMap.get(getCardKey(c));
                 } else {
-                    List<Card> findList = cardDao.findByNameEditionRarityFoil(c.getName(), c.getEdition(), c.getRarity(), c.isFoil());
+                    List<Card> findList = cardDao.findByNameEditionRarityFoil(c.getName(), c.getEdition(),
+                            c.getRarity(), c.isFoil());
                     if (findList.isEmpty()) {
                         cardDao.insert(c);
                         managedCardsMap.put(getCardKey(c), c);
@@ -189,7 +194,8 @@ public class CardService extends AbstractService<Card> {
                 }
 
                 dailyCardInfo.setCard(c); // priradit managed entitu
-                List<DailyCardInfo> findInfoList = dciDao.findByCardDayShop(dailyCardInfo.getCard(), dailyCardInfo.getDay(), dailyCardInfo.getShop());
+                List<DailyCardInfo> findInfoList = dciDao.findByCardDayShop(dailyCardInfo.getCard(),
+                        dailyCardInfo.getDay(), dailyCardInfo.getShop());
                 if (findInfoList.isEmpty()) {
                     dciDao.insert(dailyCardInfo);
                     if (addedDailyCardInformations != null) {
@@ -197,7 +203,8 @@ public class CardService extends AbstractService<Card> {
                     }
                 } else if (findInfoList.size() == 1) {
                     DailyCardInfo dciInDb = findInfoList.get(0);
-                    if (Utils.hasChange(dciInDb, dailyCardInfo, DailyCardInfo.PROPS.price.toString(), DailyCardInfo.PROPS.storeAmount.toString())) {
+                    if (Utils.hasChange(dciInDb, dailyCardInfo, DailyCardInfo.PROPS.price.toString(),
+                            DailyCardInfo.PROPS.storeAmount.toString())) {
                         dciInDb.setPrice(dailyCardInfo.getPrice());
                         dciInDb.setStoreAmount(dailyCardInfo.getStoreAmount());
                         dciDao.update(dciInDb);
@@ -206,7 +213,8 @@ public class CardService extends AbstractService<Card> {
                         }
                     }
                 } else {
-                    logger.warn("Dohledano vic nez jedno DailyInfoData pro: " + dailyCardInfo + " // " + dailyCardInfo.getCard());
+                    logger.warn("Dohledano vic nez jedno DailyInfoData pro: " + dailyCardInfo + " // "
+                            + dailyCardInfo.getCard());
                 }
             }
             tx.commit();
@@ -220,11 +228,12 @@ public class CardService extends AbstractService<Card> {
     }
 
     private String getCardKey(Card c) {
-        return c.getName()+c.getEdition()+c.getRarity()+c.isFoil();
+        return c.getName() + c.getEdition() + c.getRarity() + c.isFoil();
     }
 
     /**
      * Vygeneruje pro zadany den pohyby cen karet
+     * 
      * @param date
      */
     public void generateCardsMovements(Date now, CardMovementType movementType) {
@@ -241,17 +250,18 @@ public class CardService extends AbstractService<Card> {
 
         for (DailyCardInfo dailyCardInfo : findedDates) {
             if (lastCard.equals(dailyCardInfo.getCard()) && lastShop.equals(dailyCardInfo.getShop())) {
-                //stejna karta - stejny shop > spocitat
+                // stejna karta - stejny shop > spocitat
                 if (!newerDci.getPrice().equals(dailyCardInfo.getPrice())) {
                     EntityTransaction tx = em.getTransaction();
                     try {
                         tx.begin();
-                        CardMovement cm = new CardMovement(lastCard, movementType, newerDci.getShop(), now, dailyCardInfo.getPrice(), newerDci.getPrice());
+                        CardMovement cm = new CardMovement(lastCard, movementType, newerDci.getShop(), now,
+                                dailyCardInfo.getPrice(), newerDci.getPrice());
                         postNewMovement(cm);
                         cmDao.insert(cm);
                         tx.commit();
                     } catch (Exception e) {
-                        if(tx.isActive()){
+                        if (tx.isActive()) {
                             tx.rollback();
                         }
                     }
@@ -292,6 +302,7 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Vrati pohyby karet podle zadaneho typu pohybu.
+     * 
      * @param type
      * @return
      */

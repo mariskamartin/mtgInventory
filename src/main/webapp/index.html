@@ -145,7 +145,7 @@
 							<!-- Todo: Generate table body -->
 							<tbody data-bind="foreach: cardMovementsDay">
 							    <tr>
-							        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetailFromMovement"></a></td>
+							        <td><a href="javascript: false" data-bind="text: name, attr: { href: hrefDetail }"></a></td>
 							        <td data-bind="html: info"></td>
 							        <td data-bind="text: shop"></td>
 							        <td data-bind="text: oldPrice"></td>
@@ -175,7 +175,7 @@
 							<!-- Todo: Generate table body -->
 							<tbody data-bind="foreach: cardMovementsWeek">
 							    <tr>
-							        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetailFromMovement"></a></td>
+							        <td><a href="javascript: false" data-bind="text: name, attr: { href: hrefDetail }"></a></td>
 							        <td data-bind="html: info"></td>
 							        <td data-bind="text: shop"></td>
 							        <td data-bind="text: oldPrice"></td>
@@ -213,7 +213,7 @@
 							<!-- Todo: Generate table body -->
 							<tbody data-bind="foreach: cards">
 							    <tr>
-							        <td><a href="javascript: false" data-bind="text: name, click: $parent.populateCardDetailFromTable"></a></td>
+							        <td><a href="javascript: false" data-bind="text: name, attr: { href: hrefDetail }"></a></td>
 							        <td><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
 							        <td><span data-bind="text: edition"></span> / <span data-bind="text: rarity"></span> / <span data-bind="text: foilTxt"></span></td>
 							    </tr>    

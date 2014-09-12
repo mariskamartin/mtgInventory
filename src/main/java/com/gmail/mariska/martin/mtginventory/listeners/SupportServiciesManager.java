@@ -1,7 +1,11 @@
 package com.gmail.mariska.martin.mtginventory.listeners;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -12,7 +16,7 @@ import com.gmail.mariska.martin.mtginventory.service.EmailService;
 import com.google.common.eventbus.EventBus;
 
 /**
- * Stara se o Emaily.
+ * Stara se o ostatni podpurne sluzby.
  * 
  * @author MAR
  */
@@ -25,6 +29,7 @@ public class SupportServiciesManager implements ServletContextListener {
     public void contextInitialized(ServletContextEvent e) {
         EventBus eventBus = Objects.requireNonNull(EventBusManager.getEventBus(e.getServletContext()),
                 "EventBus neni inicializovan");
+        startExecutorService(e.getServletContext());
         startEmailService(eventBus);
         startAlertService(eventBus);
     }
@@ -35,6 +40,7 @@ public class SupportServiciesManager implements ServletContextListener {
                 "EventBus neni inicializovan");
         stopAlertService(eventBus);
         stopEmailService(eventBus);
+        stopExecutorService(e.getServletContext());
     }
 
     private void startEmailService(EventBus eventBus) {
@@ -59,4 +65,35 @@ public class SupportServiciesManager implements ServletContextListener {
         logger.info("Alerts service destoryed");
     }
 
+
+
+    private final static String EXECUTOR_SERVICE = "service.executor";
+    private final int NUM_THREADS = 10;
+
+    /**
+     * Returns instance of servlet ExecutorService
+     * @param ctx main servlet context
+     * @return
+     */
+    public static ExecutorService getExecutorService(ServletContext ctx) {
+        return (ExecutorService) ctx.getAttribute(EXECUTOR_SERVICE);
+    }
+
+    private void startExecutorService(ServletContext ctx) {
+        ExecutorService executorService = Executors.newFixedThreadPool(NUM_THREADS);
+        ctx.setAttribute(EXECUTOR_SERVICE, executorService);
+        logger.info("Executor service created");
+    }
+
+    private void stopExecutorService(ServletContext ctx) {
+        ExecutorService executorService = getExecutorService(ctx);
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            logger.info(e.getMessage());
+        }
+        ctx.removeAttribute(EXECUTOR_SERVICE);
+        logger.info("Executor service destoryed");
+    }
 }

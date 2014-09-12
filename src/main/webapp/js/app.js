@@ -27,12 +27,13 @@ function Card(pojo) {
     self.foil = pojo.foil;
     self.storeAmount = ko.observable(pojo.storeAmount);
     // others helps
+    self.hrefDetail = "#/detail/" + pojo.id;
     self.editionKey = pojo.editionKey;
     self.foilTxt = pojo.foil ? "FOIL" : "";
     self.crLink = "<a href=\"javascript:utils.links.openCernyRytir('" + this.name + "');\">Černý Rytíř</a>";
     self.tolarieLink = "<a href=\"javascript:utils.links.openTolarie('" + this.name + "');\">Tolarie</a>";
     self.magicCardsLink = "<a href=\"javascript:utils.links.openMagicCards('" + this.name + "');\">MagicCards</a>";
-    if (self.name !== "UNKNOWN") {
+    if (self.name && self.name !== "UNKNOWN") {
         self.img = "<img src='http://cdn.manaclash.com/images/cards/210x297/" + this.editionKey + "/"
             + this.name.replace(/ /g, "-").replace(/[,'´]/g, "").toLowerCase() + ".jpg' class='img-thumbnail'></img>";
     }
@@ -52,6 +53,7 @@ function CardMovement(pojo) {
     self.oldPrice = pojo.oldPrice;
     self.newPrice = pojo.newPrice;
     // others helps
+    self.hrefDetail = "#/detail/" + pojo.id;
     self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
     self.info = self.edition + (pojo.card.foil ? " " + utils.icons.star : "");
 }

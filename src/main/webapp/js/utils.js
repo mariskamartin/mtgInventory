@@ -34,7 +34,10 @@
         var ajaxOpt = extend({
             type : type,
             contentType : 'application/json',
-            headers: {"X-Auth-Token": options.token || "no-token"}
+            headers: {"X-Auth-Token": options.token || "no-token"},
+            error : function(){
+                console.log(arguments);
+            }
         }, options);
         //set data convert
         ajaxOpt.data = JSON.stringify(options.dataJs);

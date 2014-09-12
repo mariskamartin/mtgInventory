@@ -44,7 +44,8 @@ public class WebPageSnifferService {
      */
     @Deprecated
     public static void main(String[] args) throws IOException {
-        WebPageSnifferService sniffer = new WebPageSnifferService();
+        ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
+        WebPageSnifferService sniffer = new WebPageSnifferService(executor);
         Stopwatch stopky = Stopwatch.createStarted();
         List<DailyCardInfo> list = new ArrayList<>();
         list.addAll(sniffer.findCardsAtWeb("stifle"));
@@ -52,7 +53,7 @@ public class WebPageSnifferService {
 
         System.out.println(stopky.stop().elapsed(TimeUnit.MILLISECONDS));
         System.out.println(list);
-        sniffer.shutdown();
+        executor.shutdown();
 
 //        Builder<DailyCardInfo> builder = ImmutableList.builder();
 ////        sniffer.parseNajada(sniffer.fetchFromNajadaKusovky("stifle"), builder);
@@ -75,12 +76,8 @@ public class WebPageSnifferService {
 
     private ExecutorService executor;
 
-    public WebPageSnifferService() {
-        executor = Executors.newFixedThreadPool(NUM_THREADS);
-    }
-
-    public void shutdown() {
-        executor.shutdown();
+    public WebPageSnifferService(ExecutorService executor) {
+        this.executor = executor;
     }
 
     /**
