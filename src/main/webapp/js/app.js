@@ -207,9 +207,9 @@ function InventoryViewModel() {
             }
         });
     };
-    self.removeCard = function(card) {
-        utils.json.del({
-            url : './rest/v1.0/cards/' + card.id,
+    self.removeCard = function(cardId) {
+        return utils.json.del({
+            url : './rest/v1.0/cards/' + cardId,
             token : self.user().token,
             success : function(result) {
                 self.cards.remove(function(item) {
@@ -340,14 +340,16 @@ var myInventory = {
             myInventory.viewModels.inventory.fetchMovements();
         }
     }, {
-        url : "#/detail(/:card_id)",
+        url : "#/detail(/:card_id)(/:action)",
         action : function() {
             //load or start for interests
             myInventory.viewModels.inventory.activePage(myInventory.viewModels.inventory.pages.DETAIL);
-            if(this.params["card_id"]){
+            if(this.params["card_id"] && !this.params["action"]){
                 myInventory.viewModels.inventory.getCard(this.params["card_id"]).done(function(result){
                     myInventory.viewModels.inventory.setCardDetail(new Card(result));
                 });
+            } else if(this.params["card_id"] && this.params["action"]){
+                myInventory.viewModels.inventory.removeCard(this.params["card_id"]);
             }
         }
     } ],
