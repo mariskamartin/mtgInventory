@@ -34,6 +34,7 @@ import com.gmail.mariska.martin.mtginventory.utils.Utils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
 
 /**
@@ -116,6 +117,15 @@ public class CardService extends AbstractService<Card> {
         return Collections.emptyList();
     }
 
+    public static void main(String[] args) {
+        List<String> list = Lists.newArrayList("Martin", "Petr", "Ludva", "Peta", "Lucka", "Krakonos", "Zdoja", "Semon", "Mrdlon", "Okec");
+        List<List<String>> partitions = Lists.partition(list, 3);
+
+        for (List<String> list2 : partitions) {
+            System.out.println(list2);
+        }
+    }
+
     /**
      * Odchyti vsechny aktualne spravovane karty
      * 
@@ -127,13 +137,16 @@ public class CardService extends AbstractService<Card> {
         long namesProcessedCount = 0;
         List<Card> allCards = new ArrayList<>();
         List<DailyCardInfo> addedDailyCardInformations = new ArrayList<>();
-        for (String name : cardNames) {
-            allCards.addAll(saveCardsIntoDb(fetchCardListByName(name), addedDailyCardInformations));
-            namesProcessedCount += 1;
+        List<List<String>> partitionedCardNames = Lists.partition(cardNames, 10);
+        for (List<String> cardNamelist : partitionedCardNames) {
+            String[] cardNamesArray = cardNamelist.toArray(new String[cardNamelist.size()]);
+            allCards.addAll(saveCardsIntoDb(fetchCardListByName(cardNamesArray),addedDailyCardInformations));
+            namesProcessedCount += cardNamelist.size();
             if (namesProcessedCount % 25 == 0) {
                 logger.info("fetching procesed " + namesProcessedCount + "/" + cardNames.size());
             }
         }
+
         logger.info("all cards fetched " + namesProcessedCount + "/" + cardNames.size());
         logger.info("elapsed time " + stopwatch.stop().elapsed(TimeUnit.MINUTES) + " minutes");
         // post new detached dci
@@ -151,9 +164,9 @@ public class CardService extends AbstractService<Card> {
         return saveCardsIntoDb(fetchCardListByName(cardName), null);
     }
 
-    private ImmutableList<DailyCardInfo> fetchCardListByName(String cardName) {
+    private ImmutableList<DailyCardInfo> fetchCardListByName(String... cardNames) {
         try {
-            return webPageSnifferService.findCardsAtWeb(cardName);
+            return webPageSnifferService.findCardsAtWeb(cardNames);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

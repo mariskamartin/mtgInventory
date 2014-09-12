@@ -48,8 +48,7 @@ public class WebPageSnifferService {
         WebPageSnifferService sniffer = new WebPageSnifferService(executor);
         Stopwatch stopky = Stopwatch.createStarted();
         List<DailyCardInfo> list = new ArrayList<>();
-        list.addAll(sniffer.findCardsAtWeb("stifle"));
-        list.addAll(sniffer.findCardsAtWeb("soldier"));
+        list.addAll(sniffer.findCardsAtWeb("stifle", "soldier"));
 
         System.out.println(stopky.stop().elapsed(TimeUnit.MILLISECONDS));
         System.out.println(list);
@@ -87,35 +86,39 @@ public class WebPageSnifferService {
      * @return
      * @throws IOException
      */
-    public ImmutableList<DailyCardInfo> findCardsAtWeb(final String cardFindName) throws IOException {
+    public ImmutableList<DailyCardInfo> findCardsAtWeb(final String... cardFindNames) throws IOException {
 
         Builder<DailyCardInfo> builder = ImmutableList.builder();
         List<Future<List<DailyCardInfo>>> futures = new ArrayList<>();
 
-        futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-            @Override
-            public List<DailyCardInfo> call() throws Exception {
-                Builder<DailyCardInfo> builder = ImmutableList.builder();
-                parseTolarie(fetchFromTolarieKusovky(cardFindName), builder);
-                return builder.build();
-            }
-        }));
-        futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-            @Override
-            public List<DailyCardInfo> call() throws Exception {
-                Builder<DailyCardInfo> builder = ImmutableList.builder();
-                parseCernyRytir(fetchFromCernyRytirKusovky(cardFindName), builder);
-                return builder.build();
-            }
-        }));
-        futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-            @Override
-            public List<DailyCardInfo> call() throws Exception {
-                Builder<DailyCardInfo> builder = ImmutableList.builder();
-                parseNajada(fetchFromNajadaKusovky(cardFindName), builder);
-                return builder.build();
-            }
-        }));
+        for (String cardName : cardFindNames) {
+            final String cardFindName = cardName;
+            System.out.println(cardFindName);
+            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+                @Override
+                public List<DailyCardInfo> call() throws Exception {
+                    Builder<DailyCardInfo> builder = ImmutableList.builder();
+                    parseTolarie(fetchFromTolarieKusovky(cardFindName), builder);
+                    return builder.build();
+                }
+            }));
+            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+                @Override
+                public List<DailyCardInfo> call() throws Exception {
+                    Builder<DailyCardInfo> builder = ImmutableList.builder();
+                    parseCernyRytir(fetchFromCernyRytirKusovky(cardFindName), builder);
+                    return builder.build();
+                }
+            }));
+            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+                @Override
+                public List<DailyCardInfo> call() throws Exception {
+                    Builder<DailyCardInfo> builder = ImmutableList.builder();
+                    parseNajada(fetchFromNajadaKusovky(cardFindName), builder);
+                    return builder.build();
+                }
+            }));
+        }
 
         for (Future<List<DailyCardInfo>> future : futures) {
             try {

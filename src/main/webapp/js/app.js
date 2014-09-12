@@ -295,6 +295,8 @@ function InventoryViewModel() {
         });
     };
 
+    self.adminActionsHtml = '<h1>Admin actions</h1><div><button type="button" class="btn btn-success" data-bind="click: fetchallManagedCards">managed cards update</button><button type="button" class="btn btn-success" data-bind="click: generateMovements">generate movements</button></div>';
+    
     // Load initial state from server
 //    utils.json.get({
 //        url : "./rest/v1.0/cards",

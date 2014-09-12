@@ -8,7 +8,7 @@
     <meta name="author" content="Mariska Martin">
     <link rel="icon" href="http://getbootstrap.com/favicon.ico">
 
-    <title>MTG Inventory v1.0.14</title>
+    <title>MTG Inventory v1.0.15</title>
 
     <!-- Bootstrap core CSS -->
     <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -117,13 +117,7 @@
 		</div>
 
 		<div class="row" data-bind="if: user().isAdmin && activePage() == pages.INTERESTS">
-		  	<div class="col-md-12">
-				<h1>Admin actions</h1>
-				<div>
-				    <button type="button" class="btn btn-success" data-bind="click: fetchallManagedCards">managed cards update</button>
-				    <button type="button" class="btn btn-success" data-bind="click: generateMovements">generate movements</button>
-				</div>
-			</div>
+			<div class="col-md-12" data-bind="html: adminActionsHtml"></div>
 		</div>
 		<!-- Content for actove page -->
 		<div data-bind="if: activePage() == pages.INTERESTS">

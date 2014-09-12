@@ -28,6 +28,7 @@ public class AlertService {
         watchedCardOnStore.add("Courser of Kruphix");
         watchedCardOnStore.add("Hornet Nest");
         watchedCardOnStore.add("Setessan Tactics");
+        watchedCardOnStore.add("Mana Confluence");
     }
 
 // @Subscribe
