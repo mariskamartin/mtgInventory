@@ -18,6 +18,13 @@ User.EMPTY = new User({
     name : "unknown name"
 });
 
+MY_INVENOTORY_PAGES = {
+    HOME: "#/home",
+    INTERESTS : "#/interests",
+    DETAIL : "#/detail"
+};
+
+
 function Card(pojo) {
     var self = this;
     self.id = pojo.id;
@@ -27,7 +34,7 @@ function Card(pojo) {
     self.foil = pojo.foil;
     self.storeAmount = ko.observable(pojo.storeAmount);
     // others helps
-    self.hrefDetail = "#/detail/" + pojo.id;
+    self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.id;
     self.editionKey = pojo.editionKey;
     self.foilTxt = pojo.foil ? "FOIL" : "";
     self.crLink = "<a href=\"javascript:utils.links.openCernyRytir('" + this.name + "');\">Černý Rytíř</a>";
@@ -53,7 +60,7 @@ function CardMovement(pojo) {
     self.oldPrice = pojo.oldPrice;
     self.newPrice = pojo.newPrice;
     // others helps
-    self.hrefDetail = "#/detail/" + pojo.id;
+    self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.card.id;
     self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
     self.info = self.edition + (pojo.card.foil ? " " + utils.icons.star : "");
 }
@@ -161,11 +168,7 @@ function InventoryViewModel() {
     self.cardMovementsWeek = ko.observableArray([]);
     self.cardDetail = ko.observable(Card.EMPTY);
 
-    self.pages = {
-        HOME: "home",
-        INTERESTS : "interests",
-        DETAIL : "detail"
-    };
+    self.pages = MY_INVENOTORY_PAGES;
     
     // Operations
     self.findCardInForm = function() {
@@ -199,6 +202,7 @@ function InventoryViewModel() {
         });
     };
     self.fetchallManagedCards = function() {
+        console.log("fetch all cards");
         utils.json.get({
             url : './rest/v1.0/cards/fetch/',
             token : self.user().token,
@@ -250,10 +254,10 @@ function InventoryViewModel() {
     };
     //card detail
     self.populateCardDetailFromMovement = function(movement) {
-        document.location = "#/detail/"+movement.cardPojo.id;
+        document.location = MY_INVENOTORY_PAGES.DETAIL+"/"+movement.cardPojo.id;
     };
     self.populateCardDetailFromTable = function(cardPojo) {
-        document.location = "#/detail/"+cardPojo.id;
+        document.location = MY_INVENOTORY_PAGES.DETAIL+"/"+cardPojo.id;
     };
     self.setCardDetail = function(card){
         self.cardDetail(card);
@@ -295,8 +299,6 @@ function InventoryViewModel() {
         });
     };
 
-    self.adminActionsHtml = '<h1>Admin actions</h1><div><button type="button" class="btn btn-success" data-bind="click: fetchallManagedCards">managed cards update</button><button type="button" class="btn btn-success" data-bind="click: generateMovements">generate movements</button></div>';
-    
     // Load initial state from server
 //    utils.json.get({
 //        url : "./rest/v1.0/cards",
@@ -326,24 +328,24 @@ var myInventory = {
      * Routovani aplikace na in-pages
      */
     routes : [ {
-        url : "#/home",
+        url : MY_INVENOTORY_PAGES.HOME,
         root : true,
         action : function() {
             //load or start for home
-            myInventory.viewModels.inventory.activePage(myInventory.viewModels.inventory.pages.HOME);
+            myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.HOME);
         }
     }, {
-        url : "#/interests",
+        url : MY_INVENOTORY_PAGES.INTERESTS,
         action : function() {
             //load or start for interests
-            myInventory.viewModels.inventory.activePage(myInventory.viewModels.inventory.pages.INTERESTS);
+            myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.INTERESTS);
             myInventory.viewModels.inventory.fetchMovements();
         }
     }, {
-        url : "#/detail(/:card_id)(/:action)",
+        url : MY_INVENOTORY_PAGES.DETAIL + "(/:card_id)(/:action)",
         action : function() {
             //load or start for interests
-            myInventory.viewModels.inventory.activePage(myInventory.viewModels.inventory.pages.DETAIL);
+            myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.DETAIL);
             if(this.params["card_id"] && !this.params["action"]){
                 myInventory.viewModels.inventory.getCard(this.params["card_id"]).done(function(result){
                     myInventory.viewModels.inventory.setCardDetail(new Card(result));
