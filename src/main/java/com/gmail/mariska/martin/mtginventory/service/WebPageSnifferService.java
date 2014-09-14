@@ -295,8 +295,10 @@ public class WebPageSnifferService {
      * @author MAR
      */
     public static final class CardConverter {
-        private static final String FOIL_CR = " - foil";
+        private static final String CR_FOIL = " - foil";
         private static final String FOIL_TOLARIE = "(foil)";
+
+        private static final String CR_PREDOBJEDNAVKA = " (předobjednávka, vychází 26.9)";
 
         private CardConverter() {
         }
@@ -315,8 +317,11 @@ public class WebPageSnifferService {
         public static Card valueOfCernyRytirElement(Element nameE, Element ediceTypE, Element dataE) {
             Card c = new Card();
             String name = nameE.select("div").first().text();
-            c.setFoil(name.contains(FOIL_CR));
-            c.setName(name.replaceAll("´", "'").replaceAll(Pattern.quote(FOIL_CR), "").trim());
+            c.setFoil(name.contains(CR_FOIL));
+            c.setName(name.replaceAll("´", "'")
+                    .replaceAll(Pattern.quote(CR_FOIL), "")
+                    .replaceAll(Pattern.quote(CR_PREDOBJEDNAVKA), "")
+                    .trim());
             c.setRarity(CardRarity.valueFrom(dataE.select("td").first().text().toUpperCase()));
             c.setEdition(CardEdition.valueFromName(ediceTypE.select("td").get(0).text()));
             return c;

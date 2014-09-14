@@ -28,8 +28,6 @@ public class CardDaoValidated extends CardDao {
         for (BannedCardNames bc : all) {
             bannedCardNameSet.add(bc.getIdBannedName());
         }
-        System.out.println("###############################");
-        System.out.println(bannedCardNameSet.toString());
     }
 
     @Override

@@ -13,7 +13,32 @@
         return destination; 
     }
 
+    // -----------------------------------------
+    function info(msg, title) {
+        notify(msg, title || "Information", "info");        
+    };
+    function success(msg, title) {
+        notify(msg, title || "Success", "success");        
+    };
+    function warn(msg, title) {
+        notify(msg, title || "Warning", "warn");        
+    };
+    function error(msg, title) {
+        notify(msg, title || "Error", "error");        
+    };
+    function notify(msg, title, type) {
+        if(PNotify){
+            new PNotify({
+                title : title,
+                text: msg,
+                type: type
+            });
+        } else {
+            console.log(arguments);
+        }
+    };
     
+    // -----------------------------------------
     function jsonGet(options){
         return _ajax('GET', options);
     };
@@ -35,8 +60,8 @@
             type : type,
             contentType : 'application/json',
             headers: {"X-Auth-Token": options.token || "no-token"},
-            error : function(){
-                console.log(arguments);
+            error : function(response, type, msg){
+                error(response.responseText, msg);
             }
         }, options);
         //set data convert
@@ -108,6 +133,12 @@
             del: jsonDelete,
             get: jsonGet,
             post : jsonPost
+        },
+        msg : {
+            info : info,
+            success : success,
+            warn : warn,
+            error : error
         },
         
         //others

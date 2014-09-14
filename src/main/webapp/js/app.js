@@ -361,6 +361,13 @@ var myInventory = {
                 });
             } else if(this.params["card_id"] && this.params["action"] && this.params["action"] === "delete"){
                 myInventory.viewModels.inventory.removeCard(this.params["card_id"]);
+                utils.msg.success("Card deleted");
+            } else if(this.params["card_id"] && this.params["action"] && this.params["action"] === "ban"){
+                myInventory.viewModels.inventory.getCard(this.params["card_id"]).done(function(result){
+                    myInventory.viewModels.inventory.banCardName(result.name).done(function(result){
+                        utils.msg.success("Added banned card " + result.idBannedName);
+                    });
+                });
             }
         }
     } ],

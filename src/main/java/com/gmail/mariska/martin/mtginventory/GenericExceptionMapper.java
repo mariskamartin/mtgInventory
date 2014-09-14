@@ -18,11 +18,15 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
             if (logger.isDebugEnabled()) {
                 logger.debug(ex.getMessage());
             }
-            return ((WebApplicationException) ex).getResponse();
+            Response origResponse = ((WebApplicationException) ex).getResponse();
+            return Response.fromResponse(origResponse)
+                    .type(MediaType.TEXT_PLAIN)
+                    .entity(ex.getMessage())
+                    .build();
         } else {
             logger.error(ex.getMessage(), ex);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(ex.getMessage() + '\n' + ex.getStackTrace())
+                    .entity(ex.getMessage())
                     .type(MediaType.TEXT_PLAIN)
                     .build();
         }
