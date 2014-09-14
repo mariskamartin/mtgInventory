@@ -20,6 +20,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.auth.AuthenticationRequired;
+import com.gmail.mariska.martin.mtginventory.db.model.BannedCardNames;
 import com.gmail.mariska.martin.mtginventory.db.model.Card;
 import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
@@ -132,6 +133,14 @@ public class CardResource {
     @Path("/movements/{type}")
     public List<CardMovement> getCardMovementsByType(@PathParam("type") CardMovementType type) {
         return new CardService(context).getCardMovementsByType(type);
+    }
+
+    @AuthenticationRequired
+    @POST
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Path("/ban/")
+    public BannedCardNames banCardName(BannedCardNames bannedCard) throws IOException {
+        return new CardService(context).addBannedCardName(bannedCard);
     }
 
     @AuthenticationRequired

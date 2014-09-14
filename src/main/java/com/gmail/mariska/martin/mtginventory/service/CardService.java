@@ -15,9 +15,11 @@ import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 
+import com.gmail.mariska.martin.mtginventory.db.BannedCardNamesDao;
 import com.gmail.mariska.martin.mtginventory.db.CardDao;
 import com.gmail.mariska.martin.mtginventory.db.CardMovementDao;
 import com.gmail.mariska.martin.mtginventory.db.DailyCardInfoDao;
+import com.gmail.mariska.martin.mtginventory.db.model.BannedCardNames;
 import com.gmail.mariska.martin.mtginventory.db.model.Card;
 import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
@@ -25,6 +27,8 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.CardRarity;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
+import com.gmail.mariska.martin.mtginventory.db.validators.BannedCardException;
+import com.gmail.mariska.martin.mtginventory.db.validators.CardDaoValidated;
 import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.listeners.EventBusManager;
 import com.gmail.mariska.martin.mtginventory.listeners.SupportServiciesManager;
@@ -48,10 +52,13 @@ public class CardService extends AbstractService<Card> {
     private CardDao cardDao;
     private EventBus eventBus; // pro postovani zprav
     private WebPageSnifferService webPageSnifferService;
+    private BannedCardNamesDao bannedCardNamesDao;
+
 
     public CardService(EntityManager em, EventBus eventBus, WebPageSnifferService sniffer) {
-        super(em, new CardDao(em));
+        super(em, new CardDaoValidated(em, new BannedCardNamesDao(em)));
         this.cardDao = (CardDao) super.getDao();
+        this.bannedCardNamesDao = new BannedCardNamesDao(em);
         this.eventBus = eventBus;
         this.webPageSnifferService = sniffer;
     }
@@ -115,15 +122,6 @@ public class CardService extends AbstractService<Card> {
             logger.error(e.getMessage(), e);
         }
         return Collections.emptyList();
-    }
-
-    public static void main(String[] args) {
-        List<String> list = Lists.newArrayList("Martin", "Petr", "Ludva", "Peta", "Lucka", "Krakonos", "Zdoja", "Semon", "Mrdlon", "Okec");
-        List<List<String>> partitions = Lists.partition(list, 3);
-
-        for (List<String> list2 : partitions) {
-            System.out.println(list2);
-        }
     }
 
     /**
@@ -231,6 +229,13 @@ public class CardService extends AbstractService<Card> {
                 }
             }
             tx.commit();
+        } catch (BannedCardException e) {
+            if (logger.isTraceEnabled()) {
+                logger.trace(e.getMessage());
+            }
+            if (tx.isActive()) {
+                tx.rollback();
+            }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             if (tx.isActive()) {
@@ -323,5 +328,18 @@ public class CardService extends AbstractService<Card> {
         EntityManager em = getEm();
         CardMovementDao cmDao = new CardMovementDao(em);
         return cmDao.getByType(type);
+    }
+
+    /**
+     * Zabanuje jmeno dane karty
+     * 
+     * @param bannedCard
+     * @return
+     */
+    public BannedCardNames addBannedCardName(BannedCardNames bannedCard) {
+        getEm().getTransaction().begin();
+        bannedCardNamesDao.insert(bannedCard);
+        getEm().getTransaction().commit();
+        return bannedCard;
     }
 }

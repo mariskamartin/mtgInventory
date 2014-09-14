@@ -3,7 +3,6 @@ package com.gmail.mariska.martin.mtginventory.db;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -18,7 +17,6 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardRarity;
 import com.gmail.mariska.martin.mtginventory.utils.Utils;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Pro praci s kartami
@@ -28,7 +26,6 @@ import com.google.common.collect.Sets;
  */
 public class CardDao extends AbstractDao<Card> implements IDao<Card> {
     private EntityManager em;
-    private static Set<String> bannedCardNames = Sets.newHashSet("Temple of Triumph - chinese", "Temple of Deceit - chinese");
 
     public CardDao(EntityManager em) {
         super(Card.class, em);
@@ -37,10 +34,6 @@ public class CardDao extends AbstractDao<Card> implements IDao<Card> {
 
     @Override
     public void insert(Card entity) {
-        //validace na zabanovane nazvy karet, ktere nechceme ukladat ani k nim zadne informace
-        if (bannedCardNames.contains(entity.getName())) {
-            throw new IllegalArgumentException("Banned card");
-        }
         super.insert(entity);
     }
 

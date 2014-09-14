@@ -222,6 +222,15 @@ function InventoryViewModel() {
             }
         });
     };    
+    self.banCardName = function(cardName) {
+        return utils.json.post({
+            url : './rest/v1.0/cards/ban',
+            token : self.user().token,
+            dataJs : {
+                idBannedName : cardName
+            }
+        });
+    };    
     //movements
     self.generateMovements = function() {
         utils.json.get({
@@ -350,7 +359,7 @@ var myInventory = {
                 myInventory.viewModels.inventory.getCard(this.params["card_id"]).done(function(result){
                     myInventory.viewModels.inventory.setCardDetail(new Card(result));
                 });
-            } else if(this.params["card_id"] && this.params["action"]){
+            } else if(this.params["card_id"] && this.params["action"] && this.params["action"] === "delete"){
                 myInventory.viewModels.inventory.removeCard(this.params["card_id"]);
             }
         }
