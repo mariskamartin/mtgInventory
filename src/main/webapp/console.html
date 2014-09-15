@@ -17,6 +17,8 @@
 	rel="stylesheet">
 <!-- Load c3.css -->
 <link href="./lib/c3/c3.css" rel="stylesheet" type="text/css">
+    <!-- Load pnotify.css -->
+	<link href="./lib/pnotify/pnotify.custom.min.css" rel="stylesheet" type="text/css">
 
 <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!--[if lt IE 9]>
@@ -28,19 +30,19 @@
 <body>
 	<div class="container">
 		<form class="form" accept-charset="UTF-8" data-bind="submit: submitConsole">
-			<textarea class="form-control" rows="6"></textarea>
-            <div class="form-group">
+			<textarea data-bind="value: input" class="form-control" rows="6"></textarea>
                <button type="submit" class="btn btn-success btn-block">Submit</button>
-            </div>
+			<textarea data-bind="value: output" class="form-control readonly" rows="18"></textarea>
 		</form>	
 	</div><!-- /.container -->
 
 	<!-- Placed at the end of the document so the pages load faster -->
-	<script type='text/javascript' src="./lib/routing/path.min.js"></script>
-	<script type='text/javascript' src="./lib/store/store2.min.js"></script>
-	<script type='text/javascript' src="./lib/jquery-1.8.3.js"></script>
-	<script type='text/javascript' src="./lib/bootstrap/js/bootstrap.min.js"></script>
-	<script type='text/javascript' src='./lib/knockout-3.1.0.min.js'></script>
+    <script type='text/javascript' src="./lib/routing/path.min.js"></script>
+    <script type='text/javascript' src="./lib/store/store2.min.js"></script>
+    <script type='text/javascript' src="./lib/jquery-1.8.3.js"></script>
+    <script type='text/javascript' src="./lib/pnotify/pnotify.custom.min.js"></script>
+    <script type='text/javascript' src="./lib/bootstrap/js/bootstrap.min.js"></script>
+    <script type='text/javascript' src='./lib/knockout-3.1.0.min.js'></script>
 	<script src="./js/utils.js"></script>
 	<script src="./js/console.js"></script>
 </body>
