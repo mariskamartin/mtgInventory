@@ -301,7 +301,7 @@ function InventoryViewModel() {
                         });
                     }
                     self.cardDetail().storeAmount(txtSkladem);
-                }, 1000);
+                }, 200);
 
                 document.getElementById("cardDetail").scrollIntoView(true);
             }
@@ -347,8 +347,8 @@ var myInventory = {
         url : MY_INVENOTORY_PAGES.INTERESTS,
         action : function() {
             //load or start for interests
-            myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.INTERESTS);
             myInventory.viewModels.inventory.fetchMovements();
+            myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.INTERESTS);
         }
     }, {
         url : MY_INVENOTORY_PAGES.DETAIL + "(/:card_id)(/:action)",
@@ -406,5 +406,8 @@ var chart = c3.generate({
                 format : '%d.%m.%Y'
             }
         }
+    },
+    transition: {
+        duration: 50
     }
 });
