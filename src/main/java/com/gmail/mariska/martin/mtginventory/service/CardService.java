@@ -11,14 +11,13 @@ import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
-import javax.servlet.ServletContext;
 
 import org.apache.log4j.Logger;
 
-import com.gmail.mariska.martin.mtginventory.db.BannedCardNamesDao;
 import com.gmail.mariska.martin.mtginventory.db.CardDao;
 import com.gmail.mariska.martin.mtginventory.db.CardMovementDao;
 import com.gmail.mariska.martin.mtginventory.db.DailyCardInfoDao;
+import com.gmail.mariska.martin.mtginventory.db.IDao;
 import com.gmail.mariska.martin.mtginventory.db.model.BannedCardNames;
 import com.gmail.mariska.martin.mtginventory.db.model.Card;
 import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
@@ -28,12 +27,9 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardRarity;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.gmail.mariska.martin.mtginventory.db.validators.BannedCardException;
-import com.gmail.mariska.martin.mtginventory.db.validators.CardDaoValidated;
-import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
-import com.gmail.mariska.martin.mtginventory.listeners.EventBusManager;
-import com.gmail.mariska.martin.mtginventory.listeners.SupportServiciesManager;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.DailyCardInfoAlertEvent;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.MovementAlertEvent;
+import com.gmail.mariska.martin.mtginventory.sniffer.CernyRytirLoader;
 import com.gmail.mariska.martin.mtginventory.utils.Utils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
@@ -52,21 +48,15 @@ public class CardService extends AbstractService<Card> {
     private CardDao cardDao;
     private EventBus eventBus; // pro postovani zprav
     private WebPageSnifferService webPageSnifferService;
-    private BannedCardNamesDao bannedCardNamesDao;
+    private IDao<BannedCardNames> bannedCardNamesDao;
 
 
-    public CardService(EntityManager em, EventBus eventBus, WebPageSnifferService sniffer) {
-        super(em, new CardDaoValidated(em, new BannedCardNamesDao(em)));
-        this.cardDao = (CardDao) super.getDao();
-        this.bannedCardNamesDao = new BannedCardNamesDao(em);
+    protected CardService(EntityManager em, EventBus eventBus, WebPageSnifferService sniffer, IDao<Card> dao, IDao<BannedCardNames> bannedCardsDao) {
+        super(em, dao);
+        this.cardDao = (CardDao) dao;
+        this.bannedCardNamesDao = bannedCardsDao;
         this.eventBus = eventBus;
         this.webPageSnifferService = sniffer;
-    }
-
-    public CardService(ServletContext ctx) {
-        this(DatabaseManager.getEM(ctx),
-                EventBusManager.getEventBus(ctx),
-                new WebPageSnifferService(SupportServiciesManager.getExecutorService(ctx)));
     }
 
     /**
@@ -117,7 +107,7 @@ public class CardService extends AbstractService<Card> {
      */
     public Collection<Card> fetchCardsByEditionRarityOnCR(CardEdition edition, String rarity) {
         try {
-            return saveCardsIntoDb(webPageSnifferService.findCardsAtCRByEditionAndRarity(edition, rarity), null);
+            return saveCardsIntoDb(new CernyRytirLoader().sniffByEdition(edition), null);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -171,8 +161,7 @@ public class CardService extends AbstractService<Card> {
         return ImmutableList.of();
     }
 
-    private Collection<Card> saveCardsIntoDb(ImmutableList<DailyCardInfo> cardList,
-            List<DailyCardInfo> addedDailyCardInformations) {
+    private Collection<Card> saveCardsIntoDb(List<DailyCardInfo> cardList, List<DailyCardInfo> addedDailyCardInformations) {
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();

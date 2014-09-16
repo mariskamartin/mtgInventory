@@ -301,7 +301,7 @@ function InventoryViewModel() {
                         });
                     }
                     self.cardDetail().storeAmount(txtSkladem);
-                }, 200);
+                }, 355);
 
                 document.getElementById("cardDetail").scrollIntoView(true);
             }
@@ -408,6 +408,6 @@ var chart = c3.generate({
         }
     },
     transition: {
-        duration: 50
+        duration: 150
     }
 });

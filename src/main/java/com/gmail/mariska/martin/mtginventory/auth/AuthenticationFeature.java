@@ -9,9 +9,8 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.FeatureContext;
 import javax.ws.rs.ext.Provider;
 
-import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.service.AuthService;
-import com.gmail.mariska.martin.mtginventory.service.UserService;
+import com.gmail.mariska.martin.mtginventory.service.ServiceFactory;
 
 @Provider
 public class AuthenticationFeature implements DynamicFeature {
@@ -31,7 +30,7 @@ public class AuthenticationFeature implements DynamicFeature {
 
     private AuthService getAuthProvider() {
         if (authService == null) {
-            authService = new AuthService(new UserService(DatabaseManager.getEM(ctx)));
+            authService = new AuthService(ServiceFactory.createUserService(ctx));
         }
         return authService;
     }

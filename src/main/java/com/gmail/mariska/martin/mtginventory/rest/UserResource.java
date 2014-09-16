@@ -19,8 +19,8 @@ import org.apache.log4j.Logger;
 import com.gmail.mariska.martin.mtginventory.auth.AuthenticationRequired;
 import com.gmail.mariska.martin.mtginventory.db.model.AuthModel;
 import com.gmail.mariska.martin.mtginventory.db.model.User;
-import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.service.AuthService;
+import com.gmail.mariska.martin.mtginventory.service.ServiceFactory;
 import com.gmail.mariska.martin.mtginventory.service.UserService;
 
 @Path("/users")
@@ -34,7 +34,7 @@ public class UserResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/authenticate/")
     public User authenticateUser(AuthModel authModel) throws IllegalAccessException {
-        UserService userService = new UserService(DatabaseManager.getEM(context));
+        UserService userService = ServiceFactory.createUserService(context);
         AuthService authService = new AuthService(userService);
         return authService.authenticate(authModel.getLoginEmail(), authModel.getPassword());
     }
@@ -43,7 +43,7 @@ public class UserResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<User> getUsers() {
-        return new UserService(DatabaseManager.getEM(context)).getAll();
+        return ServiceFactory.createUserService(context).getAll();
     }
 
     @AuthenticationRequired
@@ -51,7 +51,7 @@ public class UserResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/{id}")
     public User getTodoById(@PathParam("id") String userId) {
-        return new UserService(DatabaseManager.getEM(context)).findById(userId);
+        return ServiceFactory.createUserService(context).findById(userId);
     }
 
 //    @AuthenticationRequired
@@ -59,7 +59,7 @@ public class UserResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public User insertUser(User newUser) throws IOException {
         logger.debug("new user: " + newUser);
-        return new UserService(DatabaseManager.getEM(context)).insert(newUser);
+        return ServiceFactory.createUserService(context).insert(newUser);
     }
 
     @AuthenticationRequired
@@ -67,13 +67,13 @@ public class UserResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public User updateUser(User user) throws IOException {
         logger.debug("update user: " + user);
-        return new UserService(DatabaseManager.getEM(context)).update(user);
+        return ServiceFactory.createUserService(context).update(user);
     }
 
     @AuthenticationRequired
     @DELETE
     @Path("/{id}")
     public User deleteUser(@PathParam("id") String userId) {
-        return new UserService(DatabaseManager.getEM(context)).delete(userId);
+        return ServiceFactory.createUserService(context).delete(userId);
     }
 }

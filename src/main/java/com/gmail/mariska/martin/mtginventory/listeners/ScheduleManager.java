@@ -19,6 +19,7 @@ import org.joda.time.Duration;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.service.AlertService;
 import com.gmail.mariska.martin.mtginventory.service.CardService;
+import com.gmail.mariska.martin.mtginventory.service.ServiceFactory;
 import com.gmail.mariska.martin.mtginventory.utils.Utils;
 import com.google.common.eventbus.EventBus;
 
@@ -73,7 +74,7 @@ public class ScheduleManager implements ServletContextListener {
                 try {
                     EventBus eventBus = EventBusManager.getEventBus(ctx);
                     logger.info("start auto uploading information about managed cards");
-                    CardService cardService = new CardService(ctx);
+                    CardService cardService = ServiceFactory.createCardService(ctx);
                     cardService.fetchAllManagedCards();
                     logger.info("end of auto uploading information about managed cards");
                     logger.info("start auto update card movements");

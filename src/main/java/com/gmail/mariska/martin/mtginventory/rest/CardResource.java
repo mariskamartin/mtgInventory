@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.DELETE;
@@ -26,12 +25,10 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
-import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
 import com.gmail.mariska.martin.mtginventory.listeners.EventBusManager;
-import com.gmail.mariska.martin.mtginventory.listeners.SupportServiciesManager;
 import com.gmail.mariska.martin.mtginventory.service.CardService;
 import com.gmail.mariska.martin.mtginventory.service.EmailService.EmailMessage;
-import com.gmail.mariska.martin.mtginventory.service.WebPageSnifferService;
+import com.gmail.mariska.martin.mtginventory.service.ServiceFactory;
 import com.google.common.eventbus.EventBus;
 
 @Path("/cards")
@@ -44,21 +41,21 @@ public class CardResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<Card> getCards() {
-        return new CardService(context).getAllWithoutFoil();
+        return ServiceFactory.createCardService(context).getAllWithoutFoil();
     }
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/{id}")
     public Card getCardById(@PathParam("id") String id) {
-        return new CardService(context).findById(id);
+        return ServiceFactory.createCardService(context).findById(id);
     }
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("find/{text}")
     public Collection<Card> findCardsByText(@PathParam("text") String text) {
-        return new CardService(context).findsCards(text);
+        return ServiceFactory.createCardService(context).findsCards(text);
     }
 
 // @AuthenticationRequired
@@ -74,7 +71,7 @@ public class CardResource {
         EventBus eventBus = EventBusManager.getEventBus(context);
 
         if (action.equals("movement")) {
-            CardService cardService = new CardService(context);
+            CardService cardService = ServiceFactory.createCardService(context);
             Date now = new Date();
             cardService.deleteCardMovementByType(CardMovementType.DAY);
             cardService.generateCardsMovements(now, CardMovementType.DAY);
@@ -82,7 +79,7 @@ public class CardResource {
             cardService.generateCardsMovements(now, CardMovementType.START_OF_WEEK);
         } else if (action.equals("fetchedition")) {
             // /MtgInventory/rest/v1.0/cards/generate/fetchedition?edition=MAGIC_2015&rarity=M
-            CardService cardService = new CardService(context);
+            CardService cardService = ServiceFactory.createCardService(context);
             cardService.fetchCardsByEditionRarityOnCR(CardEdition.valueOf(edition), rarityCrKey);
         } else if (action.equals("testemail")) {
             eventBus.post(new EmailMessage.Builder().testMsg().build());
@@ -98,7 +95,7 @@ public class CardResource {
         if (logger.isDebugEnabled()) {
             logger.debug("Fetching new card: " + name);
         }
-        return new CardService(context).fetchCards(name);
+        return ServiceFactory.createCardService(context).fetchCards(name);
     }
 
     @AuthenticationRequired
@@ -109,17 +106,14 @@ public class CardResource {
         if (logger.isDebugEnabled()) {
             logger.debug("User invoked fetching");
         }
-        ExecutorService executorService = SupportServiciesManager.getExecutorService(context);
-        WebPageSnifferService sniffer = new WebPageSnifferService(executorService);
-        return new CardService(DatabaseManager.getEM(context), EventBusManager.getEventBus(context), sniffer)
-        .fetchAllManagedCards();
+        return ServiceFactory.createCardService(context).fetchAllManagedCards();
     }
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/dailyinfo/{id}")
     public List<DailyCardInfo> getDailyCardInfoById(@PathParam("id") String id) {
-        return new CardService(context).getDailyInfo(id);
+        return ServiceFactory.createCardService(context).getDailyInfo(id);
     }
 
     /**
@@ -132,7 +126,7 @@ public class CardResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/movements/{type}")
     public List<CardMovement> getCardMovementsByType(@PathParam("type") CardMovementType type) {
-        return new CardService(context).getCardMovementsByType(type);
+        return ServiceFactory.createCardService(context).getCardMovementsByType(type);
     }
 
     @AuthenticationRequired
@@ -140,20 +134,20 @@ public class CardResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/ban/")
     public BannedCardNames banCardName(BannedCardNames bannedCard) throws IOException {
-        return new CardService(context).addBannedCardName(bannedCard);
+        return ServiceFactory.createCardService(context).addBannedCardName(bannedCard);
     }
 
     @AuthenticationRequired
     @POST
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public Card insert(Card newEnt) throws IOException {
-        return new CardService(context).insert(newEnt);
+        return ServiceFactory.createCardService(context).insert(newEnt);
     }
 
     @AuthenticationRequired
     @DELETE
     @Path("/{id}")
     public Card delete(@PathParam("id") String id) {
-        return new CardService(context).delete(id);
+        return ServiceFactory.createCardService(context).delete(id);
     }
 }
