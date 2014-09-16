@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import com.google.common.collect.Maps;
 
 public enum CardRarity {
-    RARE, MYTHIC("Mythic Rare"), UNCOMMON, COMMON, UNKNOWN("PROMO", "SPECIAL"), TOKEN, LAND("basic land", "land");
+    RARE, MYTHIC("Mythic Rare"), UNCOMMON, COMMON, UNKNOWN, TOKEN("Emblem"), LAND("basic land", "land"), SPECIAL("PROMO", "SPECIAL", "Timeshifted");
 
     private static final Logger logger = Logger.getLogger(CardRarity.class);
     private static final Map<String, CardRarity> cache = Maps.newHashMap();

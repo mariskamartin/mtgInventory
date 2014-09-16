@@ -2,6 +2,7 @@ package com.gmail.mariska.martin.mtginventory.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -20,7 +21,9 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardRarity;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.gmail.mariska.martin.mtginventory.sniffer.CernyRytirLoader;
+import com.gmail.mariska.martin.mtginventory.sniffer.ISniffStrategy;
 import com.gmail.mariska.martin.mtginventory.sniffer.NajadaLoader;
+import com.gmail.mariska.martin.mtginventory.sniffer.RishadaLoader;
 import com.gmail.mariska.martin.mtginventory.sniffer.TolarieLoader;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
@@ -47,9 +50,9 @@ public class WebPageSnifferService {
         WebPageSnifferService sniffer = new WebPageSnifferService(executor);
         Stopwatch stopky = Stopwatch.createStarted();
         List<DailyCardInfo> list = new ArrayList<>();
-        list.addAll(sniffer.findCardsAtWeb(CardEdition.JOURNEY_INTO_NYX));
-        list.addAll(sniffer.findCardsAtWeb(CardEdition.THEROS));
-// list.addAll(sniffer.findCardsAtWeb("stifle", "soldier"));
+//        list.addAll(sniffer.findCardsAtWeb(CardEdition.JOURNEY_INTO_NYX));
+//        list.addAll(sniffer.findCardsAtWeb(CardEdition.THEROS));
+        list.addAll(sniffer.findCardsAtWeb("stifle", "soldier"));
 
         System.out.println(stopky.stop().elapsed(TimeUnit.MILLISECONDS));
         System.out.println(list);
@@ -74,9 +77,15 @@ public class WebPageSnifferService {
     }
 
     private ExecutorService executor;
+    private List<ISniffStrategy> loaders;
+
+    protected WebPageSnifferService(ExecutorService executor, List<ISniffStrategy> loaders) {
+        this.executor = executor;
+        this.loaders = loaders;
+    }
 
     protected WebPageSnifferService(ExecutorService executor) {
-        this.executor = executor;
+        this(executor, Arrays.asList(new TolarieLoader(), new CernyRytirLoader(), new NajadaLoader(), new RishadaLoader()));
     }
 
     /**
@@ -91,27 +100,33 @@ public class WebPageSnifferService {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
         List<Future<List<DailyCardInfo>>> futures = new ArrayList<>();
 
-        for (String cardName : cardFindNames) {
-            final String cardFindName = cardName;
-            System.out.println(cardFindName);
-            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-                @Override
-                public List<DailyCardInfo> call() throws Exception {
-                    return new TolarieLoader().sniffByCardName(cardFindName);
-                }
-            }));
-            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-                @Override
-                public List<DailyCardInfo> call() throws Exception {
-                    return new CernyRytirLoader().sniffByCardName(cardFindName);
-                }
-            }));
-            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-                @Override
-                public List<DailyCardInfo> call() throws Exception {
-                    return new NajadaLoader().sniffByCardName(cardFindName);
-                }
-            }));
+        for (final String cardFindName : cardFindNames) {
+            for (final ISniffStrategy loader : loaders) {
+                futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+                    @Override
+                    public List<DailyCardInfo> call() throws Exception {
+                        return loader.sniffByCardName(cardFindName);
+                    }
+                }));
+            }
+//            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+//                @Override
+//                public List<DailyCardInfo> call() throws Exception {
+//                    return new TolarieLoader().sniffByCardName(cardFindName);
+//                }
+//            }));
+//            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+//                @Override
+//                public List<DailyCardInfo> call() throws Exception {
+//                    return new CernyRytirLoader().sniffByCardName(cardFindName);
+//                }
+//            }));
+//            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+//                @Override
+//                public List<DailyCardInfo> call() throws Exception {
+//                    return new NajadaLoader().sniffByCardName(cardFindName);
+//                }
+//            }));
         }
 
         for (Future<List<DailyCardInfo>> future : futures) {
@@ -205,5 +220,28 @@ public class WebPageSnifferService {
             c.setEdition(CardEdition.valueFromName(innerValues.get(6).text().trim()));
             return c;
         }
+
+        public static Card valueOfRishadaElement(Element element) {
+            Card c = new Card();
+            Elements innerValues = element.children();
+            c.setName(innerValues.get(0).text().trim());
+            c.setFoil(innerValues.get(1).text().toLowerCase().contains("ano"));
+            c.setRarity(CardRarity.valueFrom(innerValues.get(4).text().trim().toUpperCase()));
+            c.setEdition(CardEdition.valueFromName(innerValues.get(1).text().trim()));
+            return c;
+        }
+        /*
+<tr bgcolor="#303037">
+ <td class="tbody"><a title="header=[Hammer of Bogardan] body=[&lt;img src=&quot;/small/Judge Rewards/Hammer of Bogardan (1).jpg&quot; style=&quot;boxovercard&quot; /&gt;&lt;div class=&quot;boxovertext&quot;&gt;Judge rewards (Special)&lt;br /&gt;&lt;img src=&quot;/pic/mana/small/1big.gif&quot; width=&quot;12&quot; height=&quot;12&quot; alt=&quot;((1) bezbarv&aacute;)&quot; title=&quot;((1) bezbarv&aacute;)&quot; /&gt;&lt;img src=&quot;/pic/mana/small/rbig.gif&quot; width=&quot;12&quot; height=&quot;12&quot; alt=&quot;(červen&aacute;)&quot; title=&quot;(červen&aacute;)&quot; /&gt;&lt;img src=&quot;/pic/mana/small/rbig.gif&quot; width=&quot;12&quot; height=&quot;12&quot; alt=&quot;(červen&aacute;)&quot; title=&quot;(červen&aacute;)&quot; /&gt;&lt;br /&gt;Sorcery&lt;br /&gt;Hammer of Bogardan deals 3 damage to target creature or player.&lt;br /&gt;&lt;img src=&quot;/pic/mana/small/2big.gif&quot; width=&quot;12&quot; height=&quot;12&quot; alt=&quot;(&lt;i&gt;(2)&lt;/i&gt; bezbarv&aacute;)&quot; title=&quot;(&lt;i&gt;(2)&lt;/i&gt; bezbarv&aacute;)&quot; /&gt;&lt;img src=&quot;/pic/mana/small/rbig.gif&quot; width=&quot;12&quot; height=&quot;12&quot; alt=&quot;(červen&aacute;)&quot; title=&quot;(červen&aacute;)&quot; /&gt;&lt;img src=&quot;/pic/mana/small/rbig.gif&quot; width=&quot;12&quot; height=&quot;12&quot; alt=&quot;(červen&aacute;)&quot; title=&quot;(červen&aacute;)&quot; /&gt;&lt;img src=&quot;/pic/mana/small/rbig.gif&quot; width=&quot;12&quot; height=&quot;12&quot; alt=&quot;(červen&aacute;)&quot; title=&quot;(červen&aacute;)&quot; /&gt;: Return Hammer of Bogardan from your graveyard to your hand. Play this ability only during your upkeep.
+&lt;br /&gt;&lt;/div&gt;]" rel="lightbox" href="/big/Judge Rewards/Hammer of Bogardan (judge foil).jpg">Hammer of Bogardan</a> (judge foil)</td>
+ <td class="tbody">Judge rewards</td>
+ <td class="tbody"><img src="/pic/mana/small/1big.gif" width="12" height="12" alt="[(1) bezbarv&aacute;]" title="[(1) bezbarv&aacute;]" /><img src="/pic/mana/small/rbig.gif" width="12" height="12" alt="[červen&aacute;]" title="[červen&aacute;]" /><img src="/pic/mana/small/rbig.gif" width="12" height="12" alt="[červen&aacute;]" title="[červen&aacute;]" /></td>
+ <td class="tbody">Near Mint</td>
+ <td class="tbody">Special</td>
+ <td class="tbody" align="right">0&nbsp;Kč</td>
+ <td class="tbody" align="right">0</td>
+ <td class="tbody" align="right"><input name="sell19628" class="numfield" maxlength="5" value="1" /><input type="button" class="ok" value="OK" onclick="javascript:notLogged();" /></td>
+</tr>
+         */
     }
 }
