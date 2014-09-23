@@ -79,14 +79,13 @@ public class CardDao extends AbstractDao<Card> implements IDao<Card> {
         return em.createQuery(q).getResultList();
     }
 
-    public List<Card> findByName(String name, boolean exact, boolean foil) {
+    public List<Card> findByName(String name, boolean exact) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Card> q = cb.createQuery(Card.class);
         Root<Card> from = q.from(Card.class);
         q.select(from)
-        .where(cb.and(cb.like(cb.lower(from.<String> get(Card.PROPS.name.toString())), exact ? name.toLowerCase() : "%" + name.toLowerCase() + "%"),
-                cb.equal(from.get(Card.PROPS.foil.toString()), foil)))
-                .orderBy(getDefaultOrder(cb, from));
+        .where(cb.and(cb.like(cb.lower(from.<String> get(Card.PROPS.name.toString())), exact ? name.toLowerCase() : "%" + name.toLowerCase() + "%")))
+        .orderBy(getDefaultOrder(cb, from));
         return em.createQuery(q).getResultList();
     }
 

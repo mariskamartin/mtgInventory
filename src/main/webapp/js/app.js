@@ -37,6 +37,7 @@ function Card(pojo) {
     self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.id;
     self.editionKey = pojo.editionKey;
     self.foilTxt = pojo.foil ? "FOIL" : "";
+    self.foilImg = (pojo.foil ? " " + utils.icons.star : "");
     self.crLink = "<a href=\"javascript:utils.links.openCernyRytir('" + this.name + "');\">Černý Rytíř</a>";
     self.tolarieLink = "<a href=\"javascript:utils.links.openTolarie('" + this.name + "');\">Tolarie</a>";
     self.magicCardsLink = "<a href=\"javascript:utils.links.openMagicCards('" + this.name + "');\">MagicCards</a>";
@@ -62,7 +63,8 @@ function CardMovement(pojo) {
     // others helps
     self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.card.id;
     self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
-    self.info = self.edition + (pojo.card.foil ? " " + utils.icons.star : "");
+    self.foilImg = (pojo.card.foil ? " " + utils.icons.star : "");
+    self.info = self.edition;
 }
 
 Card.EMPTY = new Card({
@@ -144,7 +146,7 @@ function UserViewModel() {
         });
     };
     self.deleteUser = function(emailId) {
-        utils.json.post({
+        utils.json.del({
             url : './rest/v1.0/users/' + emailId,
             token : self.user().token,
             success : function(result) {

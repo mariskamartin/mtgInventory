@@ -66,4 +66,15 @@ public class ServiceFactory {
     public static WebPageSnifferService createWebPageSnifferService(ServletContext context) {
         return new WebPageSnifferService(SupportServiciesManager.getExecutorService(context));
     }
+
+    /**
+     * Service pro generovani ruznych URL
+     * @param context
+     * @return
+     */
+    public static UrlService createUrlService(ServletContext context) {
+        return new UrlService(context);
+    }
+
+
 }

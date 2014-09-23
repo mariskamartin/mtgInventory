@@ -27,7 +27,6 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardRarity;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.gmail.mariska.martin.mtginventory.db.validators.BannedCardException;
-import com.gmail.mariska.martin.mtginventory.service.AlertService.DailyCardInfoAlertEvent;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.MovementAlertEvent;
 import com.gmail.mariska.martin.mtginventory.sniffer.CernyRytirLoader;
 import com.gmail.mariska.martin.mtginventory.utils.Utils;
@@ -95,7 +94,7 @@ public class CardService extends AbstractService<Card> {
      */
     public Collection<Card> findsCards(String cardName) {
         Preconditions.checkArgument(cardName.length() > 1, "Musi se zadat aspon 2 znaky.");
-        return cardDao.findByName(cardName, false, false);
+        return cardDao.findByName(cardName, false);
     }
 
     /**
@@ -107,7 +106,7 @@ public class CardService extends AbstractService<Card> {
      */
     public Collection<Card> fetchCardsByEditionRarityOnCR(CardEdition edition, String rarity) {
         try {
-            return saveCardsIntoDb(new CernyRytirLoader().sniffByEdition(edition), null);
+            return saveCardsIntoDb(new CernyRytirLoader().sniffByEdition(edition));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -124,11 +123,10 @@ public class CardService extends AbstractService<Card> {
         List<String> cardNames = this.cardDao.getAllCardsNames();
         long namesProcessedCount = 0;
         List<Card> allCards = new ArrayList<>();
-        List<DailyCardInfo> addedDailyCardInformations = new ArrayList<>();
         List<List<String>> partitionedCardNames = Lists.partition(cardNames, 10);
         for (List<String> cardNamelist : partitionedCardNames) {
             String[] cardNamesArray = cardNamelist.toArray(new String[cardNamelist.size()]);
-            allCards.addAll(saveCardsIntoDb(fetchCardListByName(cardNamesArray),addedDailyCardInformations));
+            allCards.addAll(saveCardsIntoDb(fetchCardListByName(cardNamesArray)));
             namesProcessedCount += cardNamelist.size();
             if (namesProcessedCount % 25 == 0) {
                 logger.info("fetching procesed " + namesProcessedCount + "/" + cardNames.size());
@@ -137,8 +135,6 @@ public class CardService extends AbstractService<Card> {
 
         logger.info("all cards fetched " + namesProcessedCount + "/" + cardNames.size());
         logger.info("elapsed time " + stopwatch.stop().elapsed(TimeUnit.MINUTES) + " minutes");
-        // post new detached dci
-        postNewCardDailyInfo(addedDailyCardInformations);
         return allCards;
     }
 
@@ -149,7 +145,7 @@ public class CardService extends AbstractService<Card> {
      */
     public Collection<Card> fetchCards(String cardName) {
         Preconditions.checkArgument(cardName.length() > 3, "Název zadané karty musí být delší než 3 znaky");
-        return saveCardsIntoDb(fetchCardListByName(cardName), null);
+        return saveCardsIntoDb(fetchCardListByName(cardName));
     }
 
     private ImmutableList<DailyCardInfo> fetchCardListByName(String... cardNames) {
@@ -161,7 +157,7 @@ public class CardService extends AbstractService<Card> {
         return ImmutableList.of();
     }
 
-    private Collection<Card> saveCardsIntoDb(List<DailyCardInfo> cardList, List<DailyCardInfo> addedDailyCardInformations) {
+    private Collection<Card> saveCardsIntoDb(List<DailyCardInfo> cardList) {
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();
@@ -198,9 +194,6 @@ public class CardService extends AbstractService<Card> {
                         dailyCardInfo.getDay(), dailyCardInfo.getShop());
                 if (findInfoList.isEmpty()) {
                     dciDao.insert(dailyCardInfo);
-                    if (addedDailyCardInformations != null) {
-                        addedDailyCardInformations.add(dailyCardInfo);
-                    }
                 } else if (findInfoList.size() == 1) {
                     DailyCardInfo dciInDb = findInfoList.get(0);
                     if (Utils.hasChange(dciInDb, dailyCardInfo, DailyCardInfo.PROPS.price.toString(),
@@ -208,9 +201,6 @@ public class CardService extends AbstractService<Card> {
                         dciInDb.setPrice(dailyCardInfo.getPrice());
                         dciInDb.setStoreAmount(dailyCardInfo.getStoreAmount());
                         dciDao.update(dciInDb);
-                        if (addedDailyCardInformations != null) {
-                            addedDailyCardInformations.add(dciInDb);
-                        }
                     }
                 } else {
                     logger.warn("Dohledano vic nez jedno DailyInfoData pro: " + dailyCardInfo + " // "
@@ -287,12 +277,6 @@ public class CardService extends AbstractService<Card> {
         }
     }
 
-    private void postNewCardDailyInfo(List<DailyCardInfo> addedInformations) {
-        if (eventBus != null) {
-            eventBus.post(new DailyCardInfoAlertEvent(addedInformations));
-        }
-    }
-
     public void deleteCardMovementByType(CardMovementType movementType) {
         EntityManager em = getEm();
         CardMovementDao cmDao = new CardMovementDao(em);
@@ -335,5 +319,15 @@ public class CardService extends AbstractService<Card> {
     public List<Card> getCardsByUser(String userId) {
         Preconditions.checkArgument(userId != null, "Musi existovat userId.");
         return cardDao.findByUser(userId);
+    }
+
+    public Collection<CardMovement> getUsersMovements(String userId) {
+        CardMovementDao cmDao = new CardMovementDao(getEm());
+        return cmDao.findByUserCards(userId, new Date());
+    }
+
+    public Collection<DailyCardInfo> getUsersDailyCardInfo(String userId) {
+        DailyCardInfoDao dao = new DailyCardInfoDao(getEm());
+        return dao.findByUserCards(userId, new Date());
     }
 }

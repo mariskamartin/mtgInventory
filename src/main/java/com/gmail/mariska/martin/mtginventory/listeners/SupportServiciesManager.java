@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.service.AlertService;
 import com.gmail.mariska.martin.mtginventory.service.EmailService;
+import com.gmail.mariska.martin.mtginventory.service.ServiceFactory;
 import com.google.common.eventbus.EventBus;
 
 /**
@@ -31,7 +32,7 @@ public class SupportServiciesManager implements ServletContextListener {
                 "EventBus neni inicializovan");
         startExecutorService(e.getServletContext());
         startEmailService(eventBus);
-        startAlertService(eventBus);
+        startAlertService(eventBus, e.getServletContext());
     }
 
     @Override
@@ -54,8 +55,9 @@ public class SupportServiciesManager implements ServletContextListener {
         logger.info("Email service destoryed");
     }
 
-    private void startAlertService(EventBus eventBus) {
-        alertService = new AlertService(eventBus);
+    private void startAlertService(EventBus eventBus, ServletContext ctx) {
+        alertService = new AlertService(eventBus, ServiceFactory.createUserService(ctx),
+                ServiceFactory.createCardService(ctx), ServiceFactory.createUrlService(ctx));
         eventBus.register(alertService);
         logger.info("Alerts service created");
     }
@@ -65,14 +67,14 @@ public class SupportServiciesManager implements ServletContextListener {
         logger.info("Alerts service destoryed");
     }
 
-
-
     private final static String EXECUTOR_SERVICE = "service.executor";
     private final int NUM_THREADS = 10;
 
     /**
      * Returns instance of servlet ExecutorService
-     * @param ctx main servlet context
+     * 
+     * @param ctx
+     *            main servlet context
      * @return
      */
     public static ExecutorService getExecutorService(ServletContext ctx) {

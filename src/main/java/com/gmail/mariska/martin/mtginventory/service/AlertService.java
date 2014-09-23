@@ -1,5 +1,6 @@
 package com.gmail.mariska.martin.mtginventory.service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
+import com.gmail.mariska.martin.mtginventory.db.model.User;
 import com.gmail.mariska.martin.mtginventory.service.EmailService.EmailMessage;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -22,9 +24,16 @@ public class AlertService {
     private final Logger logger = Logger.getLogger(AlertService.class);
     private EventBus eventBus;
     Set<String> watchedCardOnStore = new HashSet<>();
+    private final UserService userService;
+    private final CardService cardService;
+    private final UrlService urlService;
 
-    public AlertService(EventBus eventBus) {
+    public AlertService(EventBus eventBus, UserService userService, CardService cardService, UrlService urlService) {
         this.eventBus = eventBus;
+        this.cardService = cardService;
+        this.userService = userService;
+        this.urlService = urlService;
+
         watchedCardOnStore.add("Courser of Kruphix");
         watchedCardOnStore.add("Hornet Nest");
         watchedCardOnStore.add("Setessan Tactics");
@@ -51,24 +60,52 @@ public class AlertService {
     }
 
     @Subscribe
-    public void acceptDailyCardInfoEvent(DailyCardInfoAlertEvent alert) {
-        List<DailyCardInfo> infos = alert.getDailyCardInfoList();
-        StringBuilder content = new StringBuilder();
-        for (DailyCardInfo dailyCardInfo : infos) {
-            if (dailyCardInfo.getShop().equals(com.gmail.mariska.martin.mtginventory.db.model.CardShop.TOLARIE)
-                    && watchedCardOnStore.contains(dailyCardInfo.getCard().getName())) {
-                content.append(dailyCardInfo.getCard().getName() + " - " + dailyCardInfo.getStoreAmount() + " Ks<br />");
+    public void acceptGenerateUsersEmailsEvent(GenerateUserEmailsAlertEvent alert) {
+        List<User> users = userService.getAll();
+        for (User user : users) {
+            StringBuilder content = new StringBuilder();
+            Collection<CardMovement> um = cardService.getUsersMovements(user.getIdEmail());
+            content.append("<h1><a href=\""+ urlService.getInterestsUrl() +"\">Mtg Inventory</a></h1>");
+            content.append("<h2>Změny u sledovaných karet</h2>");
+            for (CardMovement ucm : um) {
+                content.append("<li>" + ucm.getCard().getName() + (ucm.getCard().isFoil() ? " FOIL" : "") + " - změna ceny z " + ucm.getOldPrice() + " na "
+                        + ucm.getNewPrice() + " (" + ucm.getGainPercentage() + " %)</li>");
+            }
+
+            Collection<DailyCardInfo> udci = cardService.getUsersDailyCardInfo(user.getIdEmail());
+            content.append("<h2>Počty karet na skladě jednotlivých obchodů</h2>");
+            for (DailyCardInfo userDci : udci) {
+                content.append("<li>" + userDci.getCard().getName()+ (userDci.getCard().isFoil() ? " FOIL" : "") + " - " + userDci.getShop().name() + " - "
+                        + userDci.getStoreAmount() + " Ks</li>");
+            }
+
+            if (content.length() > 0) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("try to send alert email to " + user.getIdEmail());
+                }
+                eventBus.post(new EmailMessage.Builder().setRecipient(user.getIdEmail())
+                        .setSubject("User's card information")
+                        .setContent(content.toString())
+                        .build());
             }
         }
-        if (content.length() > 0) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("try to send email " + alert);
-            }
-            eventBus.post(new EmailMessage.Builder().setRecMar()
-                    .setSubject("Card on Store")
-                    .setContent("<h1>Sledování počtu karet na skladě</h1><p>" + content.toString() + "</p>")
-                    .build());
-        }
+// List<DailyCardInfo> infos = alert.getDailyCardInfoList();
+// StringBuilder content = new StringBuilder();
+// for (DailyCardInfo dailyCardInfo : infos) {
+// if (dailyCardInfo.getShop().equals(com.gmail.mariska.martin.mtginventory.db.model.CardShop.TOLARIE)
+// && watchedCardOnStore.contains(dailyCardInfo.getCard().getName())) {
+// content.append(dailyCardInfo.getCard().getName() + " - " + dailyCardInfo.getStoreAmount() + " Ks<br />");
+// }
+// }
+// if (content.length() > 0) {
+// if (logger.isDebugEnabled()) {
+// logger.debug("try to send email " + alert);
+// }
+// eventBus.post(new EmailMessage.Builder().setRecMar()
+// .setSubject("Card on Store")
+// .setContent("<h1>Sledování počtu karet na skladě</h1><p>" + content.toString() + "</p>")
+// .build());
+// }
     }
 
     @Subscribe
@@ -114,10 +151,10 @@ public class AlertService {
      * 
      * @author MAR
      */
-    public static class DailyCardInfoAlertEvent extends AlertEvent {
+    public static class DailyCardInfoFetchedAlertEvent extends AlertEvent {
         private List<DailyCardInfo> dailyCardInfo;
 
-        public DailyCardInfoAlertEvent(List<DailyCardInfo> dcis) {
+        public DailyCardInfoFetchedAlertEvent(List<DailyCardInfo> dcis) {
             this.dailyCardInfo = dcis;
         }
 
@@ -143,4 +180,11 @@ public class AlertService {
         }
     }
 
+    /**
+     * Pouze pro testovani ma iniciaovat generovani uzivatelskych emailu s jejich kartami
+     * @author MAR
+     *
+     */
+    public static class GenerateUserEmailsAlertEvent extends AlertEvent {
+    }
 }

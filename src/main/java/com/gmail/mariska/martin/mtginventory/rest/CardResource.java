@@ -27,6 +27,7 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.gmail.mariska.martin.mtginventory.db.model.UsersCards;
 import com.gmail.mariska.martin.mtginventory.listeners.EventBusManager;
+import com.gmail.mariska.martin.mtginventory.service.AlertService.GenerateUserEmailsAlertEvent;
 import com.gmail.mariska.martin.mtginventory.service.CardService;
 import com.gmail.mariska.martin.mtginventory.service.EmailService.EmailMessage;
 import com.gmail.mariska.martin.mtginventory.service.ServiceFactory;
@@ -59,7 +60,7 @@ public class CardResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<Card> getCards() {
-        return ServiceFactory.createCardService(context).getAllWithoutFoil();
+        return ServiceFactory.createCardService(context).getAll();
     }
 
     @GET
@@ -95,6 +96,8 @@ public class CardResource {
             cardService.generateCardsMovements(now, CardMovementType.DAY);
             cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
             cardService.generateCardsMovements(now, CardMovementType.START_OF_WEEK);
+        } else if (action.equals("useremails")) {
+            eventBus.post(new GenerateUserEmailsAlertEvent());
         } else if (action.equals("fetchedition")) {
             // /MtgInventory/rest/v1.0/cards/generate/fetchedition?edition=MAGIC_2015&rarity=M
             CardService cardService = ServiceFactory.createCardService(context);

@@ -141,7 +141,7 @@
 							<!-- Todo: Generate table body -->
 							<tbody data-bind="foreach: cards">
 							    <tr>
-							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a></td>
+							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
 							        <td><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
 							        <td><span data-bind="text: edition"></span> / 
 							        	<span data-bind="text: rarity"></span> / 
@@ -186,7 +186,7 @@
 							<!-- Todo: Generate table body -->
 							<tbody data-bind="foreach: cardMovementsDay">
 							    <tr>
-							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a></td>
+							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
 							        <td data-bind="html: info"></td>
 							        <td data-bind="text: shop"></td>
 							        <td data-bind="text: oldPrice"></td>
@@ -216,7 +216,7 @@
 							<!-- Todo: Generate table body -->
 							<tbody data-bind="foreach: cardMovementsWeek">
 							    <tr>
-							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a></td>
+							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
 							        <td data-bind="html: info"></td>
 							        <td data-bind="text: shop"></td>
 							        <td data-bind="text: oldPrice"></td>
@@ -240,6 +240,7 @@
 						<li><strong>Název:</strong> <span data-bind="text: cardDetail().name"></span></li>
 						<li><strong>Rarita:</strong> <span data-bind="text: cardDetail().rarity"></span></li>
 						<li><strong>Edice:</strong> <span data-bind="text: cardDetail().edition"></span></li>
+						<li><strong>Provedení:</strong> <span data-bind="text: cardDetail().foilTxt"></span></li>
 					</ul>
 					<h4>skladem:</h4>
 					<div data-bind="html: cardDetail().storeAmount"></div>

@@ -84,8 +84,8 @@ public class ScheduleManager implements ServletContextListener {
                     cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
                     logger.info("end auto update card movements");
 
-                    eventBus.post(new AlertService.GenerateAlertEvent(
-                            "automaticky spustene stahovani karet a pregenerovani movements"));
+                    eventBus.post(new AlertService.GenerateAlertEvent("automaticka aktualizace dat"));
+                    eventBus.post(new AlertService.GenerateUserEmailsAlertEvent());
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
