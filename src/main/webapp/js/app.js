@@ -181,6 +181,15 @@ function InventoryViewModel() {
             console.log(data);
         });
     };
+    self.getUserCards = function() {
+        utils.json.get({
+            url : './rest/v1.0/cards/user/' + self.user().idEmail,
+            token : self.user().token,
+            success : function(result) {
+                console.log(["user cards", result]);
+            }
+        });
+    };
     self.findCardInForm = function() {
         self.findCard(self.newText());
     };

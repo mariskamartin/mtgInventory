@@ -30,7 +30,7 @@ public class UserCardsDao extends AbstractDao<UsersCards> implements IDao<UsersC
         Root<UsersCards> from = q.from(UsersCards.class);
 
         return em.createQuery(q.select(from)
-                .where(cb.equal(from.get("user"), userId))
+                .where(cb.equal(from.get("userId"), userId))
                 .orderBy(getDefaultOrder(cb, from)))
                 .getResultList();
     }

@@ -44,7 +44,8 @@ public class CardResource {
     @Path("/user/{userId}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public List<Card> getCards(@PathParam("userId") String userId) {
-        return ServiceFactory.createUserCardsService(context).getAllUsersCards(userId);
+//        return ServiceFactory.createUserCardsService(context).getAllUsersCards(userId);
+        return ServiceFactory.createCardService(context).getCardsByUser(userId);
     }
 
     @AuthenticationRequired

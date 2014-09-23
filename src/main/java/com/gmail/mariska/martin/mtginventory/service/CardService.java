@@ -331,4 +331,9 @@ public class CardService extends AbstractService<Card> {
         getEm().getTransaction().commit();
         return bannedCard;
     }
+
+    public List<Card> getCardsByUser(String userId) {
+        Preconditions.checkArgument(userId != null, "Musi existovat userId.");
+        return cardDao.findByUser(userId);
+    }
 }

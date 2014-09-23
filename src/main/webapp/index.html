@@ -6,7 +6,7 @@
     <meta name="description" content="MTG Inventory">
     <meta name="author" content="Mariska Martin">
 
-    <title>MTG Inventory v1.0.21</title>
+    <title>MTG Inventory v1.0.22</title>
 
     <!-- Bootstrap core CSS -->
     <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -146,8 +146,8 @@
 							        <td><span data-bind="text: edition"></span> / 
 							        	<span data-bind="text: rarity"></span> / 
 							        	<span data-bind="text: foilTxt"></span> 
+							        	<a data-bind="visible: $root.user().idEmail, click: $root.addUserCardFromTable"><i class="glyphicon glyphicon-plus"></i></a>
 									<!-- 
-							        	<a data-bind="click: $root.addUserCardFromTable"><i class="glyphicon glyphicon-plus"></i></a>
                     	    	    -->
 							        </td>
 							    </tr>    

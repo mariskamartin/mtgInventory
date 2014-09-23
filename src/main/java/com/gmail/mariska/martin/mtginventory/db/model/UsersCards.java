@@ -1,42 +1,47 @@
 package com.gmail.mariska.martin.mtginventory.db.model;
 
+import java.util.Date;
+import java.util.UUID;
+
 import javax.jdo.annotations.Unique;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 
 import com.gmail.mariska.martin.mtginventory.db.JpaEntityTraceListener;
 
 @Entity
-@Unique(members = { "user", "card" })
+@Unique(members = { "userId", "cardId" })
 @EntityListeners(JpaEntityTraceListener.class)
 public class UsersCards {
-    @ManyToOne
-    @JoinColumn(name = "idEmail")
-    private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "id")
-    private Card card;
+    @Id
+    private String id;
+    private String userId;
+    private String cardId;
 
     private long count;
     private boolean watched;
+    private Date created;
+    private Date updated;
 
-    public User getUser() {
-        return user;
+
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public Card getCard() {
-        return card;
+    public String getCardId() {
+        return cardId;
     }
 
-    public void setCard(Card card) {
-        this.card = card;
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
     }
 
     public long getCount() {
@@ -53,5 +58,26 @@ public class UsersCards {
 
     public boolean isWatched() {
         return watched;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    @PrePersist
+    private void prePersist() {
+        if (id == null || id.isEmpty() || id.equals("0")) {
+            this.id = UUID.randomUUID().toString();
+        }
+        created = new Date();
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        updated = new Date();
     }
 }

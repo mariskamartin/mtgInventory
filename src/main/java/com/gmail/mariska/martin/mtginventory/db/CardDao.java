@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Order;
@@ -108,6 +109,12 @@ public class CardDao extends AbstractDao<Card> implements IDao<Card> {
                 return (String) tuple.get(0);
             }
         });
+    }
+
+    public List<Card> findByUser(String userId) {
+        TypedQuery<Card> cardQuery = em.createQuery("SELECT c FROM Card c, UsersCards uc WHERE uc.userId = :userId AND uc.cardId = c.id", Card.class);
+        cardQuery.setParameter("userId", userId);
+        return cardQuery.getResultList();
     }
 
 }
