@@ -143,7 +143,10 @@
         
         //others
         icons : {
-            star : "<span class=\"glyphicon glyphicon-star\" title=\"Foil version of card\"></span>"
+            star : "<span class=\"glyphicon glyphicon-star\" title=\"Foil version of card\"></span>",
+            plus : "<span class=\"glyphicon glyphicon-plus\"></span>",
+            watch : "<span class=\"glyphicon glyphicon-eye-open\"></span>",
+            unwatch : "<span class=\"glyphicon glyphicon-eye-close\" title=\"You are watching card state, on store, change price\"></span>"
         }
     };
 })(this);

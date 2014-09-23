@@ -27,9 +27,20 @@ public class AdminResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/{consoleText}")
-    public List generatePriceMovement(@PathParam("consoleText") String consoleText) throws IOException {
+    public List query(@PathParam("consoleText") String consoleText) throws IOException {
         EntityManager em = DatabaseManager.getEM(context);
         return em.createQuery(consoleText).getResultList();
+    }
+
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Path("/execute/{consoleText}")
+    public int execute(@PathParam("consoleText") String consoleText) throws IOException {
+        EntityManager em = DatabaseManager.getEM(context);
+        em.getTransaction().begin();
+        int executeUpdate = em.createQuery(consoleText).executeUpdate();
+        em.getTransaction().commit();
+        return executeUpdate;
     }
 
 }

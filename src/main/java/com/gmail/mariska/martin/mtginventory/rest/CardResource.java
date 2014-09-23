@@ -25,6 +25,7 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovement;
 import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
+import com.gmail.mariska.martin.mtginventory.db.model.UsersCards;
 import com.gmail.mariska.martin.mtginventory.listeners.EventBusManager;
 import com.gmail.mariska.martin.mtginventory.service.CardService;
 import com.gmail.mariska.martin.mtginventory.service.EmailService.EmailMessage;
@@ -37,6 +38,22 @@ public class CardResource {
 
     @Context
     ServletContext context;
+
+    @AuthenticationRequired
+    @GET
+    @Path("/user/{userId}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public List<Card> getCards(@PathParam("userId") String userId) {
+        return ServiceFactory.createUserCardsService(context).getAllUsersCards(userId);
+    }
+
+    @AuthenticationRequired
+    @POST
+    @Path("/user/{userId}/add/{cardId}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    public UsersCards addUserCard(@PathParam("userId") String userId, @PathParam("cardId") String cardId) {
+        return ServiceFactory.createUserCardsService(context).addUserCard(userId, cardId);
+    }
 
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

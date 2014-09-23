@@ -4,6 +4,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.ServletContext;
 
 import com.gmail.mariska.martin.mtginventory.db.BannedCardNamesDao;
+import com.gmail.mariska.martin.mtginventory.db.UserCardsDao;
 import com.gmail.mariska.martin.mtginventory.db.UserDao;
 import com.gmail.mariska.martin.mtginventory.db.validators.CardDaoValidated;
 import com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager;
@@ -43,6 +44,17 @@ public class ServiceFactory {
     public static UserService createUserService(ServletContext context) {
         EntityManager em = DatabaseManager.getEM(context);
         return new UserService(em, new UserDao(em));
+    }
+
+    /**
+     * Karty uzivatele
+     * 
+     * @param context
+     * @return
+     */
+    public static UserCardsService createUserCardsService(ServletContext context) {
+        EntityManager em = DatabaseManager.getEM(context);
+        return new UserCardsService(em, new UserCardsDao(em));
     }
 
     /**

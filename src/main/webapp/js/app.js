@@ -171,6 +171,16 @@ function InventoryViewModel() {
     self.pages = MY_INVENOTORY_PAGES;
     
     // Operations
+    self.addUserCardFromTable = function(card, event) {
+        console.log(["usercard", card]);
+        //nekontroluje to duplicitu >/
+        utils.json.post({
+            url : './rest/v1.0/cards/user/' + self.user().idEmail + '/add/'+card.id,
+            token : self.user().token
+        }).done(function(data){
+            console.log(data);
+        });
+    };
     self.findCardInForm = function() {
         self.findCard(self.newText());
     };
@@ -347,7 +357,9 @@ var myInventory = {
         url : MY_INVENOTORY_PAGES.INTERESTS,
         action : function() {
             //load or start for interests
-            myInventory.viewModels.inventory.fetchMovements();
+            if(myInventory.viewModels.inventory.cardMovementsDay().length == 0) {
+                myInventory.viewModels.inventory.fetchMovements();
+            }
             myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.INTERESTS);
         }
     }, {

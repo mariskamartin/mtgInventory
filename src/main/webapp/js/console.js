@@ -13,6 +13,15 @@ function ConsoleViewModel() {
             }
         });
     };
+    self.executeConsole = function(){
+        return utils.json.get({
+            url : './rest/v1.0/admin/execute/' + (self.input()),
+            success : function(data, status, xhr){
+                self.output(JSON.stringify(data, null, 2));
+                console.log(data);
+            }
+        });
+    };
 }
 
 ko.applyBindings(new ConsoleViewModel());

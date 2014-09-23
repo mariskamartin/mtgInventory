@@ -31,8 +31,9 @@
 	<div class="container">
 		<form class="form" accept-charset="UTF-8" data-bind="submit: submitConsole">
 			<textarea data-bind="value: input" class="form-control" rows="6"></textarea>
-               <button type="submit" class="btn btn-success btn-block">Submit</button>
-			<textarea data-bind="value: output" class="form-control readonly" rows="18"></textarea>
+            <button type="submit" class="btn btn-success btn-block">Submit</button>
+			<button type="button" data-bind="click: executeConsole" class="btn btn-success btn-block">Execute</button>               
+			<textarea data-bind="value: output" class="form-control readonly" rows="16"></textarea>
 		</form>	
 	</div><!-- /.container -->
 

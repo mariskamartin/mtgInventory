@@ -1,24 +1,27 @@
 package com.gmail.mariska.martin.mtginventory.db.model;
 
+import javax.jdo.annotations.Unique;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.MapsId;
-import javax.persistence.OneToOne;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import com.gmail.mariska.martin.mtginventory.db.JpaEntityTraceListener;
 
 @Entity
+@Unique(members = { "user", "card" })
 @EntityListeners(JpaEntityTraceListener.class)
 public class UsersCards {
-    @OneToOne
-    @MapsId
+    @ManyToOne
+    @JoinColumn(name = "idEmail")
     private User user;
 
-    @OneToOne
-    @MapsId
+    @ManyToOne
+    @JoinColumn(name = "id")
     private Card card;
 
     private long count;
+    private boolean watched;
 
     public User getUser() {
         return user;
@@ -42,5 +45,13 @@ public class UsersCards {
 
     public void setCount(long count) {
         this.count = count;
+    }
+
+    public void setWatched(boolean watched) {
+        this.watched = watched;
+    }
+
+    public boolean isWatched() {
+        return watched;
     }
 }
