@@ -14,7 +14,6 @@ import com.gmail.mariska.martin.mtginventory.db.model.Card;
 import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
-import com.gmail.mariska.martin.mtginventory.service.WebPageSnifferService.CardConverter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
