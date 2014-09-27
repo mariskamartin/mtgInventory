@@ -69,14 +69,14 @@ public class AlertService {
             content.append("<h2>Změny u sledovaných karet</h2>");
             for (CardMovement ucm : um) {
                 content.append("<li>" + ucm.getCard().getName() + (ucm.getCard().isFoil() ? " FOIL" : "") + " - změna ceny z " + ucm.getOldPrice() + " na "
-                        + ucm.getNewPrice() + " (" + ucm.getGainPercentage() + " %)</li>");
+                        + ucm.getNewPrice() + " (" + ucm.getGainPercentage() + " %) "+ ucm.getShop() +"</li>");
             }
 
             Collection<DailyCardInfo> udci = cardService.getUsersDailyCardInfo(user.getIdEmail());
             content.append("<h2>Počty karet na skladě jednotlivých obchodů</h2>");
             for (DailyCardInfo userDci : udci) {
                 content.append("<li>" + userDci.getCard().getName()+ (userDci.getCard().isFoil() ? " FOIL" : "") + " - " + userDci.getShop().name() + " - "
-                        + userDci.getStoreAmount() + " Ks</li>");
+                        + userDci.getStoreAmount() + " Ks (cena " + userDci.getPrice() +")</li>");
             }
 
             if (content.length() > 0) {

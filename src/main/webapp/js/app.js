@@ -83,12 +83,27 @@ Card.EMPTY = new Card({
  */
 function UserViewModel() {
     var USER_STORE = "props";
+    var USER_LOGIN = "login";
     var self = this;
+    self.userLocalStore = store.namespace("user");
     self.userStore = store.session.namespace("user");
 
     // Data
-    self.loginEmail = ko.observable();
-    self.loginPwd = ko.observable();
+    var savedLoginData = self.userLocalStore.get(USER_LOGIN) || {};
+    self.loginEmail = ko.observable(savedLoginData.login);
+    self.loginPwd = ko.observable(savedLoginData.pwd);
+    self.loginRemember = ko.observable(savedLoginData.login != null || false);
+    self.loginRemember.subscribe(function(newValue) {
+        if (newValue) {
+            self.userLocalStore.set(USER_LOGIN, {
+                login: self.loginEmail(),
+                pwd: self.loginPwd()
+            });
+        } else {
+            self.userLocalStore.clear(USER_LOGIN);
+        }
+    });
+    
     self.user = ko.observable(store.get(USER_STORE) || self.userStore.get(USER_STORE) || User.EMPTY);
 
     // Operations
@@ -100,7 +115,6 @@ function UserViewModel() {
     };
     self.logoutUser = function() {
         self.userStore.clear(USER_STORE);
-        store.clear(USER_STORE);
         self.user(User.EMPTY);
     };
     self.savePropsUser = function() {
@@ -181,6 +195,7 @@ function InventoryViewModel() {
             token : self.user().token
         }).done(function(data){
             console.log(data);
+            utils.msg.success("Card saved.");
         });
     };
     self.getUserCards = function() {
