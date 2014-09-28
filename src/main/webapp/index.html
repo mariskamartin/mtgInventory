@@ -55,17 +55,23 @@
 						<div class="row">
 							<div class="col-md-12">
 								<form class="form">
-									<div data-bind="text: user().idEmail"></div>
-									<label class="sr-only" for="profileName">Name:</label>
 									<div class="form-group">
-										<input id="profileName" data-bind="value: user().name"></input>
+										<label class="control-label">Email</label>
+										<input class="form-control" type="text" data-bind="value: user().idEmail" readonly />
 									</div>
-									<div data-bind="value: user().roles"></div>
+									<div class="form-group">
+										<label class="control-label">Name</label>
+										<input class="form-control" type="text" data-bind="value: user().name" />
+									</div>
+									<div class="form-group">
+										<label class="control-label">Roles</label>
+										<input class="form-control" type="text" data-bind="value: user().roles" readonly />
+									</div>
 									<!-- 
                         	    	    <button data-bind="click: savePropsUser" type="button" class="btn btn-info btn-block">Save user info</button>
                     	    	    -->
-									<button data-bind="click: logoutUser" type="button"
-										class="btn btn-info btn-block">Logout</button>
+									<button disabled="disabled" type="button" class="btn btn-success btn-block">Save</button>
+									<button data-bind="click: logoutUser" type="button" class="btn btn-info btn-block">Logout</button>
 								</form>
 							</div>
 						</div>
