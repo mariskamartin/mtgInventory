@@ -22,6 +22,7 @@ import com.gmail.mariska.martin.mtginventory.db.model.User;
 import com.gmail.mariska.martin.mtginventory.service.AuthService;
 import com.gmail.mariska.martin.mtginventory.service.ServiceFactory;
 import com.gmail.mariska.martin.mtginventory.service.UserService;
+import com.google.common.base.Preconditions;
 
 @Path("/users")
 public class UserResource {
@@ -59,6 +60,9 @@ public class UserResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     public User insertUser(User newUser) throws IOException {
         logger.debug("new user: " + newUser);
+        Preconditions.checkArgument(newUser.getIdEmail() != null, "Chybný uživatelský email.");
+        Preconditions.checkArgument(newUser.getName() != null && newUser.getName().length() > 3, "Chybné uživatelské jméno. (Musí mít min. 3 znaky)");
+        Preconditions.checkArgument(newUser.getPassword() != null && newUser.getPassword().length() > 3, "Chybné uživatelské heslo. (Musí mít min. 3 znaky)");
         return ServiceFactory.createUserService(context).insert(newUser);
     }
 

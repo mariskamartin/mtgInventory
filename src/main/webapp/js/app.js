@@ -87,13 +87,23 @@ function UserViewModel() {
     var self = this;
     self.userLocalStore = store.namespace("user");
     self.userStore = store.session.namespace("user");
-
-    // Data
     var savedLoginData = self.userLocalStore.get(USER_LOGIN) || {};
+
+    //registration form
+    self.signEmail = ko.observable();
+    self.signName = ko.observable();
+    self.signPwd = ko.observable();
+    self.signPwdCheck = ko.observable();
+    self.signPwdInputClass = ko.observable("form-group");
+    // login form data
     self.loginEmail = ko.observable(savedLoginData.login);
     self.loginPwd = ko.observable(savedLoginData.pwd);
     self.loginRemember = ko.observable(savedLoginData.login != null || false);
-    self.loginRemember.subscribe(function(newValue) {
+    // user data
+    self.user = ko.observable(store.get(USER_STORE) || self.userStore.get(USER_STORE) || User.EMPTY);
+
+    // subscribtions
+    self.loginRemember.subscribe(function saveUserLoginDataToLocalStore(newValue) {
         if (newValue) {
             self.userLocalStore.set(USER_LOGIN, {
                 login: self.loginEmail(),
@@ -104,8 +114,6 @@ function UserViewModel() {
         }
     });
     
-    self.user = ko.observable(store.get(USER_STORE) || self.userStore.get(USER_STORE) || User.EMPTY);
-
     // Operations
     self.loginUser = function() {
         self.authUser(self.loginEmail(), self.loginPwd()).done(function(result) {
@@ -122,7 +130,20 @@ function UserViewModel() {
         // self.updateUser(ko.toJS(self.user()));
     };
     self.registerUser = function() {
-        alert("Zatím, není možné se registrovat. Registrace bude spuštěna v brzké době. Zatím mají přístup pouze uživatelé zařazeni mezi Beta testery.");
+        if(self.signPwd() != self.signPwdCheck()){
+            self.signPwdInputClass("form-group has-error");
+            return;
+        }
+        self.signPwdInputClass("form-group");
+        
+//        alert("Zatím, není možné se registrovat. Registrace bude spuštěna v brzké době. Zatím mají přístup pouze uživatelé zařazeni mezi Beta testery.");
+        self.addUser(self.signEmail(), self.signPwd(), self.signName(), utils.uuid(), ["USER"])
+        .done(function(response){
+            console.log(response);
+            self.loginEmail(response.idEmail);
+            self.loginPwd(response.password);
+            self.loginUser();
+        });
     };
     self.authUser = function(login, pwd) {
         return utils.json.post({
@@ -134,7 +155,7 @@ function UserViewModel() {
         });
     };
     self.addUser = function(email, pwd, name, token, roles) {
-        utils.json.post({
+        return utils.json.post({
             url : './rest/v1.0/users/',
             dataJs : {
                 idEmail : email,
@@ -147,7 +168,6 @@ function UserViewModel() {
                 console.log([ "addUser", result ]);
             }
         });
-
     };
     self.updateUser = function(user) {
         utils.json.put({

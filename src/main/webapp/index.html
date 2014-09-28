@@ -6,7 +6,7 @@
     <meta name="description" content="MTG Inventory">
     <meta name="author" content="Mariska Martin">
 
-    <title>MTG Inventory v1.0.22</title>
+    <title>MTG Inventory v1.0.23</title>
 
     <!-- Bootstrap core CSS -->
     <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -47,10 +47,10 @@
           </ul>
 
           <ul class="nav navbar-nav navbar-right">
-			 <!-- signIn user profile -->
+			 <!-- signIn - user profile -->
              <li data-bind="if: user().idEmail" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile <b class="caret"></b></a>
-              	<ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
+              	<ul class="dropdown-menu" style="padding: 15px;min-width: 300px;">
 					<li>
 						<div class="row">
 							<div class="col-md-12">
@@ -68,7 +68,7 @@
 										<input class="form-control" type="text" data-bind="value: user().roles" readonly />
 									</div>
 									<!-- 
-                        	    	    <button data-bind="click: savePropsUser" type="button" class="btn btn-info btn-block">Save user info</button>
+                        	    	    data-bind="click: savePropsUser"
                     	    	    -->
 									<button disabled="disabled" type="button" class="btn btn-success btn-block">Save</button>
 									<button data-bind="click: logoutUser" type="button" class="btn btn-info btn-block">Logout</button>
@@ -78,22 +78,50 @@
 					</li>
 				</ul>
              </li>
-		 	 <!-- not logged user -->
-             <li data-bind="visible: !user().idEmail"><a href="#" data-bind="click: registerUser">Sign Up</a></li>
+
+		 	 <!-- register user -->
+             <li data-bind="visible: !user().idEmail" class="dropdown">
+             	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign Up <b class="caret"></b></a>
+                <ul class="dropdown-menu" style="padding: 15px;min-width: 300px;">
+                   <li>
+                      <div class="row">
+                         <div class="col-md-12">
+                            <form class="form" accept-charset="UTF-8" data-bind="submit: registerUser">
+                               <div class="form-group">
+                                  <input data-bind="value: signEmail" type="email" class="form-control" placeholder="Email address" required>
+                               </div>
+                               <div class="form-group">
+                                  <input data-bind="value: signName" type="text" class="form-control" placeholder="Your name" required>
+                               </div>
+                               <div data-bind="attr: { class: signPwdInputClass }">
+                                  <input data-bind="value: signPwd" type="password" class="form-control" placeholder="Password" required>
+                               </div>
+                               <div data-bind="attr: { class: signPwdInputClass }">
+                                  <input data-bind="value: signPwdCheck" type="password" class="form-control" placeholder="Password again" required>
+                               </div>
+                               <div class="form-group">
+                                  <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                               </div>
+                            </form>
+                         </div>
+                      </div>
+                   </li>
+                </ul>
+             </li>
+             	
+		 	 <!-- login for user -->
              <li data-bind="visible: !user().idEmail" class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign in <b class="caret"></b></a>
-                <ul class="dropdown-menu" style="padding: 15px;min-width: 250px;">
+                <ul class="dropdown-menu" style="padding: 15px;min-width: 300px;">
                    <li>
                       <div class="row">
                          <div class="col-md-12">
                             <form class="form" accept-charset="UTF-8" data-bind="submit: loginUser">
                                <div class="form-group">
-                                  <label class="sr-only" for="inEmail">Email address</label>
-                                  <input data-bind="value: loginEmail" type="email" class="form-control" id="inEmail" placeholder="Email address" required>
+                                  <input data-bind="value: loginEmail" type="email" class="form-control" placeholder="Email address" required>
                                </div>
                                <div class="form-group">
-                                  <label class="sr-only" for="inPassword">Password</label>
-                                  <input data-bind="value: loginPwd" type="password" class="form-control" id="inPassword" placeholder="Password" required>
+                                  <input data-bind="value: loginPwd" type="password" class="form-control" placeholder="Password" required>
                                </div>
                                <div class="checkbox">
                                   <label>
