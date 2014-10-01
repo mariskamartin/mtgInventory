@@ -129,7 +129,7 @@ public class CardMovement {
     }
 
     public double getGainPercentage() {
-        return gainPercentage;
+        return Math.abs(gainPercentage) > 999 ? 999 : gainPercentage;
     }
 
     public void setGainPercentage(double gainPercentage) {

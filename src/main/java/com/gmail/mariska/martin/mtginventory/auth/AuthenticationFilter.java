@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.db.model.User;
 import com.gmail.mariska.martin.mtginventory.service.AuthService;
+import com.google.common.base.Preconditions;
 
 @Priority(Priorities.AUTHENTICATION)
 public class AuthenticationFilter implements ContainerRequestFilter {
@@ -27,6 +28,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
         List<String> tokens = requestContext.getHeaders().get("X-Auth-Token");
+        Preconditions.checkArgument(!tokens.isEmpty(), "Není uveden žádný autorizační token.");
         if (logger.isDebugEnabled()) {
             logger.debug("auth filter > accepted token : " + tokens.get(0));
         }
