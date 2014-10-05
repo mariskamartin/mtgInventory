@@ -3,6 +3,7 @@ package com.gmail.mariska.martin.mtginventory.db.model;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.jdo.annotations.Index;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -32,7 +33,9 @@ public class Card {
     }
 
     @Id
+    @Index(unique="true")
     private String id;
+    @Index
     private String name;
     private boolean foil;
     @Version
