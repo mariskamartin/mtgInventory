@@ -11,7 +11,7 @@ import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
  * @author MAR
  *
  */
-public interface ISniffStrategy {
+public interface ISniffer {
     /**
      * Stahne karty podle jmena
      * @param name

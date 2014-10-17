@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.gmail.mariska.martin.mtginventory.sniffer.CernyRytirLoader;
-import com.gmail.mariska.martin.mtginventory.sniffer.ISniffStrategy;
+import com.gmail.mariska.martin.mtginventory.sniffer.ISniffer;
 import com.gmail.mariska.martin.mtginventory.sniffer.NajadaLoader;
 import com.gmail.mariska.martin.mtginventory.sniffer.RishadaLoader;
 import com.gmail.mariska.martin.mtginventory.sniffer.TolarieLoader;
@@ -72,9 +72,9 @@ public class WebPageSnifferService {
     }
 
     private ExecutorService executor;
-    private List<ISniffStrategy> loaders;
+    private List<ISniffer> loaders;
 
-    protected WebPageSnifferService(ExecutorService executor, List<ISniffStrategy> loaders) {
+    protected WebPageSnifferService(ExecutorService executor, List<ISniffer> loaders) {
         this.executor = executor;
         this.loaders = loaders;
     }
@@ -96,7 +96,7 @@ public class WebPageSnifferService {
         List<Future<List<DailyCardInfo>>> futures = new ArrayList<>();
 
         for (final String cardFindName : cardFindNames) {
-            for (final ISniffStrategy loader : loaders) {
+            for (final ISniffer loader : loaders) {
                 futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
                     @Override
                     public List<DailyCardInfo> call() throws Exception {

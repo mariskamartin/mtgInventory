@@ -17,7 +17,7 @@ import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
-public class TolarieLoader implements ISniffStrategy {
+public class TolarieLoader implements ISniffer {
 
     @Override
     public List<DailyCardInfo> sniffByCardName(String name) throws IOException {
