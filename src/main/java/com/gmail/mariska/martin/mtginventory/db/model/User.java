@@ -10,9 +10,8 @@ import javax.persistence.Version;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gmail.mariska.martin.mtginventory.db.JpaEntityTraceListener;
 import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
@@ -21,7 +20,7 @@ import com.google.common.collect.Sets;
 @EntityListeners(JpaEntityTraceListener.class)
 @XmlRootElement
 @Unique(members = { "token" })
-@JsonIgnoreProperties(value = {"isAdmin"})
+@JsonIgnoreProperties(value = { "isAdmin" })
 public class User {
     /**
      * As one place for META names
