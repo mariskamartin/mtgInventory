@@ -106,7 +106,8 @@ public class CardService extends AbstractService<Card> {
      */
     public Collection<Card> fetchCardsByEditionRarityOnCR(CardEdition edition, String rarity) {
         try {
-            return saveCardsIntoDb(new CernyRytirLoader().sniffByEdition(edition));
+            //rarity strings A-all, M-mythic, R-rare, C, U
+            return saveCardsIntoDb(new CernyRytirLoader().sniffByEdition(edition, rarity));
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

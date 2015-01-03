@@ -59,6 +59,7 @@
         var ajaxOpt = extend({
             type : type,
             contentType : 'application/json',
+            accepts: "application/json; charset=utf-8",            
             headers: {"X-Auth-Token": options.token || "no-token"},
             error : function(response, type, msg){
                 error(response.responseText, msg);

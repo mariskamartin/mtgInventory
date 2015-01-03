@@ -37,7 +37,6 @@ public class DailyCardInfo {
     }
 
     @Id
-    @Index(unique="true")
     private String id;
 
     private BigDecimal price;

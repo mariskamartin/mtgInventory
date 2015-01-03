@@ -26,10 +26,9 @@ public class CernyRytirLoader implements ISniffer {
         return builder.build();
     }
 
-    @Override
-    public List<DailyCardInfo> sniffByEdition(CardEdition edition) throws IOException {
+    public List<DailyCardInfo> sniffByEdition(CardEdition edition, String rarity) throws IOException {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
-        Document doc = fetchFromCernyRytirKusovkyPaged(edition, "A");
+        Document doc = fetchFromCernyRytirKusovkyPaged(edition, rarity);
         Elements select = doc.select("a.kusovkytext");
         if (select.size() == 0) {
             parseCernyRytir(doc, builder);
@@ -113,5 +112,10 @@ public class CernyRytirLoader implements ISniffer {
                 .userAgent("Mozilla")
                 .post();
         return doc;
+    }
+
+    @Override
+    public List<DailyCardInfo> sniffByEdition(CardEdition edition) throws IOException {
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 }
