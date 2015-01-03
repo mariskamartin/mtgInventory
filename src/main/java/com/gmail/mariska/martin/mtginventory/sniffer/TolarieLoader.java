@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableList.Builder;
 
 public class TolarieLoader implements ISniffer {
 
+    private static final int END_PAGE_INDEX_OFSET = 2;
+
     @Override
     public List<DailyCardInfo> sniffByCardName(String name) throws IOException {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
@@ -28,7 +30,23 @@ public class TolarieLoader implements ISniffer {
 
     @Override
     public List<DailyCardInfo> sniffByEdition(CardEdition edition) throws IOException {
-        throw new UnsupportedOperationException("Tato metoda jeste neni zprovoznena");
+        // FIXME - tohle se musi nejak spravne prevadet, protoze tolarie ma jinaci klice pro edice
+        return sniffByEdition(edition.getKey());
+    }
+
+    public List<DailyCardInfo> sniffByEdition(String edition) throws IOException {
+        Builder<DailyCardInfo> builder = ImmutableList.builder();
+        Document doc = fetchFromTolarieKusovkyPaged(edition, 1);
+        parseTolarie(doc, builder);
+
+        Elements select = doc.select("div.pagination li");
+        if (select.size() > 0) {
+            int numberOfPages = Integer.parseInt(select.get(select.size() - END_PAGE_INDEX_OFSET).text());
+            for (int pageIndex = 2; pageIndex <= numberOfPages; pageIndex++) {
+                parseTolarie(fetchFromTolarieKusovkyPaged(edition, pageIndex), builder);
+            }
+        }
+        return builder.build();
     }
 
     /**
@@ -57,12 +75,20 @@ public class TolarieLoader implements ISniffer {
         }
     }
 
-
     private Document fetchFromTolarieKusovky(String findString) throws IOException {
         String urlRequest = "http://www.tolarie.cz/koupit_karty/?name=" + findString.replace(" ", "+")
                 + "&o=name&od=a";
         Document doc = Jsoup.connect(urlRequest).get();
         return doc;
+    }
+
+    private Document fetchFromTolarieKusovkyPaged(String edice, int page) throws IOException {
+        String urlRequest = "http://www.tolarie.cz/koupit_karty/?name=&edition=" + edice
+                + "&o=name&od=a&foil=False&stored=False&p=" + page;
+        Document doc = Jsoup.connect(urlRequest).get();
+        return doc;
+// return Jsoup.parse(new File("C://tolarie.html"), "utf-8"); //for DEBUG
+// return Jsoup.parse(new File("C://tolarie.html"), "windows-1250"); // for DEBUG
     }
 
 }

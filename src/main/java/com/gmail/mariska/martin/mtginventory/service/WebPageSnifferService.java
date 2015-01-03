@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
@@ -41,13 +42,19 @@ public class WebPageSnifferService {
      */
     @Deprecated
     public static void main(String[] args) throws IOException {
+        BasicConfigurator.configure();
+
         ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS);
         WebPageSnifferService sniffer = new WebPageSnifferService(executor);
         Stopwatch stopky = Stopwatch.createStarted();
         List<DailyCardInfo> list = new ArrayList<>();
+
+        list.addAll(new TolarieLoader().sniffByEdition("Born_of_Gods"));
+
 //        list.addAll(sniffer.findCardsAtWeb(CardEdition.JOURNEY_INTO_NYX));
+//        list.addAll(sniffer.findCardsAtWeb(CardEdition.THEROS, CardEdition.JOURNEY_INTO_NYX));
 //        list.addAll(sniffer.findCardsAtWeb(CardEdition.THEROS));
-        list.addAll(sniffer.findCardsAtWeb("stifle", "soldier"));
+//        list.addAll(sniffer.findCardsAtWeb("stifle", "soldier"));
 
         System.out.println(stopky.stop().elapsed(TimeUnit.MILLISECONDS));
         System.out.println(list);
@@ -104,24 +111,6 @@ public class WebPageSnifferService {
                     }
                 }));
             }
-//            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-//                @Override
-//                public List<DailyCardInfo> call() throws Exception {
-//                    return new TolarieLoader().sniffByCardName(cardFindName);
-//                }
-//            }));
-//            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-//                @Override
-//                public List<DailyCardInfo> call() throws Exception {
-//                    return new CernyRytirLoader().sniffByCardName(cardFindName);
-//                }
-//            }));
-//            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
-//                @Override
-//                public List<DailyCardInfo> call() throws Exception {
-//                    return new NajadaLoader().sniffByCardName(cardFindName);
-//                }
-//            }));
         }
 
         for (Future<List<DailyCardInfo>> future : futures) {
@@ -145,13 +134,14 @@ public class WebPageSnifferService {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
         List<Future<List<DailyCardInfo>>> futures = new ArrayList<>();
 
-        for (CardEdition cardEdition : editions) {
-            final CardEdition cardEditionFind = cardEdition;
-            System.out.println(cardEditionFind);
+        for (final CardEdition cardEdition : editions) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("Sniffing edition: " + cardEdition);
+            }
             futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
                 @Override
                 public List<DailyCardInfo> call() throws Exception {
-                    return new CernyRytirLoader().sniffByEdition(cardEditionFind);
+                    return new CernyRytirLoader().sniffByEdition(cardEdition);
                 }
             }));
             // TODO doplnit ostatni obchody

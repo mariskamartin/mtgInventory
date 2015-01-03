@@ -26,6 +26,11 @@ public class CernyRytirLoader implements ISniffer {
         return builder.build();
     }
 
+    @Override
+    public List<DailyCardInfo> sniffByEdition(CardEdition edition) throws IOException {
+        return sniffByEdition(edition, "A");
+    }
+
     public List<DailyCardInfo> sniffByEdition(CardEdition edition, String rarity) throws IOException {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
         Document doc = fetchFromCernyRytirKusovkyPaged(edition, rarity);
@@ -33,7 +38,7 @@ public class CernyRytirLoader implements ISniffer {
         if (select.size() == 0) {
             parseCernyRytir(doc, builder);
         } else {
-            //pouze polovinu odkazu, protoze CR je ma 2x na strance (nahore a dole)
+            // pouze polovinu odkazu, protoze CR je ma 2x na strance (nahore a dole)
             for (int i = 0; i < select.size() / 2; i++) {
                 String href = select.get(i).attributes().get("href");
                 parseCernyRytir(fetchFromCernyRytirURL(href), builder);
@@ -73,8 +78,6 @@ public class CernyRytirLoader implements ISniffer {
         }
     }
 
-
-
     private Document fetchFromCernyRytirKusovky(String cardName) throws IOException {
         Document doc;
         doc = Jsoup.connect("http://www.cernyrytir.cz/index.php3?akce=3")
@@ -96,7 +99,7 @@ public class CernyRytirLoader implements ISniffer {
         doc = Jsoup.connect("http://www.cernyrytir.cz/index.php3?akce=3")
                 .data("edice_magic", edice.getKey())
                 .data("rarita", rarityCrPrefix)
-                .data("foil", "A") //i s foil, R - bez, F - pouze foil
+                .data("foil", "A") // i s foil, R - bez, F - pouze foil
                 .data("jmenokarty", "")
                 .data("triditpodle", "ceny")
                 .data("submit", "Vyhledej")
@@ -114,8 +117,4 @@ public class CernyRytirLoader implements ISniffer {
         return doc;
     }
 
-    @Override
-    public List<DailyCardInfo> sniffByEdition(CardEdition edition) throws IOException {
-        throw new UnsupportedOperationException("Not implemented yet.");
-    }
 }

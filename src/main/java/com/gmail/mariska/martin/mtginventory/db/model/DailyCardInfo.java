@@ -119,7 +119,7 @@ public class DailyCardInfo {
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("id", id)
-//                .add("card", card)
+                .add("card", card != null ? card.toString() : "null")
 //                .add("cardId", card != null ? card.getId() : "null")
                 .add("shop", getShop())
                 .add("cena", price)
