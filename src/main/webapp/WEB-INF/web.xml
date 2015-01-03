@@ -10,12 +10,14 @@
 			<param-name>javax.ws.rs.Application</param-name>
 			<param-value>com.gmail.mariska.martin.mtginventory.MtgInventoryApplication</param-value>
 		</init-param>
+		<!-- 
         <init-param>
             <param-name>jersey.config.server.provider.packages</param-name>
             <param-value>
                 com.wordnik.swagger.jersey.listing
             </param-value>
         </init-param>
+		 -->
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
@@ -45,6 +47,7 @@
 	
 	
 	<!-- Servlet pro SWAGGER, ktery nasledne poskytuje informace o kodu skrze REST -->
+	<!-- 
 	<servlet>
         <servlet-name>Jersey2Config</servlet-name>
         <servlet-class>com.wordnik.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
@@ -58,4 +61,5 @@
         </init-param>
         <load-on-startup>2</load-on-startup>
     </servlet>	
+	 -->
 </web-app> 
