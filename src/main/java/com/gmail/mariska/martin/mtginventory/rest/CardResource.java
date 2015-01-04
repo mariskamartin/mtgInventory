@@ -107,6 +107,10 @@ public class CardResource {
             // /MtgInventory/rest/v1.0/cards/generate/fetchedition?edition=MAGIC_2015&rarity=M
             CardService cardService = ServiceFactory.createCardService(context);
             cardService.fetchCardsByEditionRarityOnCR(CardEdition.valueOf(edition), rarityCrKey);
+        } else if (action.equals("fetchmanaged")) {
+            CardService cardService = ServiceFactory.createCardService(context);
+            cardService.fetchAllManagedEditions();
+            logger.info("Fetching all managed edition is done");
         } else if (action.equals("testemail")) {
             eventBus.post(new EmailMessage.Builder().testMsg().build());
         }

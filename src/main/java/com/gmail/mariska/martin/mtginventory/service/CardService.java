@@ -26,6 +26,7 @@ import com.gmail.mariska.martin.mtginventory.db.model.CardMovementType;
 import com.gmail.mariska.martin.mtginventory.db.model.CardRarity;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
+import com.gmail.mariska.martin.mtginventory.db.model.SnifferInfoCardEdition;
 import com.gmail.mariska.martin.mtginventory.db.validators.BannedCardException;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.MovementAlertEvent;
 import com.gmail.mariska.martin.mtginventory.sniffer.CernyRytirLoader;
@@ -140,6 +141,28 @@ public class CardService extends AbstractService<Card> {
     }
 
     /**
+     * Odchyti vsechny karty v aktualne spravovanych edicich
+     * @return
+     * 
+     * @return
+     */
+    public Collection<Card> fetchAllManagedEditions() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        long editionProcessedCount = 0;
+        List<Card> allCards = new ArrayList<>();
+
+        Collection<CardEdition> managedEditions = SnifferInfoCardEdition.intance.getManagedEditions();
+        for (CardEdition cardEdition : managedEditions) {
+            //load and save
+            allCards.addAll(saveCardsIntoDb(fetchCardListByEditions(cardEdition)));
+            editionProcessedCount++;
+            logger.info("fetching procesed " + editionProcessedCount + "/" + managedEditions.size());
+        }
+        logger.info("download editions elapsed time " + stopwatch.stop().elapsed(TimeUnit.MINUTES) + " minutes");
+        return allCards;
+    }
+
+    /**
      * Odchyti karty z webu a zalozi aktualni informace do db, pouze pokud ten den se tak jeste nestalo
      * 
      * @param cardName
@@ -152,6 +175,15 @@ public class CardService extends AbstractService<Card> {
     private ImmutableList<DailyCardInfo> fetchCardListByName(String... cardNames) {
         try {
             return webPageSnifferService.findCardsAtWeb(cardNames);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return ImmutableList.of();
+    }
+
+    private ImmutableList<DailyCardInfo> fetchCardListByEditions(CardEdition... cardEditions) {
+        try {
+            return webPageSnifferService.findCardsAtWeb(cardEditions);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -331,4 +363,5 @@ public class CardService extends AbstractService<Card> {
         DailyCardInfoDao dao = new DailyCardInfoDao(getEm());
         return dao.findByUserCards(userId, new Date());
     }
+
 }
