@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
 
-import javax.jdo.annotations.Index;
 import javax.jdo.annotations.Unique;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -51,7 +50,6 @@ public class DailyCardInfo {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "id", nullable = false, updatable = false)
-    @Index
     private Card card;
 
     public DailyCardInfo() {
