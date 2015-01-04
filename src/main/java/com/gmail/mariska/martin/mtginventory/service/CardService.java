@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.RollbackException;
 
 import org.apache.log4j.Logger;
 
@@ -30,7 +31,6 @@ import com.gmail.mariska.martin.mtginventory.db.model.SnifferInfoCardEdition;
 import com.gmail.mariska.martin.mtginventory.db.validators.BannedCardException;
 import com.gmail.mariska.martin.mtginventory.service.AlertService.MovementAlertEvent;
 import com.gmail.mariska.martin.mtginventory.sniffer.CernyRytirLoader;
-import com.gmail.mariska.martin.mtginventory.utils.Utils;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
@@ -190,57 +190,51 @@ public class CardService extends AbstractService<Card> {
         return ImmutableList.of();
     }
 
-    private Collection<Card> saveCardsIntoDb(List<DailyCardInfo> cardList) {
+    Collection<Card> saveCardsIntoDb(List<DailyCardInfo> cardList) {
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
+        Map<String, Card> cacheCardsMap = new HashMap<String, Card>();
         Map<String, Card> managedCardsMap = new HashMap<String, Card>();
         try {
-            tx.begin();
             for (DailyCardInfo dailyCardInfo : cardList) {
-                Card c = dailyCardInfo.getCard();
                 // pokud je karta nezname edice nebo rarity, tak neukladame
-                if (c.getRarity().equals(CardRarity.UNKNOWN) || c.getEdition().equals(CardEdition.UNKNOWN)) {
+                if (dailyCardInfo.getCard().getRarity().equals(CardRarity.UNKNOWN) || dailyCardInfo.getCard().getEdition().equals(CardEdition.UNKNOWN)) {
                     continue;
                 }
 
-                if (managedCardsMap.containsKey(getCardKey(c))) {
-                    c = managedCardsMap.get(getCardKey(c));
-                } else {
-                    List<Card> findList = cardDao.findByNameEditionRarityFoil(c.getName(), c.getEdition(),
-                            c.getRarity(), c.isFoil());
-                    if (findList.isEmpty()) {
-                        cardDao.insert(c);
-                        managedCardsMap.put(getCardKey(c), c);
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("new managed card added: " + c);
+                boolean tryToSave = true;
+                while (tryToSave) {
+                    tryToSave = false;
+                    try {
+                        tx.begin();
+                        //vlozit referenci z cache
+                        if (cacheCardsMap.containsKey(getCardKey(dailyCardInfo.getCard()))) {
+                            dailyCardInfo.setCard(cacheCardsMap.get(getCardKey(dailyCardInfo.getCard())));
                         }
-                    } else if (findList.size() > 1) {
-                        throw new IllegalStateException("Nalezeno vice karet pro jeden nazev");
-                    } else {
-                        c = findList.get(0);
-                        managedCardsMap.put(getCardKey(c), c);
+                        dailyCardInfo = dciDao.update(dailyCardInfo);
+                        tx.commit();
+                    } catch (RollbackException e) {
+                        if (e.getMessage().contains("Unique constraint")) {
+                            if (e.getMessage().contains("DailyCardInfo")) {
+                                // pokud se nepovede vlozit kvuli unique dci
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("Dnes uz byly data o karte ulozeny. " + dailyCardInfo);
+                                }
+                            } else {
+                                // pokud se nepovede vlozit kvuli unique card
+                                for (Card card : cardDao.findByEdition(dailyCardInfo.getCard().getEdition())) {
+                                    cacheCardsMap.put(getCardKey(card), card);
+                                    tryToSave = true; //nacteny nova data, zkusit znovu
+                                }
+                            }
+                        }
                     }
                 }
-
-                dailyCardInfo.setCard(c); // priradit managed entitu
-                List<DailyCardInfo> findInfoList = dciDao.findByCardDayShop(dailyCardInfo.getCard(),
-                        dailyCardInfo.getDay(), dailyCardInfo.getShop());
-                if (findInfoList.isEmpty()) {
-                    dciDao.insert(dailyCardInfo);
-                } else if (findInfoList.size() == 1) {
-                    DailyCardInfo dciInDb = findInfoList.get(0);
-                    if (Utils.hasChange(dciInDb, dailyCardInfo, DailyCardInfo.PROPS.price.toString(),
-                            DailyCardInfo.PROPS.storeAmount.toString())) {
-                        dciInDb.setPrice(dailyCardInfo.getPrice());
-                        dciInDb.setStoreAmount(dailyCardInfo.getStoreAmount());
-                        dciDao.update(dciInDb);
-                    }
-                } else {
-                    logger.warn("Dohledano vic nez jedno DailyInfoData pro: " + dailyCardInfo + " // "
-                            + dailyCardInfo.getCard());
-                }
+                //pridani obslouzene karty
+                managedCardsMap.put(getCardKey(dailyCardInfo.getCard()), dailyCardInfo.getCard());
+                cacheCardsMap.put(getCardKey(dailyCardInfo.getCard()), dailyCardInfo.getCard());
             }
-            tx.commit();
+
         } catch (BannedCardException e) {
             if (logger.isTraceEnabled()) {
                 logger.trace(e.getMessage());

@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import javax.jdo.annotations.Unique;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.EnumType;
@@ -48,7 +49,7 @@ public class DailyCardInfo {
     @Temporal(TemporalType.DATE)
     private Date day;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(cascade=CascadeType.MERGE, optional = false)
     @JoinColumn(name = "id", nullable = false, updatable = false)
     private Card card;
 

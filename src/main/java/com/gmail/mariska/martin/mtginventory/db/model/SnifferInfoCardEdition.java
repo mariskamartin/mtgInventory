@@ -26,7 +26,15 @@ public enum SnifferInfoCardEdition {
         managed.add(new CardEditionInfo(CardEdition.JOURNEY_INTO_NYX, "Journey_Into_Nyx"));
         managed.add(new CardEditionInfo(CardEdition.BORN_OF_THE_GODS, "Born_of_Gods"));
         managed.add(new CardEditionInfo(CardEdition.THEROS, "Theros"));
+        managed.add(new CardEditionInfo(CardEdition.MAGIC_2015, "M15"));
         managed.add(new CardEditionInfo(CardEdition.COMMANDER_2014, null));
+
+        managed.add(new CardEditionInfo(CardEdition.MAGIC_2014, "M14"));
+        managed.add(new CardEditionInfo(CardEdition.RETURN_TO_RAVNICA, "Return_to_Ravnica"));
+        managed.add(new CardEditionInfo(CardEdition.GATECRASH, "Gatecrash"));
+        managed.add(new CardEditionInfo(CardEdition.DRAGONS_MAZE, "Dragons_Maze"));
+        managed.add(new CardEditionInfo(CardEdition.INNISTRAD, "Innistrad"));
+        managed.add(new CardEditionInfo(CardEdition.ZENDIKAR, "Zendikar"));
 
         managedEditions = Maps.newHashMap();
         for (CardEditionInfo cardEditionInfo : managed) {
