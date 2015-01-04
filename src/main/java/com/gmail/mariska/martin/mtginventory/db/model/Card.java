@@ -3,6 +3,7 @@ package com.gmail.mariska.martin.mtginventory.db.model;
 import java.util.Date;
 import java.util.UUID;
 
+import javax.jdo.annotations.Unique;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
@@ -23,6 +24,7 @@ import com.google.common.base.Objects;
 @Entity
 @EntityListeners(JpaEntityTraceListener.class)
 @XmlRootElement
+@Unique(members={"name","foil","rarity","edition"})
 public class Card {
     /**
      * As one place for META names
