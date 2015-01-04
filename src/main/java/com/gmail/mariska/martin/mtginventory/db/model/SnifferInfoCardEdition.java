@@ -29,6 +29,7 @@ public enum SnifferInfoCardEdition {
         managed.add(new CardEditionInfo(CardEdition.MAGIC_2015, "M15"));
         managed.add(new CardEditionInfo(CardEdition.COMMANDER_2014, null));
 
+        managed.add(new CardEditionInfo(CardEdition.MORNINGTIDE, "Morningtide"));
         managed.add(new CardEditionInfo(CardEdition.LORWYN, "Lorwyn"));
         managed.add(new CardEditionInfo(CardEdition.MAGIC_2014, "M14"));
         managed.add(new CardEditionInfo(CardEdition.RETURN_TO_RAVNICA, "Return_to_Ravnica"));
