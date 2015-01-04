@@ -111,6 +111,14 @@ public class CardResource {
             CardService cardService = ServiceFactory.createCardService(context);
             cardService.fetchAllManagedEditions();
             logger.info("Fetching all managed edition is done");
+        } else if (action.equals("generateinfo")) {
+            CardService cardService = ServiceFactory.createCardService(context);
+            logger.info("start update card movements");
+            cardService.deleteCardMovementByType(CardMovementType.DAY);
+            cardService.generateCardsMovements(new Date(), CardMovementType.DAY);
+            cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
+            cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
+            logger.info("end update card movements");
         } else if (action.equals("testemail")) {
             eventBus.post(new EmailMessage.Builder().testMsg().build());
         }
