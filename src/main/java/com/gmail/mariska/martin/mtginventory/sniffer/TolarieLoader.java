@@ -2,6 +2,7 @@ package com.gmail.mariska.martin.mtginventory.sniffer;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import com.gmail.mariska.martin.mtginventory.db.model.Card;
 import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
 import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
 import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
+import com.gmail.mariska.martin.mtginventory.db.model.SnifferInfoCardEdition;
+import com.gmail.mariska.martin.mtginventory.db.model.SnifferInfoCardEdition.CardEditionInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -30,11 +33,14 @@ public class TolarieLoader implements ISniffer {
 
     @Override
     public List<DailyCardInfo> sniffByEdition(CardEdition edition) throws IOException {
-        // FIXME - tohle se musi nejak spravne prevadet, protoze tolarie ma jinaci klice pro edice
-        return sniffByEdition(edition.getKey());
+        CardEditionInfo info = SnifferInfoCardEdition.intance.getInfo(edition);
+        if (info.getTolarieUrlKey() == null) {
+            return Collections.emptyList();
+        }
+        return sniffByEdition(info.getTolarieUrlKey());
     }
 
-    public List<DailyCardInfo> sniffByEdition(String edition) throws IOException {
+    private List<DailyCardInfo> sniffByEdition(String edition) throws IOException {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
         Document doc = fetchFromTolarieKusovkyPaged(edition, 1);
         parseTolarie(doc, builder);

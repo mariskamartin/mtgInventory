@@ -49,9 +49,9 @@ public class WebPageSnifferService {
         Stopwatch stopky = Stopwatch.createStarted();
         List<DailyCardInfo> list = new ArrayList<>();
 
-        list.addAll(new TolarieLoader().sniffByEdition("Born_of_Gods"));
+//        list.addAll(new TolarieLoader().sniffByEdition(CardEdition.BORN_OF_THE_GODS));
 
-//        list.addAll(sniffer.findCardsAtWeb(CardEdition.JOURNEY_INTO_NYX));
+        list.addAll(sniffer.findCardsAtWeb(CardEdition.JOURNEY_INTO_NYX));
 //        list.addAll(sniffer.findCardsAtWeb(CardEdition.THEROS, CardEdition.JOURNEY_INTO_NYX));
 //        list.addAll(sniffer.findCardsAtWeb(CardEdition.THEROS));
 //        list.addAll(sniffer.findCardsAtWeb("stifle", "soldier"));
@@ -60,22 +60,6 @@ public class WebPageSnifferService {
         System.out.println(list);
         executor.shutdown();
 
-// Builder<DailyCardInfo> builder = ImmutableList.builder();
-// // sniffer.parseNajada(sniffer.fetchFromNajadaKusovky("stifle"), builder);
-// Document doc = sniffer.fetchFromCernyRytirKusovkyPaged(CardEdition.MAGIC_2015, "M");
-// Elements select = doc.select("a.kusovkytext");
-// if (select.size() == 0) {
-// sniffer.parseCernyRytir(doc, builder);
-// } else {
-// //pouze polovinu odkazu, protoze CR je ma 2x na strance
-// for (int i = 0; i < select.size() / 2; i++) {
-// String href = select.get(i).attributes().get("href");
-// Document docPaged = sniffer.fetchFromCernyRytirURL(href);
-// sniffer.parseCernyRytir(docPaged, builder);
-// }
-// }
-// ImmutableList<DailyCardInfo> build = builder.build();
-// System.out.println(build);
     }
 
     private ExecutorService executor;
@@ -142,6 +126,12 @@ public class WebPageSnifferService {
                 @Override
                 public List<DailyCardInfo> call() throws Exception {
                     return new CernyRytirLoader().sniffByEdition(cardEdition);
+                }
+            }));
+            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+                @Override
+                public List<DailyCardInfo> call() throws Exception {
+                    return new TolarieLoader().sniffByEdition(cardEdition);
                 }
             }));
             // TODO doplnit ostatni obchody
