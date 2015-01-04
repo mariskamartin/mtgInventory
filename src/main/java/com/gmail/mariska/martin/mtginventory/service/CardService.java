@@ -217,8 +217,8 @@ public class CardService extends AbstractService<Card> {
                         if (e.getMessage().contains("Unique constraint")) {
                             if (e.getMessage().contains("DailyCardInfo")) {
                                 // pokud se nepovede vlozit kvuli unique dci
-                                if (logger.isDebugEnabled()) {
-                                    logger.debug("Dnes uz byly data o karte ulozeny. " + dailyCardInfo);
+                                if (logger.isTraceEnabled()) {
+                                    logger.trace("Dnes uz byly data o karte ulozeny. " + dailyCardInfo);
                                 }
                             } else {
                                 // pokud se nepovede vlozit kvuli unique card

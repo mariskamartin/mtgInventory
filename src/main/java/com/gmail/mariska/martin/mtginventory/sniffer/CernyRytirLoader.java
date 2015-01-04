@@ -35,9 +35,8 @@ public class CernyRytirLoader implements ISniffer {
         Builder<DailyCardInfo> builder = ImmutableList.builder();
         Document doc = fetchFromCernyRytirKusovkyPaged(edition, rarity);
         Elements select = doc.select("a.kusovkytext");
-        if (select.size() == 0) {
-            parseCernyRytir(doc, builder);
-        } else {
+        parseCernyRytir(doc, builder);
+        if (select.size() > 0) {
             // pouze polovinu odkazu, protoze CR je ma 2x na strance (nahore a dole)
             for (int i = 0; i < select.size() / 2; i++) {
                 String href = select.get(i).attributes().get("href");
