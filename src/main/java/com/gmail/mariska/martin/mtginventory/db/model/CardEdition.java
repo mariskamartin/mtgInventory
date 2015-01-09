@@ -62,6 +62,7 @@ public enum CardEdition {
     EVENTIDE("EVE", "Eventide"),
     EXODUS("EXO", "Exodus"),
     FALLEN_EMPIRES("FEM", "Fallen Empires"),
+    FATE_REFORGED("FRF", "Fate Reforget"),
     FIFTH_DAWN("5DN", "Fifth Dawn"),
     FTV_ANNIHILATION("FTVA", "FTV: Annihilation", "From the Vault: Annihilation"),
     FTV_DRAGONS("FTVD", "FTV: Dragons", "From the Vault: Dragons"),

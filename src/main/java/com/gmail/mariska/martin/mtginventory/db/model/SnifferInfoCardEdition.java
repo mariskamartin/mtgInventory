@@ -29,6 +29,9 @@ public enum SnifferInfoCardEdition {
         managed.add(new CardEditionInfo(CardEdition.MAGIC_2015, "M15"));
         managed.add(new CardEditionInfo(CardEdition.COMMANDER_2014, null));
 
+        //cr predprodej
+        managed.add(new CardEditionInfo(CardEdition.FATE_REFORGED, null));
+
         managed.add(new CardEditionInfo(CardEdition.MORNINGTIDE, "Morningtide"));
         managed.add(new CardEditionInfo(CardEdition.LORWYN, "Lorwyn"));
         managed.add(new CardEditionInfo(CardEdition.MAGIC_2014, "M14"));
@@ -37,6 +40,9 @@ public enum SnifferInfoCardEdition {
         managed.add(new CardEditionInfo(CardEdition.DRAGONS_MAZE, "Dragons_Maze"));
         managed.add(new CardEditionInfo(CardEdition.INNISTRAD, "Innistrad"));
         managed.add(new CardEditionInfo(CardEdition.ZENDIKAR, "Zendikar"));
+        managed.add(new CardEditionInfo(CardEdition.MODERN_EVENT_DECK, null));
+        managed.add(new CardEditionInfo(CardEdition.MODERN_MASTERS, "Modern_Masters"));
+        managed.add(new CardEditionInfo(CardEdition.NEW_PHYREXIA, "New_Phyrexia"));
 
         managedEditions = Maps.newHashMap();
         for (CardEditionInfo cardEditionInfo : managed) {
