@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -53,7 +52,7 @@ public class CardMovementDao extends AbstractDao<CardMovement> implements IDao<C
      * @return
      */
     public int deleteAllByType(CardMovementType type) {
-        Query q = em.createQuery("DELETE FROM CardMovement cm WHERE cm.type = :cmType");
+        TypedQuery<CardMovement> q = em.createQuery("DELETE FROM CardMovement cm WHERE cm.type = :cmType", CardMovement.class);
         q.setParameter("cmType", type);
         return q.executeUpdate();
     }
