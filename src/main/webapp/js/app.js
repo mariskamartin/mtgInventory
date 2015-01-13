@@ -75,7 +75,7 @@ Card.EMPTY = new Card({
     rarity : "UNKNOWN",
     edition : "UNKNOWN",
     editionKey : "UNKNOWN",
-    foil : false,
+    foil : false
 });
 
 /**
@@ -188,8 +188,7 @@ function UserViewModel() {
             }
         });
     };
-};
-
+}
 /**
  * Inventory ViewModel
  */

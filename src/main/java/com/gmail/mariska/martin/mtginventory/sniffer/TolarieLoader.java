@@ -58,7 +58,7 @@ public class TolarieLoader implements ISniffer {
     /**
      * Parsuje karty na Tolarii
      * 
-     * @param cardFindName
+     * @param doc
      * @param builder
      * @throws IOException
      */

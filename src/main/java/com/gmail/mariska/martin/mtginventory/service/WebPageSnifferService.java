@@ -77,7 +77,7 @@ public class WebPageSnifferService {
     /**
      * Vyhleda na tolarii dany string, kartu
      * 
-     * @param cardFindName
+     * @param cardFindNames
      * @return
      * @throws IOException
      */
@@ -132,6 +132,12 @@ public class WebPageSnifferService {
                 @Override
                 public List<DailyCardInfo> call() throws Exception {
                     return new TolarieLoader().sniffByEdition(cardEdition);
+                }
+            }));
+            futures.add(executor.submit(new Callable<List<DailyCardInfo>>() {
+                @Override
+                public List<DailyCardInfo> call() throws Exception {
+                    return new RishadaLoader().sniffByEdition(cardEdition);
                 }
             }));
             // TODO doplnit ostatni obchody

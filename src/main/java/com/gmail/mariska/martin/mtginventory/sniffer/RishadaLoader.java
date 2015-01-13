@@ -1,19 +1,19 @@
 package com.gmail.mariska.martin.mtginventory.sniffer;
 
+import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import com.gmail.mariska.martin.mtginventory.db.model.*;
+import com.sun.swing.internal.plaf.synth.resources.synth_sv;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.gmail.mariska.martin.mtginventory.db.model.Card;
-import com.gmail.mariska.martin.mtginventory.db.model.CardEdition;
-import com.gmail.mariska.martin.mtginventory.db.model.CardShop;
-import com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 
@@ -28,13 +28,19 @@ public class RishadaLoader implements ISniffer {
 
     @Override
     public List<DailyCardInfo> sniffByEdition(CardEdition edition) throws IOException {
-        throw new UnsupportedOperationException("Tato metoda jeste neni zprovoznena");
+        SnifferInfoCardEdition.CardEditionInfo info = SnifferInfoCardEdition.intance.getInfo(edition);
+        if (info.getRishadaUrlKey() == null) {
+            return Collections.emptyList();
+        }
+        Builder<DailyCardInfo> builder = ImmutableList.builder();
+        parse(fetchKusovkyPaged(info.getRishadaUrlKey()), builder);
+        return builder.build();
     }
 
     /**
      * Parsuje karty na Najada.cz
      * 
-     * @param cardFindName
+     * @param doc
      * @param builder
      * @throws IOException
      */
@@ -62,10 +68,17 @@ public class RishadaLoader implements ISniffer {
 //        return Jsoup.parse(new File("C://rishada.html"), "utf-8"); //for DEBUG
     }
 
+    private Document fetchKusovkyPaged(String edice) throws IOException {
+        String urlRequest = "http://www.rishada.cz/kusovky/vysledky-hledani?searchtype=basic&xxwhichpage=1&xxcardname=&xxedition="+edice+"&xxpagesize=2000&search=Vyhledat";
+        Document doc = Jsoup.connect(urlRequest).get();
+        return doc;
+//        return Jsoup.parse(new File("C://rishada.html"), "utf-8"); //for DEBUG
+    }
 
     public static void main(String[] args) throws IOException {
         RishadaLoader r = new RishadaLoader();
 //        Document doc = r.fetchKusovky("hammer of");
-        System.out.println(r.sniffByCardName("hammer of"));
+        System.out.println(r.sniffByEdition(CardEdition.KHANS_OF_TARKIR));
+//        System.out.println(r.fetchKusovkyPaged(""));
     }
 }
