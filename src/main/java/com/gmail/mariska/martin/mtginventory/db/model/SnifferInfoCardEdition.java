@@ -29,7 +29,7 @@ public enum SnifferInfoCardEdition {
         managed.add(new CardEditionInfo(CardEdition.COMMANDER_2014, null, "3037"));
 
         //cr predprodej
-        managed.add(new CardEditionInfo(CardEdition.FATE_REFORGED, null, null));
+        managed.add(new CardEditionInfo(CardEdition.FATE_REFORGED, "Fate_Reforged", "166"));
 
         managed.add(new CardEditionInfo(CardEdition.MORNINGTIDE, "Morningtide", "144"));
         managed.add(new CardEditionInfo(CardEdition.LORWYN, "Lorwyn", "143"));
