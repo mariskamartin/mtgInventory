@@ -19,9 +19,9 @@ User.EMPTY = new User({
 });
 
 MY_INVENOTORY_PAGES = {
-    HOME: "#/home",
-    INTERESTS : "#/interests",
-    DETAIL : "#/detail"
+    HOME: {url: "#/home", templateName: "homeContentTemplate"},
+    INTERESTS: {url: "#/interests", templateName: "interestsContentTemplate"},
+    DETAIL: {url: "#/detail", templateName: "detailContentTemplate"}
 };
 
 
@@ -34,7 +34,7 @@ function Card(pojo) {
     self.foil = pojo.foil;
     self.storeAmount = ko.observable(pojo.storeAmount);
     // others helps
-    self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.id;
+    self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL.url+"/" + pojo.id;
     self.editionKey = pojo.editionKey;
     self.foilTxt = pojo.foil ? "FOIL" : "";
     self.foilImg = (pojo.foil ? " " + utils.icons.star : "");
@@ -61,7 +61,7 @@ function CardMovement(pojo) {
     self.oldPrice = pojo.oldPrice;
     self.newPrice = pojo.newPrice;
     // others helps
-    self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.card.id;
+    self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL.url+"/" + pojo.card.id;
     self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
     self.foilImg = (pojo.card.foil ? " " + utils.icons.star : "");
     self.info = self.edition;
@@ -197,14 +197,19 @@ function InventoryViewModel() {
 
     // Data
     self.newText = ko.observable();
-    self.activePage = ko.observable();
+    self.activePage = ko.observable(MY_INVENOTORY_PAGES.HOME);
     self.cards = ko.observableArray([]);
     self.cardMovementsDay = ko.observableArray([]);
     self.cardMovementsWeek = ko.observableArray([]);
     self.cardDetail = ko.observable(Card.EMPTY);
 
     self.pages = MY_INVENOTORY_PAGES;
-    
+
+    self.activePageTemplate = function(card, bindingContext) {
+        return self.activePage().templateName;
+    };
+
+
     // Operations
     self.addUserCardFromTable = function(card, event) {
         console.log(["usercard", card]);
@@ -318,10 +323,10 @@ function InventoryViewModel() {
     };
     //card detail
     self.populateCardDetailFromMovement = function(movement) {
-        document.location = MY_INVENOTORY_PAGES.DETAIL+"/"+movement.cardPojo.id;
+        document.location = MY_INVENOTORY_PAGES.DETAIL.url+"/"+movement.cardPojo.id;
     };
     self.populateCardDetailFromTable = function(cardPojo) {
-        document.location = MY_INVENOTORY_PAGES.DETAIL+"/"+cardPojo.id;
+        document.location = MY_INVENOTORY_PAGES.DETAIL.url+"/"+cardPojo.id;
     };
     self.setCardDetail = function(card){
         self.cardDetail(card);
@@ -335,45 +340,53 @@ function InventoryViewModel() {
                 var data = {};
                 result.forEach(function(item) {
                     data[item.shop] = data[item.shop] || {
-                        x : [ 'x' ],
+                        x : [ 'x'+item.shop ],
+                        xs : {},
                         values : [ item.shop ]
                     };
+                    data[item.shop].xs[item.shop] = data[item.shop].x[0];
+                    console.log(data);
                     data[item.shop].x.push(item.dayTxt);
                     data[item.shop].values.push(item.price);
                     data[item.shop].storeDay = item.dayTxt;
                     data[item.shop].storeAmount = item.storeAmount;
                 });
-                chart.unload();
-                setTimeout(function() {
-                    var txtSkladem = self.cardDetail().storeAmount() ? "<br />" : "";
-                    for ( var shop in data) {
-                        txtSkladem = txtSkladem ? txtSkladem + "<br />" : txtSkladem;
-                        txtSkladem = txtSkladem + data[shop].storeDay + " - " + shop + " - " + data[shop].storeAmount
-                            + " ks";
-
-                        chart.load({
-                            columns : [ data[shop].x, data[shop].values ]
-                        });
+                var chart = c3.generate({
+                    bindto: '#priceChart',
+                    data : {
+                        xs : {},
+                        columns : []
+                    },
+                    axis : {
+                        x : {
+                            type : 'timeseries',
+                            tick : {
+                                format : '%d.%m.%Y'
+                            }
+                        }
+                    },
+                    transition: {
+                        duration: 150
                     }
-                    self.cardDetail().storeAmount(txtSkladem);
-                }, 355);
+                });
+
+                var txtSkladem = self.cardDetail().storeAmount() ? "<br />" : "";
+                for ( var shop in data) {
+                    txtSkladem = txtSkladem ? txtSkladem + "<br />" : txtSkladem;
+                    txtSkladem = txtSkladem + data[shop].storeDay + " - " + shop + " - " + data[shop].storeAmount
+                        + " ks";
+
+                    chart.load({
+                        xs : data[shop].xs,
+                        columns : [ data[shop].x, data[shop].values ]
+                    });
+                }
+                self.cardDetail().storeAmount(txtSkladem);
 
                 document.getElementById("cardDetail").scrollIntoView(true);
             }
         });
     };
-
-    // Load initial state from server
-//    utils.json.get({
-//        url : "./rest/v1.0/cards",
-//        success : function(allData) {
-//            var initCards = $.map(allData, function(item) {
-//                return new Card(item);
-//            });
-//            self.cards(initCards);
-//        }
-//    });
-
 }
 
 // -------------------------------------------------------------------------------------------
@@ -392,14 +405,14 @@ var myInventory = {
      * Routovani aplikace na in-pages
      */
     routes : [ {
-        url : MY_INVENOTORY_PAGES.HOME,
+        url : MY_INVENOTORY_PAGES.HOME.url,
         root : true,
         action : function() {
             //load or start for home
             myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.HOME);
         }
     }, {
-        url : MY_INVENOTORY_PAGES.INTERESTS,
+        url : MY_INVENOTORY_PAGES.INTERESTS.url,
         action : function() {
             //load or start for interests
             if(myInventory.viewModels.inventory.cardMovementsDay().length == 0) {
@@ -408,7 +421,7 @@ var myInventory = {
             myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.INTERESTS);
         }
     }, {
-        url : MY_INVENOTORY_PAGES.DETAIL + "(/:card_id)(/:action)",
+        url : MY_INVENOTORY_PAGES.DETAIL.url + "(/:card_id)(/:action)",
         action : function() {
             //load or start for interests
             myInventory.viewModels.inventory.activePage(MY_INVENOTORY_PAGES.DETAIL);
@@ -446,25 +459,4 @@ var myInventory = {
 //start with document ready
 $(document).ready(function() {
     myInventory.start();
-});
-
-// -------------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------------
-// Others
-var chart = c3.generate({
-    data : {
-        x : 'x',
-        columns : []
-    },
-    axis : {
-        x : {
-            type : 'timeseries',
-            tick : {
-                format : '%d.%m.%Y'
-            }
-        }
-    },
-    transition: {
-        duration: 150
-    }
 });
