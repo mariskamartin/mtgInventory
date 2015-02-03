@@ -82,7 +82,7 @@ public class EmailService {
                 t.close();
             }
 
-            logger.debug("message send: " + message);
+            logger.trace("message send: " + message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             logger.error(e.getMessage(), e);
         }
