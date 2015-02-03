@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="MTG Inventory">
+    <meta name="author" content="Mariska Martin">
+
+    <title>MTG Inventory v2.0.0</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="./lib/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+    <!-- Load c3.css -->
+    <link href="./lib/c3/c3.css" rel="stylesheet" type="text/css">
+    <!-- Load pnotify.css -->
+    <link href="./lib/pnotify/pnotify.custom.min.css" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="./">MTG Inventory</a>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse">
+            <ul id="navigationMenu" class="nav navbar-nav">
+                <li data-bind="css: { active: activePage() == PAGES.HOME }"><a href="#/home">Home</a></li>
+                <li data-bind="css: { active: activePage() == PAGES.DETAIL }"><a href="#/detail">Card detail</a></li>
+                <li data-bind="css: { active: activePage() == PAGES.INTERESTS }"><a href="#/interests">Interests</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+</div>
+
+<div class="container" data-bind="template: { name: activeTemplate, afterRender: afterRenderActiveTemplate }">
+
+</div>
+<!-- /.container -->
+
+<script type="text/html" id="interests">
+    <h1>interests page</h1>
+</script>
+<script type="text/html" id="home">
+    <h1>HOME page .. .</h1>
+</script>
+<script type="text/html" id="detail">
+    <h1>Detail page .. .</h1>
+    <div class="row">
+        <div id="cardDetail" class="col-md-12">
+            <h1>Card price history</h1>
+            <div id="priceChart"></div>
+        </div>
+    </div>
+</script>
+
+
+<!-- Placed at the end of the document so the pages load faster -->
+<script type='text/javascript' src="./lib/routing/path.min.js"></script>
+<script type='text/javascript' src="./lib/store/store2.min.js"></script>
+<script type='text/javascript' src="./lib/jquery-1.8.3.js"></script>
+<script type='text/javascript' src="./lib/pnotify/pnotify.custom.min.js"></script>
+<script type='text/javascript' src="./lib/bootstrap/js/bootstrap.min.js"></script>
+<script type='text/javascript' src='./lib/knockout-3.1.0.min.js'></script>
+<!-- Load d3.js and c3.js -->
+<script src="./lib/c3/d3.min.js" charset="utf-8"></script>
+<script src="./lib/c3/c3.min.js"></script>
+<script src="./js/utils.js"></script>
+
+<script>
+function Page(ownProps){
+    utils.extend(this, ownProps);
+};
+Page.prototype = {
+    name : 'default',
+    onDOMReady : function(elements, viewModel){},
+    onUrlActivate : function(){}
+};
+
+var PAGES = {
+    INTERESTS : new Page({
+        name: "interests",
+        url: "#/interests",
+        onUrlActivate: function(){
+            console.log("interests page activated");
+        }
+    }),
+    HOME : new Page({
+        name: "home",
+        url: "#/home",
+        root: true,
+        onUrlActivate: function(){
+            console.log("home page activated");
+        }
+    }),
+    DETAIL : new Page({
+        name: "detail",
+        url: "#/detail",
+        onUrlActivate: function(){
+            console.log("detail page activated");
+        },
+        onDOMReady : function(elements, viewModel){
+            if(!viewModel.chartData){
+                viewModel.chartData = {
+                    x : ['x1', '2015-01-01', '2015-01-02', '2015-01-03', '2015-01-04', '2015-01-05'],
+                    data: ['data1', Math.random()*60, Math.random()*60, Math.random()*15,42,12]
+                }
+            }
+            //vyrobeni grafu v DOM
+            var chart = c3.generate({
+                bindto: '#priceChart',
+                data : {
+                    xs : {
+                        data1: "x1"
+                    },
+                    columns : [ viewModel.chartData.x, viewModel.chartData.data ]
+                },
+                axis : {
+                    x : {
+                        type : 'timeseries',
+                        tick : {
+                            format : '%d.%m.%Y'
+                        }
+                    }
+                },
+                transition: {
+                    duration: 150
+                }
+            });
+//            chart.load({
+//                xs : {
+//                    data1: "x1"
+//                },
+//                columns : [ viewModel.chartData.x, viewModel.chartData.data ]
+//            });
+        }
+    })
+};
+
+// MVVM for this html
+function PageViewModel () {
+    var self = this;
+    /**
+     * Active page rendered in html
+     */
+    self.activePage = ko.observable(PAGES.HOME);
+    /**
+     * Returns name of template fr active page
+     */
+    self.activeTemplate = function(element, bindingContext){
+        return bindingContext.$data.activePage().name;
+    };
+    /**
+     * Process action after render template
+     * @param elements - created DOM elements
+     * @param viewModel
+     */
+    self.afterRenderActiveTemplate = function(elements, viewModel) {
+        viewModel.activePage().onDOMReady(elements, viewModel);
+    };
+}
+
+//KO bindings
+var pageViewModel = new PageViewModel();
+ko.applyBindings(pageViewModel);
+
+//make routing to pages
+var pageNames = Object.getOwnPropertyNames(PAGES);
+pageNames.forEach(function(pageName) {
+    var item = PAGES[pageName];
+    Path.map(item.url).to(function(){
+        //activate page in viewModel
+        pageViewModel.activePage(item);
+        //call page action
+        item.onUrlActivate();
+    });
+    if (item.root)
+        Path.root(item.url);
+});
+//listen to URL changes
+Path.listen();
+
+
+</script>
+</body>
+</html>
