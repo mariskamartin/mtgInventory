@@ -191,7 +191,7 @@
 				</div>
 	 		</div>
 		</div>
-		<!-- Content for actove page -->
+		<!-- Content for active page -->
 		<div data-bind="visible: activePage() == pages.INTERESTS">
 			<div class="row" data-bind="visible: user().isAdmin" style="display:none">
 				<div class="col-md-12">
@@ -211,7 +211,7 @@
 								<tr>
 									<th>card name</th>
 									<th>card info</th>
-									<th>shop</th>
+									<th class="hidden-xs">shop</th>
 									<th>old</th>
 									<th>new</th>
 									<th>change</th>
@@ -222,7 +222,7 @@
 							    <tr>
 							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
 							        <td data-bind="html: info"></td>
-							        <td data-bind="text: shop"></td>
+							        <td data-bind="text: shop" class="hidden-xs"></td>
 							        <td data-bind="text: oldPrice"></td>
 							        <td data-bind="text: newPrice"></td>
 							        <td data-bind="text: gainPercentage, css: gainStatus"></td>
@@ -241,7 +241,7 @@
 								<tr>
 									<th>card name</th>
 									<th>card info</th>
-									<th>shop</th>
+									<th class="hidden-xs">shop</th>
 									<th>old</th>
 									<th>new</th>
 									<th>change</th>
@@ -252,7 +252,7 @@
 							    <tr>
 							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
 							        <td data-bind="html: info"></td>
-							        <td data-bind="text: shop"></td>
+							        <td data-bind="text: shop" class="hidden-xs"></td>
 							        <td data-bind="text: oldPrice"></td>
 							        <td data-bind="text: newPrice"></td>
 							        <td data-bind="text: gainPercentage, css: gainStatus"></td>
