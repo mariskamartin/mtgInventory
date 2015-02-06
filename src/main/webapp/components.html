@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Mariska Martin">
+
+    <title>Knockout JS</title>
+    <!-- Bootstrap core CSS -->
+    <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="./lib/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+</head>
+<body>
+  <editor></editor>
+
+  <editor params='initialText: "ahojda"'></editor>
+
+  <div data-bind='component: "editor"'></div>
+
+  <div data-bind='component: {
+      name: "editor",
+      params: { initialText: "Hello, world!" }
+  }'>
+  </div>
+
+<!-- ----------------------------------------------------------------------------------- -->
+<script type='text/javascript' src='./lib/knockout-3.2.0.js'></script>
+<script>
+ko.components.register('editor', {
+    viewModel: function(params) {
+        this.text = ko.observable(params && params.initialText || '');
+    },
+    template: 'Message: <input data-bind="value: text" /> '
+            + '(length: <span data-bind="text: text().length"></span>)'
+});
+
+ko.applyBindings();
+</script>
+</body>
+</html>
