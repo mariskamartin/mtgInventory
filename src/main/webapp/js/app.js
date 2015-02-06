@@ -335,9 +335,11 @@ function InventoryViewModel() {
                 var data = {};
                 result.forEach(function(item) {
                     data[item.shop] = data[item.shop] || {
-                        x : [ 'x' ],
+                        x : [ 'x'+item.shop ],
+                        xs : {},
                         values : [ item.shop ]
                     };
+                    data[item.shop].xs[item.shop] = data[item.shop].x[0];
                     data[item.shop].x.push(item.dayTxt);
                     data[item.shop].values.push(item.price);
                     data[item.shop].storeDay = item.dayTxt;
@@ -352,6 +354,7 @@ function InventoryViewModel() {
                             + " ks";
 
                         chart.load({
+                            xs : data[shop].xs,
                             columns : [ data[shop].x, data[shop].values ]
                         });
                     }
@@ -453,7 +456,7 @@ $(document).ready(function() {
 // Others
 var chart = c3.generate({
     data : {
-        x : 'x',
+        xs : {},
         columns : []
     },
     axis : {
