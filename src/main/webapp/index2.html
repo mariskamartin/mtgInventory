@@ -49,13 +49,38 @@
 <!-- /.container -->
 
 <!-- ------------------------------------------- -->
-<script type="text/html" id="interests">
-    <h1>interests page</h1>
-</script>
-
-<!-- ------------------------------------------- -->
 <script type="text/html" id="home">
-    <h1>HOME page .. .</h1>
+    <!-- Content for home page -->
+    <div class="starter-template">
+        <h1>My MTG Inventory</h1>
+        <p class="lead">Tento projekt je zaměřen na evidenci a sledování cen karet na českém trhu pro hráče MTG.</p>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-striped table-condensed table-bordered center-table">
+                    <thead>
+                    <tr>
+                        <th>card name</th>
+                        <th>links</th>
+                        <th>info</th>
+                    </tr>
+                    </thead>
+                    <!-- Todo: Generate table body -->
+                    <tbody data-bind="foreach: HOME.cards">
+                    <tr>
+                        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
+                        <td><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
+                        <td><span data-bind="text: edition"></span> /
+                            <span data-bind="text: rarity"></span> /
+                            <span data-bind="text: foilTxt"></span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </script>
 
 <!-- ------------------------------------------- -->
@@ -68,6 +93,12 @@
         </div>
     </div>
 </script>
+
+<!-- ------------------------------------------- -->
+<script type="text/html" id="interests">
+    <h1>interests page</h1>
+</script>
+
 
 
 <!-- Placed at the end of the document so the pages load faster -->
@@ -83,9 +114,43 @@
 <script src="./js/utils.js"></script>
 
 <script>
+
+    function Card(pojo) {
+        var self = this;
+        self.id = pojo.id;
+        self.name = pojo.name;
+        self.rarity = pojo.rarity;
+        self.edition = pojo.edition;
+        self.foil = pojo.foil;
+        self.storeAmount = ko.observable(pojo.storeAmount);
+        // others helps
+        self.hrefDetail = "";
+        self.editionKey = pojo.editionKey;
+        self.foilTxt = pojo.foil ? "FOIL" : "";
+        self.foilImg = (pojo.foil ? " " + utils.icons.star : "");
+        self.crLink = "<a href=\"javascript:utils.links.openCernyRytir('" + this.name + "');\">Černý Rytíř</a>";
+        self.tolarieLink = "<a href=\"javascript:utils.links.openTolarie('" + this.name + "');\">Tolarie</a>";
+        self.magicCardsLink = "<a href=\"javascript:utils.links.openMagicCards('" + this.name + "');\">MagicCards</a>";
+        if (self.name && self.name !== "UNKNOWN") {
+            self.img = "<img src='http://cdn.manaclash.com/images/cards/210x297/" + this.editionKey + "/"
+            + this.name.replace(/ /g, "-").replace(/[,'´]/g, "").toLowerCase() + ".jpg' class='img-thumbnail'></img>";
+        }
+    }
+    Card.EMPTY = new Card({
+        id : 0,
+        name : "UNKNOWN",
+        price : 0,
+        storeAmount : "",
+        rarity : "UNKNOWN",
+        edition : "UNKNOWN",
+        editionKey : "UNKNOWN",
+        foil : false
+    });
+
+
 function Page(ownProps){
     utils.extend(this, ownProps);
-};
+}
 Page.prototype = {
     name : 'default',
     onDOMReady : function(elements, viewModel){},
@@ -96,6 +161,7 @@ var PAGES = {
     INTERESTS : new Page({
         name: "interests",
         url: "#/interests",
+        viewModel : {},
         onUrlActivate: function(){
             console.log("interests page activated");
         }
@@ -103,6 +169,9 @@ var PAGES = {
     HOME : new Page({
         name: "home",
         url: "#/home",
+        viewModel : {
+            cards: ko.observableArray([Card.EMPTY, Card.EMPTY])
+        },
         root: true,
         onUrlActivate: function(){
             console.log("home page activated");
@@ -111,6 +180,7 @@ var PAGES = {
     DETAIL : new Page({
         name: "detail",
         url: "#/detail",
+        viewModel : {},
         onUrlActivate: function(){
             console.log("detail page activated");
         },
@@ -175,23 +245,31 @@ function PageViewModel () {
     };
 }
 
-//KO bindings
 var pageViewModel = new PageViewModel();
-ko.applyBindings(pageViewModel);
 
 //make routing to pages
 var pageNames = Object.getOwnPropertyNames(PAGES);
 pageNames.forEach(function(pageName) {
     var item = PAGES[pageName];
+    //maps urls to pages instancies
     Path.map(item.url).to(function(){
         //activate page in viewModel
         pageViewModel.activePage(item);
         //call page action
         item.onUrlActivate();
     });
+    //root page
     if (item.root)
         Path.root(item.url);
+    //inject pages viewModel into global viewModel under PAGES name
+    if(item["viewModel"]){
+        pageViewModel[pageName] = item.viewModel || {};
+    }
 });
+
+//KO bindings
+ko.applyBindings(pageViewModel);
+
 //listen to URL changes
 Path.listen();
 
