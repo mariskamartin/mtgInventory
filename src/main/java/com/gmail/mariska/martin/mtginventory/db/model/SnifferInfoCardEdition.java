@@ -42,6 +42,7 @@ public enum SnifferInfoCardEdition {
         managed.add(new CardEditionInfo(CardEdition.MODERN_EVENT_DECK, null, "3029"));
         managed.add(new CardEditionInfo(CardEdition.MODERN_MASTERS, "Modern_Masters", "3021"));
         managed.add(new CardEditionInfo(CardEdition.NEW_PHYREXIA, "New_Phyrexia", "155"));
+        managed.add(new CardEditionInfo(CardEdition.SCARS_OF_MIRRODIN, "Scars_of_Mirrodin", "153"));
 
         managedEditions = Maps.newHashMap();
         for (CardEditionInfo cardEditionInfo : managed) {

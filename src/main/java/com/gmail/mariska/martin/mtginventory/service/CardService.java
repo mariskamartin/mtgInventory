@@ -156,7 +156,7 @@ public class CardService extends AbstractService<Card> {
             //load and save
             allCards.addAll(saveCardsIntoDb(fetchCardListByEditions(cardEdition)));
             editionProcessedCount++;
-            logger.info("fetching procesed " + editionProcessedCount + "/" + managedEditions.size());
+            logger.debug("fetching procesed " + editionProcessedCount + "/" + managedEditions.size());
         }
         logger.info("download editions elapsed time " + stopwatch.stop().elapsed(TimeUnit.MINUTES) + " minutes");
         return allCards;
