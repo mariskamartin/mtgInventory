@@ -20,7 +20,7 @@ public class UtilsTest {
     @Test
     public void itShouldHasSameFieldsTest() throws NoSuchFieldException {
         Assert.assertFalse(Utils.hasChange(foo1, foo2, "field1", "field2", "f4"));
-        foo2.setField1("xy");
+        foo2.setField1("dasda");
         Assert.assertTrue(Utils.hasChange(foo1, foo2, "field1", "field2", "f4"));
         Assert.assertTrue(Utils.hasChange(foo1, foo2, "f3"));
     }
