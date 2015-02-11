@@ -50,13 +50,21 @@
 
 <!-- ------------------------------------------- -->
 <script type="text/html" id="home">
-    <!-- Content for home page -->
     <div class="starter-template">
         <h1>My MTG Inventory</h1>
         <p class="lead">Tento projekt je zaměřen na evidenci a sledování cen karet na českém trhu pro hráče MTG.</p>
     </div>
     <div class="row">
         <div class="col-md-12">
+            <form data-bind="submit: HOME.findCardInForm">
+                <div class="form-group">
+                    <label for="findInput">Card:</label>
+                    <input data-bind="value: HOME.newText" placeholder="card name?" id="findInput"/>
+                    <button type="submit" class="btn btn-success btn-sm">Find card</button>
+                    <button type="button" class="btn btn-info btn-sm" data-bind="click: HOME.fetchCard">Fetch card from shop</button>
+                </div>
+            </form>
+
             <div class="table-responsive">
                 <table class="table table-striped table-condensed table-bordered center-table">
                     <thead>
@@ -66,7 +74,6 @@
                         <th>info</th>
                     </tr>
                     </thead>
-                    <!-- Todo: Generate table body -->
                     <tbody data-bind="foreach: HOME.cards">
                     <tr>
                         <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
@@ -74,6 +81,9 @@
                         <td><span data-bind="text: edition"></span> /
                             <span data-bind="text: rarity"></span> /
                             <span data-bind="text: foilTxt"></span>
+                            <!--
+                            <a data-bind="visible: $root.user().idEmail, click: $root.addUserCardFromTable"><i class="glyphicon glyphicon-plus"></i></a>
+                            -->
                         </td>
                     </tr>
                     </tbody>
@@ -114,39 +124,64 @@
 <script src="./js/utils.js"></script>
 
 <script>
+var PAGES_URLS = {
+    HOME: "#/home",
+    INTERESTS: "#/interests",
+    DETAIL: "#/detail"
+};
 
-    function Card(pojo) {
-        var self = this;
-        self.id = pojo.id;
-        self.name = pojo.name;
-        self.rarity = pojo.rarity;
-        self.edition = pojo.edition;
-        self.foil = pojo.foil;
-        self.storeAmount = ko.observable(pojo.storeAmount);
-        // others helps
-        self.hrefDetail = "";
-        self.editionKey = pojo.editionKey;
-        self.foilTxt = pojo.foil ? "FOIL" : "";
-        self.foilImg = (pojo.foil ? " " + utils.icons.star : "");
-        self.crLink = "<a href=\"javascript:utils.links.openCernyRytir('" + this.name + "');\">Černý Rytíř</a>";
-        self.tolarieLink = "<a href=\"javascript:utils.links.openTolarie('" + this.name + "');\">Tolarie</a>";
-        self.magicCardsLink = "<a href=\"javascript:utils.links.openMagicCards('" + this.name + "');\">MagicCards</a>";
-        if (self.name && self.name !== "UNKNOWN") {
-            self.img = "<img src='http://cdn.manaclash.com/images/cards/210x297/" + this.editionKey + "/"
-            + this.name.replace(/ /g, "-").replace(/[,'´]/g, "").toLowerCase() + ".jpg' class='img-thumbnail'></img>";
-        }
+function Card(pojo) {
+    var self = this;
+    self.id = pojo.id;
+    self.name = pojo.name;
+    self.rarity = pojo.rarity;
+    self.edition = pojo.edition;
+    self.foil = pojo.foil;
+    self.storeAmount = ko.observable(pojo.storeAmount);
+    // others helps
+    self.hrefDetail = PAGES_URLS.DETAIL+"/" + pojo.id;
+    self.editionKey = pojo.editionKey;
+    self.foilTxt = pojo.foil ? "FOIL" : "";
+    self.foilImg = (pojo.foil ? " " + utils.icons.star : "");
+    self.crLink = "<a href=\"javascript:utils.links.openCernyRytir('" + this.name + "');\">Černý Rytíř</a>";
+    self.tolarieLink = "<a href=\"javascript:utils.links.openTolarie('" + this.name + "');\">Tolarie</a>";
+    self.magicCardsLink = "<a href=\"javascript:utils.links.openMagicCards('" + this.name + "');\">MagicCards</a>";
+    if (self.name && self.name !== "UNKNOWN") {
+        self.img = "<img src='http://cdn.manaclash.com/images/cards/210x297/" + this.editionKey + "/"
+        + this.name.replace(/ /g, "-").replace(/[,'´]/g, "").toLowerCase() + ".jpg' class='img-thumbnail'></img>";
     }
-    Card.EMPTY = new Card({
-        id : 0,
-        name : "UNKNOWN",
-        price : 0,
-        storeAmount : "",
-        rarity : "UNKNOWN",
-        edition : "UNKNOWN",
-        editionKey : "UNKNOWN",
-        foil : false
-    });
-
+}
+Card.EMPTY = new Card({
+    id : 0,
+    name : "UNKNOWN",
+    price : 0,
+    storeAmount : "",
+    rarity : "UNKNOWN",
+    edition : "UNKNOWN",
+    editionKey : "UNKNOWN",
+    foil : false
+});
+/**
+ *
+ * @param pojo
+ */
+function CardMovement(pojo) {
+    var self = this;
+    self.cardPojo = pojo.card;
+    self.name = pojo.card.name;
+    self.rarity = pojo.card.rarity;
+    self.edition = pojo.card.edition;
+    self.shop = pojo.shop;
+    self.gainPrice = pojo.gainPrice;
+    self.gainPercentage = pojo.gainPercentage > 0 ? "+" + pojo.gainPercentage.toFixed(2) + " %" : pojo.gainPercentage.toFixed(2) + " %";
+    self.oldPrice = pojo.oldPrice;
+    self.newPrice = pojo.newPrice;
+    // others helps
+    self.hrefDetail = PAGES_URLS.DETAIL+"/" + pojo.card.id;
+    self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
+    self.foilImg = (pojo.card.foil ? " " + utils.icons.star : "");
+    self.info = self.edition;
+}
 
 function Page(ownProps){
     utils.extend(this, ownProps);
@@ -158,19 +193,44 @@ Page.prototype = {
 };
 
 var PAGES = {
-    INTERESTS : new Page({
-        name: "interests",
-        url: "#/interests",
-        viewModel : {},
-        onUrlActivate: function(){
-            console.log("interests page activated");
-        }
-    }),
     HOME : new Page({
         name: "home",
-        url: "#/home",
-        viewModel : {
-            cards: ko.observableArray([Card.EMPTY, Card.EMPTY])
+        url: PAGES_URLS.HOME,
+        /**
+         * ViewModel is bind to global viewModel under page name. So it can be called foe example like HOME.cards
+         */
+        viewModel : function(){
+            var self = this;
+            self.cards = ko.observableArray([Card.EMPTY, Card.EMPTY]);
+            self.newText = ko.observable();
+            self.findCardInForm = function() {
+                self.findCard(self.newText());
+            };
+            self.findCard = function(text) {
+                utils.json.get({
+                    url : './rest/v1.0/cards/find/' + text,
+                    success : function(result) {
+                        var results = [];
+                        result.forEach(function(item) {
+                            results.push(new Card(item));
+                        });
+                        self.cards(results);
+                    }
+                });
+            };
+            self.fetchCard = function() {
+                utils.json.get({
+                    url : './rest/v1.0/cards/fetch/' + self.newText(),
+                    success : function(result) {
+                        var self = this;
+                        console.log(["fetch cards",this]);
+                        result.forEach(function(item) {
+                            self.cards.push(new Card(item));
+                        });
+                    }
+                });
+            };
+            return self;
         },
         root: true,
         onUrlActivate: function(){
@@ -179,7 +239,7 @@ var PAGES = {
     }),
     DETAIL : new Page({
         name: "detail",
-        url: "#/detail",
+        url: PAGES_URLS.DETAIL,
         viewModel : {},
         onUrlActivate: function(){
             console.log("detail page activated");
@@ -218,7 +278,15 @@ var PAGES = {
 //                },
 //                columns : [ viewModel.chartData.x, viewModel.chartData.data ]
 //            });
-        }
+        },
+        INTERESTS : new Page({
+            name: "interests",
+            url: PAGES_URLS.INTERESTS,
+            viewModel : {},
+            onUrlActivate: function(){
+                console.log("interests page activated");
+            }
+        })
     })
 };
 
@@ -263,7 +331,11 @@ pageNames.forEach(function(pageName) {
         Path.root(item.url);
     //inject pages viewModel into global viewModel under PAGES name
     if(item["viewModel"]){
-        pageViewModel[pageName] = item.viewModel || {};
+        if(item.viewModel instanceof Function){
+            pageViewModel[pageName] = item.viewModel() || {};
+        } else {
+            pageViewModel[pageName] = item.viewModel || {};
+        }
     }
 });
 
