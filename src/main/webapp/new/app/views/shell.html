@@ -1,0 +1,65 @@
+﻿<div>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle Navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <i class="fa fa-code"></i>
+                    <span>MTG Sniffer</span>
+                </a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav" data-bind="foreach: router.navigationModel">
+                    <li data-bind="css: { active: isActive }">
+                        <a data-bind="attr: { href: hash }, text: title"></a>
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="loader" data-bind="css: { active: router.isNavigating }">
+                        <i class="fa fa-refresh fa-spin fa-2x" style="color:#fff"></i>
+                    </li>
+                    <!-- signIn - user profile -->
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile <b class="caret"></b></a>
+                        <ul class="dropdown-menu" style="padding: 15px;min-width: 300px;">
+                            <li>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <form class="form">
+                                            <div class="form-group">
+                                                <label class="control-label">Email</label>
+                                                <input class="form-control" type="text" readonly />
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Name</label>
+                                                <input class="form-control" type="text" />
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="control-label">Roles</label>
+                                                <input class="form-control" type="text" readonly />
+                                            </div>
+                                            <!--
+                                                data-bind="click: savePropsUser"
+                                            -->
+                                            <button disabled="disabled" type="button" class="btn btn-success btn-block">Save</button>
+                                            <button data-bind="click: logoutUser" type="button" class="btn btn-info btn-block">Logout</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <div class="page-host" data-bind="router: { transition:'entrance' }"></div>
+</div>
