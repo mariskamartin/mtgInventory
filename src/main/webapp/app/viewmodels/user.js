@@ -63,7 +63,6 @@ define(['store', 'knockout', 'utils'], function (store, ko, utils) {
         }
         self.signPwdInputClass("form-group");
 
-//        alert("Zatím, není možné se registrovat. Registrace bude spuštěna v brzké době. Zatím mají přístup pouze uživatelé zařazeni mezi Beta testery.");
         self.addUser(self.signEmail(), self.signPwd(), self.signName(), utils.uuid(), ["USER"])
             .done(function(response){
                 console.log(response);
