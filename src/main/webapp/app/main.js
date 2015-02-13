@@ -30,7 +30,7 @@ requirejs.config({
 });
 
 define(['durandal/system', 'durandal/app', 'durandal/viewLocator'],  function (system, app, viewLocator) {
-    system.debug(true); //set false for production
+    system.debug(false); //set false for production
 
     //inject data to app
     app.title = 'MTG Inventory';

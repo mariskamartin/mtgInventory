@@ -47,6 +47,13 @@ define(['knockout', 'utils'], function(ko, utils){
     return self;
 });
 
+//TODO: prdelat na spravne adresy z routeru // duplicictne
+MY_INVENOTORY_PAGES = {
+    HOME: "#home",
+    INTERESTS : "#interests",
+    DETAIL : "#detail"
+};
+
 function CardMovement(pojo) {
     var self = this;
     self.cardPojo = pojo.card;
