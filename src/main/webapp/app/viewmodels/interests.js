@@ -46,3 +46,23 @@ define(['knockout', 'utils'], function(ko, utils){
 
     return self;
 });
+
+function CardMovement(pojo) {
+    var self = this;
+    self.cardPojo = pojo.card;
+    self.name = pojo.card.name;
+    self.rarity = pojo.card.rarity;
+    self.edition = pojo.card.edition;
+    self.shop = pojo.shop;
+    self.gainPrice = pojo.gainPrice;
+    self.gainPercentage = pojo.gainPercentage > 0 ? "+" + pojo.gainPercentage.toFixed(2) + " %" : pojo.gainPercentage
+        .toFixed(2)
+    + " %";
+    self.oldPrice = pojo.oldPrice;
+    self.newPrice = pojo.newPrice;
+    // others helps
+    self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.card.id;
+    self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
+    self.foilImg = (pojo.card.foil ? " " + utils.icons.star : "");
+    self.info = self.edition;
+}

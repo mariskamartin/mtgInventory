@@ -1,12 +1,10 @@
 /**
- * Created by MAR on 12.2.2015.
+ * Created by MAR on 12.2.2015 21:21.
  */
 define(['viewmodels/home','knockout', 'utils', 'd3','c3'], function (home, ko, utils, d3, c3) {
     var self = this;
 
     // Data
-    self.cardMovementsDay = ko.observableArray([]);
-    self.cardMovementsWeek = ko.observableArray([]);
     self.cardDetail = ko.observable(Card.EMPTY);
 
     // Operations
@@ -77,36 +75,6 @@ define(['viewmodels/home','knockout', 'utils', 'd3','c3'], function (home, ko, u
             }
         });
     };
-    //movements
-    self.generateMovements = function() {
-        utils.json.get({
-            url : './rest/v1.0/cards/generate/movement',
-            token : self.user().token,
-            success : function(result) {
-                self.fetchMovements();
-            }
-        });
-    };
-    self.fetchMovements = function() {
-        utils.json.get({
-            url : "./rest/v1.0/cards/movements/START_OF_WEEK",
-            success : function(allData) {
-                var initCardMovements = $.map(allData, function(item) {
-                    return new CardMovement(item);
-                });
-                self.cardMovementsWeek(initCardMovements);
-            }
-        });
-        utils.json.get({
-            url : "./rest/v1.0/cards/movements/DAY",
-            success : function(allData) {
-                var initCardDayMovements = $.map(allData, function(item) {
-                    return new CardMovement(item);
-                });
-                self.cardMovementsDay(initCardDayMovements);
-            }
-        });
-    };
     //card detail
     self.populateCardDetailFromMovement = function(movement) {
         document.location = MY_INVENOTORY_PAGES.DETAIL+"/"+movement.cardPojo.id;
@@ -162,22 +130,3 @@ define(['viewmodels/home','knockout', 'utils', 'd3','c3'], function (home, ko, u
     return self;
 });
 
-function CardMovement(pojo) {
-    var self = this;
-    self.cardPojo = pojo.card;
-    self.name = pojo.card.name;
-    self.rarity = pojo.card.rarity;
-    self.edition = pojo.card.edition;
-    self.shop = pojo.shop;
-    self.gainPrice = pojo.gainPrice;
-    self.gainPercentage = pojo.gainPercentage > 0 ? "+" + pojo.gainPercentage.toFixed(2) + " %" : pojo.gainPercentage
-        .toFixed(2)
-    + " %";
-    self.oldPrice = pojo.oldPrice;
-    self.newPrice = pojo.newPrice;
-    // others helps
-    self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.card.id;
-    self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
-    self.foilImg = (pojo.card.foil ? " " + utils.icons.star : "");
-    self.info = self.edition;
-}
