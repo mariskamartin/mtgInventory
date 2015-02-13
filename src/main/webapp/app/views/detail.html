@@ -1,0 +1,28 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-9">
+            <h1>Card details</h1>
+            <h4><span data-bind="html: cardDetail().crLink"></span> / <span data-bind="html: cardDetail().tolarieLink"></span> / <span data-bind="html: cardDetail().magicCardsLink"></span></h4>
+            <div>
+                <ul>
+                    <li><strong>Název:</strong> <span data-bind="text: cardDetail().name"></span></li>
+                    <li><strong>Rarita:</strong> <span data-bind="text: cardDetail().rarity"></span></li>
+                    <li><strong>Edice:</strong> <span data-bind="text: cardDetail().edition"></span></li>
+                    <li><strong>Provedení:</strong> <span data-bind="text: cardDetail().foilTxt"></span></li>
+                </ul>
+                <h4>skladem:</h4>
+                <div data-bind="html: cardDetail().storeAmount"></div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <h1>Card image</h1>
+            <div data-bind="html: cardDetail().img"></div>
+        </div>
+    </div>
+    <div class="row">
+        <div id="cardDetail" class="col-md-12">
+            <h1>Card price history</h1>
+            <div id="prizeChart"></div>
+        </div>
+    </div>
+</div>

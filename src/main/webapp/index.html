@@ -1,308 +1,43 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="MTG Inventory">
-    <meta name="author" content="Mariska Martin">
+<html>
+    <head>
+        <title>MTG Inventory</title>
+        
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="format-detection" content="telephone=no"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>MTG Inventory v1.0.36</title>
+        <link rel="stylesheet" href="./lib/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="./lib/bootstrap/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="lib/c3/c3.css" type="text/css">
+        <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="css/ie10mobile.css" />
+        <link rel="stylesheet" href="lib/durandal/css/durandal.css" />
+        <link rel="stylesheet" href="css/starterkit.css" />
 
-    <!-- Bootstrap core CSS -->
-    <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom styles for this template -->
-    <link href="./lib/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
-    <!-- Load c3.css -->
-	<link href="./lib/c3/c3.css" rel="stylesheet" type="text/css">
-    <!-- Load pnotify.css -->
-	<link href="./lib/pnotify/pnotify.custom.min.css" rel="stylesheet" type="text/css">
-
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="http://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-      <script src="http://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    
-  </head>
-
-  <body>
-
-    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="./">MTG Inventory</a>
+        <script type="text/javascript">
+            if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+                var msViewportStyle = document.createElement("style");
+                var mq = "@@-ms-viewport{width:auto!important}";
+                msViewportStyle.appendChild(document.createTextNode(mq));
+                document.getElementsByTagName("head")[0].appendChild(msViewportStyle);
+            }
+        </script>
+    </head>
+    <body>
+        <div id="applicationHost">
+            <div class="splash">
+                <div class="message">
+                    <span class="fa fa-code"></span> MTG Inventory
+                </div>
+                <i class="fa fa-refresh fa-spin fa-4x"></i>
+            </div>
         </div>
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse">
-          <ul id="navigationMenu" class="nav navbar-nav">
-            <li data-bind="css: { active: activePage() == pages.HOME }"><a data-bind="attr: { href: pages.HOME }">Home</a></li>
-            <li data-bind="css: { active: activePage() == pages.DETAIL }"><a data-bind="attr: { href: pages.DETAIL }">Card detail</a></li>
-            <li data-bind="css: { active: activePage() == pages.INTERESTS }"><a data-bind="attr: { href: pages.INTERESTS }">Interests</a></li>
-          </ul>
 
-          <ul class="nav navbar-nav navbar-right">
-			 <!-- signIn - user profile -->
-             <li data-bind="if: user().idEmail" class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile <b class="caret"></b></a>
-              	<ul class="dropdown-menu" style="padding: 15px;min-width: 300px;">
-					<li>
-						<div class="row">
-							<div class="col-md-12">
-								<form class="form">
-									<div class="form-group">
-										<label class="control-label">Email</label>
-										<input class="form-control" type="text" data-bind="value: user().idEmail" readonly />
-									</div>
-									<div class="form-group">
-										<label class="control-label">Name</label>
-										<input class="form-control" type="text" data-bind="value: user().name" />
-									</div>
-									<div class="form-group">
-										<label class="control-label">Roles</label>
-										<input class="form-control" type="text" data-bind="value: user().roles" readonly />
-									</div>
-									<!-- 
-                        	    	    data-bind="click: savePropsUser"
-                    	    	    -->
-									<button disabled="disabled" type="button" class="btn btn-success btn-block">Save</button>
-									<button data-bind="click: logoutUser" type="button" class="btn btn-info btn-block">Logout</button>
-								</form>
-							</div>
-						</div>
-					</li>
-				</ul>
-             </li>
-
-		 	 <!-- register user -->
-             <li data-bind="visible: !user().idEmail" class="dropdown">
-             	<a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign Up <b class="caret"></b></a>
-                <ul class="dropdown-menu" style="padding: 15px;min-width: 300px;">
-                   <li>
-                      <div class="row">
-                         <div class="col-md-12">
-                            <form class="form" accept-charset="UTF-8" data-bind="submit: registerUser">
-                               <div class="form-group">
-                                  <input data-bind="value: signEmail" type="email" class="form-control" placeholder="Email address" required>
-                               </div>
-                               <div class="form-group">
-                                  <input data-bind="value: signName" type="text" class="form-control" placeholder="Your name" required>
-                               </div>
-                               <div data-bind="attr: { class: signPwdInputClass }">
-                                  <input data-bind="value: signPwd" type="password" class="form-control" placeholder="Password" required>
-                               </div>
-                               <div data-bind="attr: { class: signPwdInputClass }">
-                                  <input data-bind="value: signPwdCheck" type="password" class="form-control" placeholder="Password again" required>
-                               </div>
-                               <div class="form-group">
-                                  <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-                               </div>
-                            </form>
-                         </div>
-                      </div>
-                   </li>
-                </ul>
-             </li>
-             	
-		 	 <!-- login for user -->
-             <li data-bind="visible: !user().idEmail" class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Sign in <b class="caret"></b></a>
-                <ul class="dropdown-menu" style="padding: 15px;min-width: 300px;">
-                   <li>
-                      <div class="row">
-                         <div class="col-md-12">
-                            <form class="form" accept-charset="UTF-8" data-bind="submit: loginUser">
-                               <div class="form-group">
-                                  <input data-bind="value: loginEmail" type="email" class="form-control" placeholder="Email address" required>
-                               </div>
-                               <div class="form-group">
-                                  <input data-bind="value: loginPwd" type="password" class="form-control" placeholder="Password" required>
-                               </div>
-                               <div class="checkbox">
-                                  <label>
-                                  <input data-bind="checked: loginRemember" type="checkbox"> Remember me
-                                  </label>
-                               </div>
-                               <div class="form-group">
-                                  <button type="submit" class="btn btn-success btn-block">Sign in</button>
-                               </div>
-                            </form>
-                         </div>
-                      </div>
-                   </li>
-                </ul>
-             </li>
-          </ul>
-      
-        </div><!--/.nav-collapse -->
-      </div>
-    </div>
-
-    <div class="container">
-
-		<div class="starter-template" data-bind="if: activePage() == pages.HOME">
-			<h1>My MTG Inventory</h1>
-			<p class="lead">Tento projekt je zaměřen na evidenci a sledování cen karet na českém trhu pro hráče MTG.</p>
-		</div>
-
-		<!-- Content for home page -->
-		<div data-bind="visible: activePage() == pages.HOME">
-			<div class="row">
-			  	<div class="col-md-12">
-					<form data-bind="submit: findCardInForm">
-                        <div class="form-group">
-							<label for="findInput">Card:</label>
-					    	<input data-bind="value: newText" placeholder="card name?" id="findInput"/>
-					    	<button type="submit" class="btn btn-success btn-sm">Find card</button>
-					    	<button type="button" class="btn btn-info btn-sm" data-bind="click: fetchCard">Fetch card from shop</button>
-                        </div>
-					</form>
-		
-					<div class="table-responsive">
-						<table class="table table-striped table-condensed table-bordered center-table">
-							<thead>
-								<tr>
-									<th>card name</th>
-									<th>links</th>
-									<th>info</th>
-								</tr>
-							</thead>
-							<!-- Todo: Generate table body -->
-							<tbody data-bind="foreach: cards">
-							    <tr>
-							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
-							        <td><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
-							        <td><span data-bind="text: edition"></span> / 
-							        	<span data-bind="text: rarity"></span> / 
-							        	<span data-bind="text: foilTxt"></span> 
-							        	<a data-bind="visible: $root.user().idEmail, click: $root.addUserCardFromTable"><i class="glyphicon glyphicon-plus"></i></a>
-									<!-- 
-                    	    	    -->
-							        </td>
-							    </tr>    
-							</tbody>
-						</table>
-					</div>
-				</div>
-	 		</div>
-		</div>
-		<!-- Content for active page -->
-		<div data-bind="visible: activePage() == pages.INTERESTS">
-			<div class="row" data-bind="visible: user().isAdmin" style="display:none">
-				<div class="col-md-12">
-					<h1>Admin actions</h1>
-					<div>
-						<button type="button" class="btn btn-success" data-bind="click: fetchallManagedCards">managed cards update</button>
-						<button type="button" class="btn btn-success" data-bind="click: generateMovements">generate movements</button>
-					</div>			
-				</div>
-			</div>
-			<div class="row">
-			  	<div class="col-md-12">
-					<h1>Daily Card price changes</h1>
-					<div class="table-responsive">
-						<table class="table table-striped table-condensed table-bordered center-table">
-							<thead>
-								<tr>
-									<th>card name</th>
-									<th>card info</th>
-									<th class="hidden-xs">shop</th>
-									<th>old</th>
-									<th>new</th>
-									<th>change</th>
-								</tr>
-							</thead>
-							<!-- Todo: Generate table body -->
-							<tbody data-bind="foreach: cardMovementsDay">
-							    <tr>
-							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
-							        <td data-bind="html: info"></td>
-							        <td data-bind="text: shop" class="hidden-xs"></td>
-							        <td data-bind="text: oldPrice"></td>
-							        <td data-bind="text: newPrice"></td>
-							        <td data-bind="text: gainPercentage, css: gainStatus"></td>
-							    </tr>    
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-			  	<div class="col-md-12">
-					<h1>Card price changes from start of week</h1>
-					<div class="table-responsive">
-						<table class="table table-striped table-condensed table-bordered center-table">
-							<thead>
-								<tr>
-									<th>card name</th>
-									<th>card info</th>
-									<th class="hidden-xs">shop</th>
-									<th>old</th>
-									<th>new</th>
-									<th>change</th>
-								</tr>
-							</thead>
-							<!-- Todo: Generate table body -->
-							<tbody data-bind="foreach: cardMovementsWeek">
-							    <tr>
-							        <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
-							        <td data-bind="html: info"></td>
-							        <td data-bind="text: shop" class="hidden-xs"></td>
-							        <td data-bind="text: oldPrice"></td>
-							        <td data-bind="text: newPrice"></td>
-							        <td data-bind="text: gainPercentage, css: gainStatus"></td>
-							    </tr>    
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Detail content -->
-		<div class="row" data-bind="visible: activePage() == pages.DETAIL">
-		  	<div class="col-md-9">
-				<h1>Card details</h1>
-				<h4><span data-bind="html: cardDetail().crLink"></span> / <span data-bind="html: cardDetail().tolarieLink"></span> / <span data-bind="html: cardDetail().magicCardsLink"></span></h4>
-				<div>
-					<ul>
-						<li><strong>Název:</strong> <span data-bind="text: cardDetail().name"></span></li>
-						<li><strong>Rarita:</strong> <span data-bind="text: cardDetail().rarity"></span></li>
-						<li><strong>Edice:</strong> <span data-bind="text: cardDetail().edition"></span></li>
-						<li><strong>Provedení:</strong> <span data-bind="text: cardDetail().foilTxt"></span></li>
-					</ul>
-					<h4>skladem:</h4>
-					<div data-bind="html: cardDetail().storeAmount"></div>
-				</div>
-			</div>
-		  	<div class="col-md-3">
-				<h1>Card image</h1>
-					<div data-bind="html: cardDetail().img"></div>
-		  	</div>
-		</div>
-		<div class="row" data-bind="visible: activePage() == pages.DETAIL">
-			<div id="cardDetail" class="col-md-12">
-				<h1>Card price history</h1>
-				<div id="chart"></div>
-			</div>
-		</div>
-    </div><!-- /.container -->
-	
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script type='text/javascript' src="./lib/routing/path.min.js"></script>
-    <script type='text/javascript' src="./lib/store/store2.min.js"></script>
-    <script type='text/javascript' src="./lib/jquery-1.8.3.js"></script>
-    <script type='text/javascript' src="./lib/pnotify/pnotify.custom.min.js"></script>
-    <script type='text/javascript' src="./lib/bootstrap/js/bootstrap.min.js"></script>
-    <script type='text/javascript' src='./lib/knockout-3.1.0.min.js'></script>
-	<!-- Load d3.js and c3.js -->
-	<script src="./lib/c3/d3.min.js" charset="utf-8"></script>
-	<script src="./lib/c3/c3.min.js"></script>    
-	<script src="./js/utils.js"></script>    
-	<script src="./js/app.js"></script>   
-</body></html>
+        <!-- loading requirejs and targetting app/main.js -->
+        <script src="lib/require/require.js" data-main="app/main"></script>
+    </body>
+</html>
