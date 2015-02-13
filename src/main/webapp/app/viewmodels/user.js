@@ -26,7 +26,7 @@ define(['store', 'knockout', 'utils'], function (store, ko, utils) {
         return self.user().idEmail != null;
     });
     self.isNotLogged = ko.computed(function(){
-        return !self.isLogged;
+        return !self.isLogged();
     });
 
     // subscribtions
