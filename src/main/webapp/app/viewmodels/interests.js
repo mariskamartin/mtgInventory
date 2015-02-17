@@ -54,6 +54,14 @@ MY_INVENOTORY_PAGES = {
     DETAIL : "#detail"
 };
 
+// TODO: prestehovat do defaults
+var ICONS = {
+    star: "<span class=\"glyphicon glyphicon-star\" title=\"Foil version of card\"></span>",
+    plus: "<span class=\"glyphicon glyphicon-plus\"></span>",
+    watch: "<span class=\"glyphicon glyphicon-eye-open\"></span>",
+    unwatch: "<span class=\"glyphicon glyphicon-eye-close\" title=\"You are watching card state, on store, change price\"></span>"
+};
+
 function CardMovement(pojo) {
     var self = this;
     self.cardPojo = pojo.card;
@@ -70,6 +78,6 @@ function CardMovement(pojo) {
     // others helps
     self.hrefDetail = MY_INVENOTORY_PAGES.DETAIL+"/" + pojo.card.id;
     self.gainStatus = pojo.gainPercentage > 0 ? "success" : "danger";
-    self.foilImg = (pojo.card.foil ? " " + utils.icons.star : "");
+    self.foilImg = (pojo.card.foil ? " " + ICONS.star : "");
     self.info = self.edition;
 }

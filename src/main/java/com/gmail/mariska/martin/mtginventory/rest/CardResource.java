@@ -94,33 +94,51 @@ public class CardResource {
         }
         EventBus eventBus = EventBusManager.getEventBus(context);
 
-        if (action.equals("movement")) {
-            CardService cardService = ServiceFactory.createCardService(context);
-            Date now = new Date();
-            cardService.deleteCardMovementByType(CardMovementType.DAY);
-            cardService.generateCardsMovements(now, CardMovementType.DAY);
-            cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
-            cardService.generateCardsMovements(now, CardMovementType.START_OF_WEEK);
-        } else if (action.equals("useremails")) {
-            eventBus.post(new GenerateUserEmailsAlertEvent());
-        } else if (action.equals("fetchedition")) {
-            // /MtgInventory/rest/v1.0/cards/generate/fetchedition?edition=MAGIC_2015&rarity=M
-            CardService cardService = ServiceFactory.createCardService(context);
-            cardService.fetchCardsByEditionRarityOnCR(CardEdition.valueOf(edition), rarityCrKey);
-        } else if (action.equals("fetchmanaged")) {
-            CardService cardService = ServiceFactory.createCardService(context);
-            cardService.fetchAllManagedEditions();
-            logger.info("Fetching all managed edition is done");
-        } else if (action.equals("generateinfo")) {
-            CardService cardService = ServiceFactory.createCardService(context);
-            logger.info("start update card movements");
-            cardService.deleteCardMovementByType(CardMovementType.DAY);
-            cardService.generateCardsMovements(new Date(), CardMovementType.DAY);
-            cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
-            cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
-            logger.info("end update card movements");
-        } else if (action.equals("testemail")) {
-            eventBus.post(new EmailMessage.Builder().testMsg().build());
+        switch (action) {
+            case "movement": {
+                CardService cardService = ServiceFactory.createCardService(context);
+                Date now = new Date();
+                cardService.deleteCardMovementByType(CardMovementType.DAY);
+                cardService.generateCardsMovements(now, CardMovementType.DAY);
+                cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
+                cardService.generateCardsMovements(now, CardMovementType.START_OF_WEEK);
+                break;
+            }
+            case "useremails":
+                eventBus.post(new GenerateUserEmailsAlertEvent());
+                break;
+            case "fetchedition": {
+                // /MtgInventory/rest/v1.0/cards/generate/fetchedition?edition=MAGIC_2015&rarity=M
+                CardService cardService = ServiceFactory.createCardService(context);
+                cardService.fetchCardsByEditionRarityOnCR(CardEdition.valueOf(edition), rarityCrKey);
+                break;
+            }
+            case "fetchmanaged": {
+                CardService cardService = ServiceFactory.createCardService(context);
+                cardService.fetchAllManagedEditions();
+                logger.info("Fetching all managed edition is done");
+                break;
+            }
+            case "generateinfo": {
+                CardService cardService = ServiceFactory.createCardService(context);
+                logger.info("start update card movements");
+                cardService.deleteCardMovementByType(CardMovementType.DAY);
+                cardService.generateCardsMovements(new Date(), CardMovementType.DAY);
+                cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
+                cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
+                logger.info("end update card movements");
+                break;
+            }
+            case "clean-cdi": {
+                CardService cardService = ServiceFactory.createCardService(context);
+                logger.info("start cleaning DCI");
+                cardService.cleanCardsDailyCardInfo();
+                logger.info("end cleaning DCI");
+                break;
+            }
+            case "testemail":
+                eventBus.post(new EmailMessage.Builder().testMsg().build());
+                break;
         }
 
         return null;
@@ -151,14 +169,19 @@ public class CardResource {
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/dailyinfo/{id}")
     public List<DailyCardInfo> getDailyCardInfoById(@PathParam("id") String id) {
+//        CardService cardService = ServiceFactory.createCardService(context);
+//        logger.info("start cleaning DCI");
+//        cardService.cleanCardsDailyCardInfoById(id);
+//        logger.info("end cleaning DCI");
+
         return ServiceFactory.createCardService(context).getDailyInfo(id);
     }
 
     /**
      * Vrati pohyby karet pro zadany typ, k zobrazeni. Setridene od nejvetsi zmeny
      * 
-     * @param type
-     * @return
+     * @param type card type
+     * @return list of cards movements
      */
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })

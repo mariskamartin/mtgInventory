@@ -1,12 +1,6 @@
 package com.gmail.mariska.martin.mtginventory.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import javax.persistence.EntityManager;
@@ -61,6 +55,8 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Pri smazani karty musime vymazat i navazane informace pro danou kartu.
+     *
+     * @param entityId id
      */
     @Override
     public Card delete(String entityId) {
@@ -90,8 +86,8 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Dohleda zadany text v nazvech karet
-     * 
-     * @param cardName
+     *
+     * @param cardName card name
      */
     public Collection<Card> findsCards(String cardName) {
         Preconditions.checkArgument(cardName.length() > 1, "Musi se zadat aspon 2 znaky.");
@@ -100,10 +96,9 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Odchyti karty z webu a zalozi aktualni informace do db, pouze pokud ten den se tak jeste nestalo
-     * 
-     * @param cardName
-     * @param rarity
-     * @param edition
+     *
+     * @param rarity rarity
+     * @param edition edtion
      */
     public Collection<Card> fetchCardsByEditionRarityOnCR(CardEdition edition, String rarity) {
         try {
@@ -117,8 +112,8 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Odchyti vsechny aktualne spravovane karty
-     * 
-     * @return
+     *
+     * @return cards
      */
     public Collection<Card> fetchAllManagedCards() {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -142,9 +137,8 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Odchyti vsechny karty v aktualne spravovanych edicich
-     * @return
-     * 
-     * @return
+     *
+     * @return cards
      */
     public Collection<Card> fetchAllManagedEditions() {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -164,8 +158,8 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Odchyti karty z webu a zalozi aktualni informace do db, pouze pokud ten den se tak jeste nestalo
-     * 
-     * @param cardName
+     *
+     * @param cardName name of card
      */
     public Collection<Card> fetchCards(String cardName) {
         Preconditions.checkArgument(cardName.length() > 3, "Název zadané karty musí být delší než 3 znaky");
@@ -193,8 +187,8 @@ public class CardService extends AbstractService<Card> {
     Collection<Card> saveCardsIntoDb(List<DailyCardInfo> cardList) {
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
-        Map<String, Card> cacheCardsMap = new HashMap<String, Card>();
-        Map<String, Card> managedCardsMap = new HashMap<String, Card>();
+        Map<String, Card> cacheCardsMap = new HashMap<>();
+        Map<String, Card> managedCardsMap = new HashMap<>();
         try {
             for (DailyCardInfo dailyCardInfo : cardList) {
                 // pokud je karta nezname edice nebo rarity, tak neukladame
@@ -257,8 +251,9 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Vygeneruje pro zadany den pohyby cen karet
-     * 
-     * @param date
+     *
+     * @param now dasd
+     * @param movementType sad
      */
     public void generateCardsMovements(Date now, CardMovementType movementType) {
         EntityManager em = getEm();
@@ -320,9 +315,9 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Vrati pohyby karet podle zadaneho typu pohybu.
-     * 
-     * @param type
-     * @return
+     *
+     * @param type typ
+     * @return movements
      */
     public List<CardMovement> getCardMovementsByType(CardMovementType type) {
         EntityManager em = getEm();
@@ -332,9 +327,9 @@ public class CardService extends AbstractService<Card> {
 
     /**
      * Zabanuje jmeno dane karty
-     * 
-     * @param bannedCard
-     * @return
+     *
+     * @param bannedCard ban card names
+     * @return banned cards names
      */
     public BannedCardNames addBannedCardName(BannedCardNames bannedCard) {
         getEm().getTransaction().begin();
@@ -358,4 +353,54 @@ public class CardService extends AbstractService<Card> {
         return dao.findByUserCards(userId, new Date());
     }
 
+    /**
+     * Ma za ukol projit historii cen karty a zrusit duplicitni zaznamy cen.. zachovat pouze ty co se meni.
+     *
+     * @param id card ID
+     */
+    public void cleanCardsDailyCardInfoById(String id) {
+        DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
+        boolean change = true;
+
+        Card card = getDao().findById(id);
+        List<DailyCardInfo> dciDaoByCard = dciDao.findByCardOrderByShopDay(card);
+        Iterator<DailyCardInfo> iterator = dciDaoByCard.iterator();
+        //setridene podle shopu, dne
+
+        DailyCardInfo dBefore = null;
+        while (iterator.hasNext()) {
+            DailyCardInfo d = iterator.next();
+            System.out.println(d.toString());
+            if (dBefore != null) {
+                if (d.getShop().equals(dBefore.getShop())) {
+                    //logika pro smazani
+                    if (d.getPrice().equals(dBefore.getPrice())) {
+                        if (!change) {
+                            //smaz dci
+                            getEm().getTransaction().begin();
+                            dciDao.delete(dBefore);
+                            getEm().getTransaction().commit();
+                        }
+                        change = false;
+                    } else {
+                        change = true;
+                    }
+                } else {
+                    //jdeme na dalsi shop
+                    change = true;
+                }
+            }
+            dBefore = d;
+        }
+    }
+
+    /**
+     * Ma za ukol projit historii cen karty a zrusit duplicitni zaznamy cen.. zachovat pouze ty co se meni. Pro vsechny karty
+     */
+    public void cleanCardsDailyCardInfo() {
+        List<Card> all = getDao().getAll();
+        for (Card next : all) {
+            cleanCardsDailyCardInfoById(next.getId());
+        }
+    }
 }

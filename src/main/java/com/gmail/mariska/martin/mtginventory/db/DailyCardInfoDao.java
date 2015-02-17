@@ -79,6 +79,16 @@ public class DailyCardInfoDao extends AbstractDao<DailyCardInfo> implements IDao
         return em.createQuery(q).getResultList();
     }
 
+    public List<DailyCardInfo> findByCardOrderByShopDay(Card c) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<DailyCardInfo> q = cb.createQuery(DailyCardInfo.class);
+        Root<DailyCardInfo> from = q.from(DailyCardInfo.class);
+        q.select(from)
+                .where(cb.and(cb.equal(from.<Card> get(DailyCardInfo.PROPS.card.toString()), c)));
+        q.orderBy(cb.asc(from.<CardShop> get(DailyCardInfo.PROPS.shop.toString())), cb.asc(from.<Date> get(DailyCardInfo.PROPS.day.toString())));
+        return em.createQuery(q).getResultList();
+    }
+
     public List<DailyCardInfo> findByCardDayShop(Card c, Date day, CardShop shop) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<DailyCardInfo> q = cb.createQuery(DailyCardInfo.class);
@@ -97,6 +107,7 @@ public class DailyCardInfoDao extends AbstractDao<DailyCardInfo> implements IDao
      * @param datum
      * @return
      */
+    @SuppressWarnings("JpaQlInspection")
     public Collection<DailyCardInfo> findByUserCards(String userId, Date datum) {
         TypedQuery<DailyCardInfo> q = em.createQuery(
                 "SELECT d FROM UsersCards uc, Card c, DailyCardInfo d "
