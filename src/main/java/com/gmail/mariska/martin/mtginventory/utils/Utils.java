@@ -49,7 +49,7 @@ public final class Utils {
         String mtgi_data_dir = System.getenv("MTGI_DATA_DIR");
         if (data_dir == null && mtgi_data_dir == null) {
             data_dir = ctx.getRealPath("/WEB-INF/") + File.separator;
-        } else {
+        } else if(mtgi_data_dir != null) {
             return mtgi_data_dir;
         }
         return data_dir; //is with slash
