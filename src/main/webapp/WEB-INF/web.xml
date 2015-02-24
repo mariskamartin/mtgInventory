@@ -1,11 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<servlet>
+		<servlet-name>Jersey REST Service</servlet-name>
+		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>javax.ws.rs.Application</param-name>
+			<param-value>com.gmail.mariska.martin.mtginventory.MtgInventoryApplication</param-value>
+		</init-param>
+		<!-- 
+        <init-param>
+            <param-name>jersey.config.server.provider.packages</param-name>
+            <param-value>
+                com.wordnik.swagger.jersey.listing
+            </param-value>
+        </init-param>
+		 -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
-<web-app version="3.0"
-         xmlns="http://java.sun.com/xml/ns/javaee"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-         metadata-complete="false">
+	<listener>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.LoggerManager</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.EventBusManager</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.DatabaseManager</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.ScheduleManager</listener-class>
+	</listener>
+	<listener>
+		<listener-class>com.gmail.mariska.martin.mtginventory.listeners.SupportServiciesManager</listener-class>
+	</listener>
 
-         
-</web-app>
 
+	<servlet-mapping>
+		<servlet-name>Jersey REST Service</servlet-name>
+		<url-pattern>/rest/v1.0/*</url-pattern>
+	</servlet-mapping>
+	
+	
+	
+	
+	<!-- Servlet pro SWAGGER, ktery nasledne poskytuje informace o kodu skrze REST -->
+	<!-- 
+	<servlet>
+        <servlet-name>Jersey2Config</servlet-name>
+        <servlet-class>com.wordnik.swagger.jersey.config.JerseyJaxrsConfig</servlet-class>
+        <init-param>
+            <param-name>api.version</param-name>
+            <param-value>1.0.0</param-value>
+        </init-param>
+        <init-param>
+            <param-name>swagger.api.basepath</param-name>
+            <param-value>http://localhost:8089/MtgInventory/rest/v1.0/</param-value>
+        </init-param>
+        <load-on-startup>2</load-on-startup>
+    </servlet>	
+	 -->
+</web-app> 
