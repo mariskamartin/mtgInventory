@@ -25,7 +25,7 @@ import com.google.common.collect.Lists;
  * @author MAR
  * 
  */
-public class CardDao extends AbstractDao<Card> implements IDao<Card> {
+public class CardDao extends AbstractEntityDao<Card> implements IDao<Card> {
     private EntityManager em;
 
     public CardDao(EntityManager em) {

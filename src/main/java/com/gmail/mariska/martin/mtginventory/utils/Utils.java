@@ -106,4 +106,7 @@ public final class Utils {
         return declaredField;
     }
 
+    public static boolean isOpenshift(ServletContext servletContext) {
+        return System.getenv("OPENSHIFT_DATA_DIR") != null;
+    }
 }

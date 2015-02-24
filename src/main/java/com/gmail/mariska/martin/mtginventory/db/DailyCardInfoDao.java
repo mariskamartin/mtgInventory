@@ -20,7 +20,7 @@ import com.gmail.mariska.martin.mtginventory.utils.Utils;
  * 
  * @author MAR
  */
-public class DailyCardInfoDao extends AbstractDao<DailyCardInfo> implements IDao<DailyCardInfo> {
+public class DailyCardInfoDao extends AbstractEntityDao<DailyCardInfo> implements IDao<DailyCardInfo> {
     private EntityManager em;
 
     public DailyCardInfoDao(EntityManager em) {

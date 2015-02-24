@@ -51,7 +51,7 @@ public class UserResource {
     @GET
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Path("/{id}")
-    public User getTodoById(@PathParam("id") String userId) {
+    public User getUserById(@PathParam("id") String userId) {
         return ServiceFactory.createUserService(context).findById(userId);
     }
 

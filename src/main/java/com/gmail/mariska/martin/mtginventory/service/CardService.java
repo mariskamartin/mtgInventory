@@ -205,6 +205,10 @@ public class CardService extends AbstractService<Card> {
                         if (cacheCardsMap.containsKey(getCardKey(dailyCardInfo.getCard()))) {
                             dailyCardInfo.setCard(cacheCardsMap.get(getCardKey(dailyCardInfo.getCard())));
                         }
+//                        Card update = cardDao.update(dailyCardInfo.getCard());
+//                        tx.commit();
+//                        tx.begin();
+//                        dailyCardInfo.setCard(update);
                         dailyCardInfo = dciDao.update(dailyCardInfo);
                         tx.commit();
                     } catch (RollbackException e) {
@@ -400,7 +404,7 @@ public class CardService extends AbstractService<Card> {
     public void cleanCardsDailyCardInfo() {
         List<Card> all = getDao().getAll();
         for (Card next : all) {
-            cleanCardsDailyCardInfoById(next.getId());
+            cleanCardsDailyCardInfoById(next.getId().toString());
         }
     }
 }

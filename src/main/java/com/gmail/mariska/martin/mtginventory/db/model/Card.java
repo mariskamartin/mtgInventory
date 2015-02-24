@@ -4,18 +4,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import javax.jdo.annotations.Unique;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.gmail.mariska.martin.mtginventory.db.JpaEntityTraceListener;
@@ -33,8 +22,12 @@ public class Card {
         id, name, foil, version, created, updated, rarity, edition
     }
 
+    public Card() {}
+
     @Id
-    private String id;
+    @Column(name = "card_id")
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
     private String name;
     private boolean foil;
     @Version
@@ -53,11 +46,11 @@ public class Card {
     private CardEdition edition;
 
     public String getId() {
-        return id;
+        return id.toString();
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.id = Long.parseLong(id);
     }
 
     public String getName() {
@@ -123,10 +116,8 @@ public class Card {
 
     @PrePersist
     private void prePersist() {
-        if (id == null || id.isEmpty() || id.equals("0")) {
-            this.id = UUID.randomUUID().toString();
-        }
         created = new Date();
+        updated = new Date();
     }
 
     @PreUpdate

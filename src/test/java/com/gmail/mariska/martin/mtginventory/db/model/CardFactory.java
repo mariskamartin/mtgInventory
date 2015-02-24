@@ -12,7 +12,7 @@ public class CardFactory {
 
     public static Card createFableHero() {
         Card c2 = new Card();
-        c2.setId("ID-FABLEDHERO-1");
+        c2.setId("1");
         c2.setName("Fabled Hero");
         c2.setEdition(CardEdition.THEROS);
         c2.setRarity(CardRarity.RARE);

@@ -6,17 +6,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import javax.jdo.annotations.Unique;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -36,8 +26,11 @@ public class DailyCardInfo {
         id, price, storeAmount, shop, day, card
     }
 
+
+
     @Id
-    private String id;
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
 
     private BigDecimal price;
 
@@ -50,15 +43,13 @@ public class DailyCardInfo {
     private Date day;
 
     @ManyToOne(cascade=CascadeType.MERGE, optional = false)
-    @JoinColumn(name = "id", nullable = false, updatable = false)
+    @JoinColumn(name = "card_id",  insertable=true, updatable=true, nullable=false)
     private Card card;
 
-    public DailyCardInfo() {
-        // TODO Auto-generated constructor stub
-    }
+    public DailyCardInfo() {}
 
     public DailyCardInfo(Card card, BigDecimal price, long storeAmount, Date date, CardShop shop) {
-        super();
+        this();
         this.shop = shop;
         this.card = card;
         this.price = price;
@@ -75,7 +66,7 @@ public class DailyCardInfo {
     @XmlTransient
     @JsonIgnore
     public String getId() {
-        return id;
+        return id.toString();
     }
 
     public void setCard(Card card) {
@@ -130,8 +121,5 @@ public class DailyCardInfo {
 
     @PrePersist
     private void prePersist() {
-        if (id == null || id.isEmpty() || id.equals("0")) {
-            this.id = UUID.randomUUID().toString();
-        }
     }
 }

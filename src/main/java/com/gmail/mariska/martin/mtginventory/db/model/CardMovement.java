@@ -5,17 +5,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import javax.jdo.annotations.Unique;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.gmail.mariska.martin.mtginventory.db.JpaEntityTraceListener;
@@ -34,7 +24,8 @@ public class CardMovement {
     }
 
     @Id
-    private String id;
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     private Date created;
@@ -48,9 +39,13 @@ public class CardMovement {
     private BigDecimal newPrice;
     private BigDecimal gainPrice;
     private double gainPercentage;
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "id", nullable = false, updatable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "card_id", insertable=false, updatable=false, nullable=false)
     private Card card;
+
+    public CardMovement(){
+        super();
+    }
 
     public CardMovement(Card card, CardMovementType type, CardShop shop, Date day, BigDecimal oldPrice, BigDecimal newPrice) {
         super();
@@ -65,7 +60,7 @@ public class CardMovement {
     }
 
     public String getId() {
-        return id;
+        return id.toString();
     }
 
     public Date getCreated() {
@@ -138,9 +133,6 @@ public class CardMovement {
 
     @PrePersist
     private void prePersist() {
-        if (id == null || id.isEmpty() || id.equals("0")) {
-            this.id = UUID.randomUUID().toString();
-        }
         created = new Date();
     }
 

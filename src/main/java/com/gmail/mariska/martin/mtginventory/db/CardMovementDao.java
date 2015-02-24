@@ -22,7 +22,7 @@ import com.gmail.mariska.martin.mtginventory.utils.Utils;
  * @author MAR
  * 
  */
-public class CardMovementDao extends AbstractDao<CardMovement> implements IDao<CardMovement> {
+public class CardMovementDao extends AbstractEntityDao<CardMovement> implements IDao<CardMovement> {
     private EntityManager em;
 
     public CardMovementDao(EntityManager em) {

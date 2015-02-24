@@ -1,12 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-	version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
-	<persistence-unit name="production" transaction-type="RESOURCE_LOCAL">
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+    <persistence-unit name="postgresql-mtgi-online" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.Card</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.User</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.BannedCardNames</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.CardMovement</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.UsersCards</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo</class>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <validation-mode>AUTO</validation-mode>
+        <properties>
+            <property name="hibernate.hbm2ddl.auto" value="create" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL9Dialect" />
+            <property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://127.2.144.130:5432/todoapp" />
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />
+            <property name="javax.persistence.jdbc.user" value="admint4vydr8" />
+            <property name="javax.persistence.jdbc.password" value="kKhQflq-xN93" />
+        </properties>
+    </persistence-unit>
+    <persistence-unit name="postgresql-mtgi-local" transaction-type="RESOURCE_LOCAL">
+        <!-- specify exact class pro handeling JPA -->
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
-		<class>cz.mar.model.ExampleEntity</class>
+        <!--
+        -->
+		<class>com.gmail.mariska.martin.mtginventory.db.model.Card</class>
+		<class>com.gmail.mariska.martin.mtginventory.db.model.User</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.BannedCardNames</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.CardMovement</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.UsersCards</class>
+        <class>com.gmail.mariska.martin.mtginventory.db.model.DailyCardInfo</class>
 
-		<!-- Do not check the main jar file for annotated classes. Only explicit 
+		<!-- Do not check the main jar file for annotated classes. Only explicit
 			classes will be part of the persistence unit -->
 		<exclude-unlisted-classes>true</exclude-unlisted-classes>
 
@@ -29,12 +59,12 @@
 
 
 				validate = will validate the schema that you have, and makes no changes to the database. 
-				update = will update the database if the schema is already there in the database. 
+				c = will update the database if the schema is already there in the database.
 				create = will create new database, removing existing schema if any 
 				create-drop = will create new database and drops it when the sessionFactory is destroyed. 
 			 -->
 			<property name="hibernate.hbm2ddl.auto" value="update" />
-			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
+			<property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL9Dialect" />
 			<property name="hibernate.connection.driver_class" value="org.postgresql.Driver" />
 			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/mtgi" />
 			<property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver" />

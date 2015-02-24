@@ -7,6 +7,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.gmail.mariska.martin.mtginventory.db.model.User;
 import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.db.model.Card;
@@ -24,19 +25,29 @@ public class DatabaseManager implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent e) {
         String data_dir = Utils.getDataDir(e.getServletContext());
-        com.objectdb.Enhancer.enhance(Card.class.getPackage().getName()+".*");
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory(data_dir+OBJECTDB_FILE);
+//        com.objectdb.Enhancer.enhance(Card.class.getPackage().getName()+".*");
+//        EntityManagerFactory emf = Persistence.createEntityManagerFactory(data_dir+OBJECTDB_FILE);
+
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory(Utils.isOpenshift(e.getServletContext()) ? "postgresql-mtgi-online" : "postgresql-mtgi-local");
         e.getServletContext().setAttribute("emf", emf);
-        logger.info("database started");
+
+        EntityManager em = emf.createEntityManager();
+
+        em.getTransaction().begin();
+        User user = new User();
+        user.setIdEmail("mariska.martin@gmail.com");
+        user.setName("Martin");
+        user.setPassword("mar");
+        user.setRoles("ADMIN");
+        em.merge(user);
+        em.getTransaction().commit();
+        logger.info("database started with postgresql-mtgi-local");
 
 //        correctDatabase(e.getServletContext());
     }
 
-    /**
-     * Korekce databaze kdy byly ulozeny i UNKNOWN karty
-     * @param servletContext
-     */
 //    private void correctDatabase(ServletContext servletContext) {
+//        //Korekce databaze kdy byly ulozeny i UNKNOWN karty
 //        logger.info("Correct database - unknown cards");
 //        EntityManager em = getEM(servletContext);
 //        CardDao cardDao = new CardDao(em);

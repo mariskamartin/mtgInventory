@@ -3,10 +3,7 @@ package com.gmail.mariska.martin.mtginventory.db.model;
 import java.util.Set;
 
 import javax.jdo.annotations.Unique;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
-import javax.persistence.Version;
+import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -16,11 +13,11 @@ import com.gmail.mariska.martin.mtginventory.db.JpaEntityTraceListener;
 import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 
-@Entity
-@EntityListeners(JpaEntityTraceListener.class)
 @XmlRootElement
 @Unique(members = { "token" })
 @JsonIgnoreProperties(value = { "isAdmin" })
+@Entity(name = "mtguser")
+@EntityListeners(JpaEntityTraceListener.class)
 public class User {
     /**
      * As one place for META names
@@ -31,14 +28,16 @@ public class User {
 
     @Id
     private String idEmail;
+
     @Version
     private long version;
+
     private String name;
     @XmlTransient
     @JsonIgnore
     private String password;
     private String token;
-    private Set<String> roles = Sets.newLinkedHashSet();
+    private String roles;
 
     public String getIdEmail() {
         return idEmail;
@@ -46,14 +45,6 @@ public class User {
 
     public void setIdEmail(String idEmail) {
         this.idEmail = idEmail;
-    }
-
-    public long getVersion() {
-        return version;
-    }
-
-    public void setVersion(long version) {
-        this.version = version;
     }
 
     public String getName() {
@@ -80,13 +71,29 @@ public class User {
         this.token = token;
     }
 
-    public Set<String> getRoles() {
-        return Sets.newCopyOnWriteArraySet(roles);
+    public String getRoles() {
+        return roles;
     }
 
-    public void setRoles(Set<String> role) {
-        this.roles = Sets.newLinkedHashSet(role);
+    public void setRoles(String role) {
+        this.roles = role;
     }
+
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
+//    public String getRoles() {
+//        return Sets.newCopyOnWriteArraySet(roles);
+//    }
+//
+//    public void setRoles(String role) {
+//        this.roles = Sets.newLinkedHashSet(role);
+//    }
 
     @Override
     public String toString() {
@@ -94,7 +101,6 @@ public class User {
                 .add("id", idEmail)
                 .add("name", name)
                 .add("token", token)
-                .add("version", version)
                 .add("roles", roles)
                 .toString();
     }
