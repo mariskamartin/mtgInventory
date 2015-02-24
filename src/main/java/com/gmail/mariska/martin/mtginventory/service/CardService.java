@@ -140,20 +140,18 @@ public class CardService extends AbstractService<Card> {
      *
      * @return cards
      */
-    public Collection<Card> fetchAllManagedEditions() {
+    public void fetchAllManagedEditions() {
         Stopwatch stopwatch = Stopwatch.createStarted();
         long editionProcessedCount = 0;
-        List<Card> allCards = new ArrayList<>();
 
         Collection<CardEdition> managedEditions = SnifferInfoCardEdition.intance.getManagedEditions();
         for (CardEdition cardEdition : managedEditions) {
             //load and save
-            allCards.addAll(saveCardsIntoDb(fetchCardListByEditions(cardEdition)));
+            saveCardsIntoDb(fetchCardListByEditions(cardEdition));
             editionProcessedCount++;
             logger.debug("fetching procesed " + editionProcessedCount + "/" + managedEditions.size());
         }
         logger.info("download editions elapsed time " + stopwatch.stop().elapsed(TimeUnit.MINUTES) + " minutes");
-        return allCards;
     }
 
     /**
