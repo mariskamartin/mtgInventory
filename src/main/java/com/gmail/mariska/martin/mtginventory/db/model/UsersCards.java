@@ -20,7 +20,7 @@ public class UsersCards {
     @Id
     private String id;
     private String userId;
-    private String cardId;
+    private Long cardId;
 
     private long count;
     private boolean watched;
@@ -37,11 +37,11 @@ public class UsersCards {
     }
 
     public String getCardId() {
-        return cardId;
+        return cardId.toString();
     }
 
     public void setCardId(String cardId) {
-        this.cardId = cardId;
+        this.cardId = Long.valueOf(cardId);
     }
 
     public long getCount() {

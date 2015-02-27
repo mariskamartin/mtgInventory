@@ -16,6 +16,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.gmail.mariska.martin.mtginventory.service.AlertService;
 import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.auth.AuthenticationRequired;
@@ -119,6 +120,8 @@ public class CardResource {
                 cardService.deleteCardMovementByType(CardMovementType.START_OF_WEEK);
                 cardService.generateCardsMovements(new Date(), CardMovementType.START_OF_WEEK);
                 logger.info("end update card movements");
+                eventBus.post(new AlertService.GenerateUserEmailsAlertEvent());
+                logger.info("end of alert event for movements");
                 break;
             }
             case "clean-cdi": {
