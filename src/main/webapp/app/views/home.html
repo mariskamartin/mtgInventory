@@ -20,14 +20,12 @@
                     <thead>
                     <tr>
                         <th>card name</th>
-                        <th>links</th>
                         <th>info</th>
                     </tr>
                     </thead>
                     <tbody data-bind="foreach: cards">
                     <tr>
                         <td><a data-bind="text: name, attr: { href: hrefDetail }"></a><span data-bind="html: foilImg"></span></td>
-                        <td class="hidden-xs"><span data-bind="html: crLink"></span> / <span data-bind="html: tolarieLink"></span></td>
                         <td><span data-bind="text: edition"></span> /
                             <span data-bind="text: rarity"></span> /
                             <span data-bind="text: foilTxt"></span>

@@ -3,7 +3,7 @@
  */
 define(['viewmodels/home','knockout', 'utils', 'd3','c3'], function (home, ko, utils, d3, c3) {
     var self = this;
-
+    self.utils = utils;
     // Data
     self.cardDetail = ko.observable(Card.EMPTY);
 
@@ -19,7 +19,6 @@ define(['viewmodels/home','knockout', 'utils', 'd3','c3'], function (home, ko, u
 
     self.attached = function(view, parent) {
         //create chart
-        //TODO try if DOM stays hidden
         self.chart = c3.generate({
             bindto: "#prizeChart",
             data : {
