@@ -51,6 +51,7 @@ public enum CardEdition {
     DD_VENSER_VS_KOTH("DDVvK", "DD: Venser vs. Koth", "Duel Decks: Venser vs. Koth", "Venser vs. Koth"),
     DISSENSION("DIS", "Dissension"),
     DRAGONS_MAZE("DGM", "Dragon's Maze"),
+    DRAGONS_OF_TARKIR("DTK", "Dragons of Tarkir"),
     EDITION_3TH("3ED", "3rd Edition", "Thirdth Edition", "Revised Edition"),
     EDITION_4TH("4ED", "4th Edition", "Fourth Edition"),
     EDITION_5TH("5ED", "5th Edition", "Fifth Edition"),
