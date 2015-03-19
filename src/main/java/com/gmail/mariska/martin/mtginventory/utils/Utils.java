@@ -13,6 +13,9 @@ import javax.servlet.ServletContext;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+/**
+ * Uitlity trida
+ */
 public final class Utils {
     private static final DateTimeZone czechTZ = DateTimeZone.forID("Europe/Prague");
 
