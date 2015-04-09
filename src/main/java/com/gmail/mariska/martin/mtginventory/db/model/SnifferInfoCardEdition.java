@@ -28,7 +28,7 @@ public enum SnifferInfoCardEdition {
         managed.add(new CardEditionInfo(CardEdition.MAGIC_2015, "M15", "16"));
         managed.add(new CardEditionInfo(CardEdition.COMMANDER_2014, null, "3037"));
         managed.add(new CardEditionInfo(CardEdition.FATE_REFORGED, "Fate_Reforged", "166"));
-        managed.add(new CardEditionInfo(CardEdition.DRAGONS_OF_TARKIR, null, null));
+        managed.add(new CardEditionInfo(CardEdition.DRAGONS_OF_TARKIR, "Dragons_of_Tarkir", "167"));
 
         managed.add(new CardEditionInfo(CardEdition.CONSPIRACY, null, "3030"));
         managed.add(new CardEditionInfo(CardEdition.MORNINGTIDE, "Morningtide", "144"));
