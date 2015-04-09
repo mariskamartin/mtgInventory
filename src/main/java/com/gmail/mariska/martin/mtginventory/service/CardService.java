@@ -7,6 +7,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.RollbackException;
 
+import com.gmail.mariska.martin.mtginventory.listeners.SupportServiciesManager;
+import com.gmail.mariska.martin.mtginventory.utils.Utils;
+import com.gmail.mariska.martin.mtginventory.utils.ValuesStore;
 import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.db.CardDao;
@@ -38,6 +41,7 @@ import com.google.common.eventbus.EventBus;
  */
 public class CardService extends AbstractService<Card> {
     private static final Logger logger = Logger.getLogger(CardService.class);
+    public static final String COMMON_LAST_DAY_KEY = "commonLastDay";
 
     private CardDao cardDao;
     private EventBus eventBus; // pro postovani zprav
@@ -103,7 +107,7 @@ public class CardService extends AbstractService<Card> {
     public Collection<Card> fetchCardsByEditionRarityOnCR(CardEdition edition, String rarity) {
         try {
             //rarity strings A-all, M-mythic, R-rare, C, U
-            return saveCardsIntoDb(new CernyRytirLoader().sniffByEdition(edition, rarity));
+            return saveCardsIntoDb(new CernyRytirLoader().sniffByEdition(edition, rarity), true);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -123,7 +127,7 @@ public class CardService extends AbstractService<Card> {
         List<List<String>> partitionedCardNames = Lists.partition(cardNames, 10);
         for (List<String> cardNamelist : partitionedCardNames) {
             String[] cardNamesArray = cardNamelist.toArray(new String[cardNamelist.size()]);
-            allCards.addAll(saveCardsIntoDb(fetchCardListByName(cardNamesArray)));
+            allCards.addAll(saveCardsIntoDb(fetchCardListByName(cardNamesArray), true));
             namesProcessedCount += cardNamelist.size();
             if (namesProcessedCount % 25 == 0) {
                 logger.info("fetching procesed " + namesProcessedCount + "/" + cardNames.size());
@@ -144,12 +148,21 @@ public class CardService extends AbstractService<Card> {
         Stopwatch stopwatch = Stopwatch.createStarted();
         long editionProcessedCount = 0;
 
+        ValuesStore valuesStore = SupportServiciesManager.getValuesStore();
+        long commonLastDay = (long) valuesStore.get("commonLastDay", Utils.dayAdd(new Date(), -7).getTime());
+        boolean saveCommonCards = new Date().getTime() > Utils.dayAdd(new Date(commonLastDay), 7).getTime();
+
         Collection<CardEdition> managedEditions = SnifferInfoCardEdition.intance.getManagedEditions();
         for (CardEdition cardEdition : managedEditions) {
             //load and save
-            saveCardsIntoDb(fetchCardListByEditions(cardEdition));
+            saveCardsIntoDb(fetchCardListByEditions(cardEdition), saveCommonCards);
             editionProcessedCount++;
             logger.debug("fetching procesed " + editionProcessedCount + "/" + managedEditions.size());
+        }
+
+        if(saveCommonCards){
+            //update date
+            valuesStore.put(COMMON_LAST_DAY_KEY, Utils.dayAdd(new Date(commonLastDay), 7).getTime());
         }
         logger.info("download editions elapsed time " + stopwatch.stop().elapsed(TimeUnit.MINUTES) + " minutes");
     }
@@ -161,7 +174,7 @@ public class CardService extends AbstractService<Card> {
      */
     public Collection<Card> fetchCards(String cardName) {
         Preconditions.checkArgument(cardName.length() > 3, "Název zadané karty musí být delší než 3 znaky");
-        return saveCardsIntoDb(fetchCardListByName(cardName));
+        return saveCardsIntoDb(fetchCardListByName(cardName), true);
     }
 
     private ImmutableList<DailyCardInfo> fetchCardListByName(String... cardNames) {
@@ -187,7 +200,7 @@ public class CardService extends AbstractService<Card> {
      * @param cardList senzam dci
      * @return ulozene karty
      */
-    public Collection<Card> saveCardsIntoDb(List<DailyCardInfo> cardList) {
+    public Collection<Card> saveCardsIntoDb(List<DailyCardInfo> cardList, boolean saveCommons) {
         DailyCardInfoDao dciDao = new DailyCardInfoDao(getEm());
         EntityTransaction tx = getEm().getTransaction();
         Map<String, Card> cacheCardsMap = new HashMap<>();
@@ -196,6 +209,11 @@ public class CardService extends AbstractService<Card> {
             for (DailyCardInfo dailyCardInfo : cardList) {
                 // pokud je karta nezname edice nebo rarity, tak neukladame
                 if (dailyCardInfo.getCard().getRarity().equals(CardRarity.UNKNOWN) || dailyCardInfo.getCard().getEdition().equals(CardEdition.UNKNOWN)) {
+                    continue;
+                }
+
+                //common karty ukladat pouze jednou tydne
+                if(!saveCommons && dailyCardInfo.getCard().getRarity().equals(CardRarity.COMMON)){
                     continue;
                 }
 

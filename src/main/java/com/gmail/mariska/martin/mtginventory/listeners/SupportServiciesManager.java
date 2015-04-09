@@ -1,5 +1,6 @@
 package com.gmail.mariska.martin.mtginventory.listeners;
 
+import java.io.File;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,6 +10,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.gmail.mariska.martin.mtginventory.utils.Utils;
+import com.gmail.mariska.martin.mtginventory.utils.ValuesStore;
 import org.apache.log4j.Logger;
 
 import com.gmail.mariska.martin.mtginventory.service.AlertService;
@@ -23,6 +26,8 @@ import com.google.common.eventbus.EventBus;
  */
 public class SupportServiciesManager implements ServletContextListener {
     private static final Logger logger = Logger.getLogger(SupportServiciesManager.class.getName());
+    public static final String VALUES_STORE_DATA = "valuesStore.data";
+    private static ValuesStore valuesStore = null;
     private EmailService emailService;
     private AlertService alertService;
 
@@ -33,15 +38,29 @@ public class SupportServiciesManager implements ServletContextListener {
         startExecutorService(e.getServletContext());
         startEmailService(eventBus);
         startAlertService(eventBus, e.getServletContext());
+        valuesStore = new ValuesStore();
+        File storeFile = new File(Utils.getDataDir(e.getServletContext()) + VALUES_STORE_DATA);
+        if (storeFile.exists()){
+            valuesStore.load(storeFile);
+        }
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent e) {
+        valuesStore.save(new File(Utils.getDataDir(e.getServletContext()) + VALUES_STORE_DATA));
         EventBus eventBus = Objects.requireNonNull(EventBusManager.getEventBus(e.getServletContext()),
                 "EventBus neni inicializovan");
         stopAlertService(eventBus);
         stopEmailService(eventBus);
         stopExecutorService(e.getServletContext());
+    }
+
+    /**
+     * Returns object for persistent storing key value pairs
+     * @return instance of store
+     */
+    public static ValuesStore getValuesStore() {
+        return valuesStore;
     }
 
     private void startEmailService(EventBus eventBus) {

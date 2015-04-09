@@ -40,10 +40,10 @@ public final class Utils {
         return new Date(cal.getTimeInMillis());
     }
 
-    public static Date dayAdd(Date in, int addUnits) {
+    public static Date dayAdd(Date in, int days) {
         Calendar cal = Calendar.getInstance(); // locale-specific
         cal.setTime(in);
-        cal.add(Calendar.DATE, addUnits);
+        cal.add(Calendar.DATE, days);
         return new Date(cal.getTimeInMillis());
     }
 
