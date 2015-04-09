@@ -72,7 +72,7 @@ public class DatabaseManager implements ServletContextListener {
                     dc.setId(null);
                     dc.getCard().setId(null);
                 }
-                cardService.saveCardsIntoDb(all);
+                cardService.saveCardsIntoDb(all, true);
                 logger.info("importing old data - " + startIndex + " / unknown");
 
                 startIndex += pageSize;

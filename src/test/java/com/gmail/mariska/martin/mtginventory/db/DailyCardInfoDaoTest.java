@@ -27,7 +27,7 @@ public class DailyCardInfoDaoTest extends OdbTestSuite {
             Card c2 = CardFactory.create("TestInDB", CardEdition.ANTIQUITIES, CardRarity.COMMON);
             DailyCardInfo dci5 = new DailyCardInfo(c2, new BigDecimal(5), 1, new Date(), CardShop.TOLARIE);
 
-            Collection<Card> cards = cardService.saveCardsIntoDb(Arrays.asList(dci3, dci4, dci5));
+            Collection<Card> cards = cardService.saveCardsIntoDb(Arrays.asList(dci3, dci4, dci5), true);
 
             DailyCardInfoDao dao = new DailyCardInfoDao(em);
             List<DailyCardInfo> all = dao.limit(1).getAll();

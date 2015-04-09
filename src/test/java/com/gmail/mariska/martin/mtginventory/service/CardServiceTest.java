@@ -34,7 +34,7 @@ public class CardServiceTest extends OdbTestSuite {
             Card c1 = createCard("NEWCARD", CardEdition.FATE_REFORGED, CardRarity.RARE, created);
             DailyCardInfo dailyCardInfo = new DailyCardInfo(c1, BigDecimal.valueOf(20.0), 2, DateTime.now().toDate(), CardShop.TOLARIE);
 
-            Collection<Card> cards = cardService.saveCardsIntoDb(Arrays.asList(dailyCardInfo));
+            Collection<Card> cards = cardService.saveCardsIntoDb(Arrays.asList(dailyCardInfo), true);
 
             Card saved = cards.iterator().next();
             assertTrue(saved.getCreated() != null);
@@ -47,7 +47,7 @@ public class CardServiceTest extends OdbTestSuite {
             Card c1 = createCard("NEWCARD", CardEdition.FATE_REFORGED, CardRarity.RARE);
             DailyCardInfo dailyCardInfo = new DailyCardInfo(c1, BigDecimal.valueOf(19.0), 1, DateTime.now().toDate(), CardShop.CERNY_RYTIR);
 
-            Collection<Card> cards = cardService.saveCardsIntoDb(Arrays.asList(dailyCardInfo));
+            Collection<Card> cards = cardService.saveCardsIntoDb(Arrays.asList(dailyCardInfo), true);
 
             //created time should stay as first
             Card saved = cards.iterator().next();
@@ -83,7 +83,7 @@ public class CardServiceTest extends OdbTestSuite {
             list.add(new DailyCardInfo(c2, BigDecimal.valueOf(25.0), 4, new Date(), CardShop.TOLARIE));
             list.add(new DailyCardInfo(c3, BigDecimal.valueOf(14.0), 1, new Date(), CardShop.NAJADA));
 
-            Collection<Card> cards = cardService.saveCardsIntoDb(list);
+            Collection<Card> cards = cardService.saveCardsIntoDb(list, true);
             assertEquals(1, cards.size());
         }
     }
@@ -148,7 +148,7 @@ public class CardServiceTest extends OdbTestSuite {
             cardList.add(dci3);
             cardList.add(dci4);
             cardList.add(dci5);
-            Collection<Card> cards = cardService.saveCardsIntoDb(cardList);
+            Collection<Card> cards = cardService.saveCardsIntoDb(cardList, true);
         }
         try (ClosableEM em = OdbTestSuite.getClosableEM()) {
             CardDao dao = new CardDao(em);
@@ -183,6 +183,6 @@ public class CardServiceTest extends OdbTestSuite {
         list.add(new DailyCardInfo(c1, BigDecimal.valueOf(20.0), 2, date, CardShop.CERNY_RYTIR));
         list.add(new DailyCardInfo(c1, BigDecimal.valueOf(25.0), 2, new Date(), CardShop.CERNY_RYTIR));
 
-        cardService.saveCardsIntoDb(list);
+        cardService.saveCardsIntoDb(list, true);
     }
 }
