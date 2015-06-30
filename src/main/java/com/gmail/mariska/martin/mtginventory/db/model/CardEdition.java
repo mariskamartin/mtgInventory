@@ -100,6 +100,7 @@ public enum CardEdition {
     MORNINGTIDE("MOR", "Morningtide"),
     NEMESIS("NMS", "Nemesis"),
     NEW_PHYREXIA("NPH", "New Phyrexia"),
+    MAGIC_ORIGINS("ORI","Magic Origins"),
     ODYSSEY("ODY", "Odyssey"),
     ONSLAUGHT("ONS", "Onslaught"),
     P_ARENA("Parena", "P - Arena"),

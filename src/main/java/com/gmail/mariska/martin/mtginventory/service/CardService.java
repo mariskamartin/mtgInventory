@@ -244,6 +244,8 @@ public class CardService extends AbstractService<Card> {
                             } else {
                                 logger.warn(e.getMessage());
                             }
+                        } else {
+                            logger.warn(e.getMessage());
                         }
                     }
                 }
