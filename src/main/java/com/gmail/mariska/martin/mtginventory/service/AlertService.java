@@ -23,7 +23,6 @@ import com.google.common.eventbus.Subscribe;
 public class AlertService {
     private final Logger logger = Logger.getLogger(AlertService.class);
     private EventBus eventBus;
-    Set<String> watchedCardOnStore = new HashSet<>();
     private final UserService userService;
     private final CardService cardService;
     private final UrlService urlService;
@@ -33,11 +32,6 @@ public class AlertService {
         this.cardService = cardService;
         this.userService = userService;
         this.urlService = urlService;
-
-        watchedCardOnStore.add("Courser of Kruphix");
-        watchedCardOnStore.add("Hornet Nest");
-        watchedCardOnStore.add("Setessan Tactics");
-        watchedCardOnStore.add("Mana Confluence");
     }
 
 // @Subscribe
@@ -48,7 +42,6 @@ public class AlertService {
 
     @Subscribe
     public void acceptMovementEvent(MovementAlertEvent alert) {
-        // odesilat pouze denni alerty
 // if (alert.getCardMovement().getType().equals(CardMovementType.DAY)) {
 // logger.debug("try to send alert email " + alert);
 // String content = "<p>Dnes se změnila cena sledované karty <i>"
@@ -89,34 +82,16 @@ public class AlertService {
                         .build());
             }
         }
-// List<DailyCardInfo> infos = alert.getDailyCardInfoList();
-// StringBuilder content = new StringBuilder();
-// for (DailyCardInfo dailyCardInfo : infos) {
-// if (dailyCardInfo.getShop().equals(com.gmail.mariska.martin.mtginventory.db.model.CardShop.TOLARIE)
-// && watchedCardOnStore.contains(dailyCardInfo.getCard().getName())) {
-// content.append(dailyCardInfo.getCard().getName() + " - " + dailyCardInfo.getStoreAmount() + " Ks<br />");
-// }
-// }
-// if (content.length() > 0) {
-// if (logger.isDebugEnabled()) {
-// logger.debug("try to send email " + alert);
-// }
-// eventBus.post(new EmailMessage.Builder().setRecMar()
-// .setSubject("Card on Store")
-// .setContent("<h1>Sledování počtu karet na skladě</h1><p>" + content.toString() + "</p>")
-// .build());
-// }
     }
 
     @Subscribe
     public void acceptGenerateEvent(GenerateAlertEvent alert) {
-        // odesilat pouze denni alerty
         if (logger.isDebugEnabled()) {
             logger.debug("try to send email " + alert);
         }
         eventBus.post(new EmailMessage.Builder().setRecMar().
-                setSubject("Auto generate action").
-                setContent("<h1>Generování obsahu</h1><p>" + alert.getReason() + "</p>").
+                setSubject("Alert Event").
+                setContent("<h1>Alert</h1><p>" + alert.getReason() + "</p>").
                 build());
     }
 

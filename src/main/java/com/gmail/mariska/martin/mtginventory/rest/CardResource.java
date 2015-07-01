@@ -100,7 +100,7 @@ public class CardResource {
                 eventBus.post(new GenerateUserEmailsAlertEvent());
                 break;
             case "fetchedition": {
-                // /MtgInventory/rest/v1.0/cards/generate/fetchedition?edition=MAGIC_2015&rarity=M
+                // /rest/v1.0/cards/action/fetchedition?edition=MAGIC_2015&rarity=M
                 CardService cardService = ServiceFactory.createCardService(context);
                 cardService.fetchCardsByEditionRarityOnCR(CardEdition.valueOf(edition), rarityCrKey);
                 break;
@@ -124,7 +124,7 @@ public class CardResource {
                 logger.info("end of alert event for movements");
                 break;
             }
-            case "clean-cdi": {
+            case "clean-dci": {
                 CardService cardService = ServiceFactory.createCardService(context);
                 logger.info("start cleaning DCI");
                 cardService.cleanCardsDailyCardInfo();
