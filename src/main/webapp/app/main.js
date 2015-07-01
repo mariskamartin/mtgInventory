@@ -1,4 +1,4 @@
-﻿var APP_VERSION = 'v2.1.2';
+﻿var APP_VERSION = 'v2.1.3';
 
 requirejs.config({
     urlArgs: "version=" + APP_VERSION, //this is ok for cache (changes with new version)
